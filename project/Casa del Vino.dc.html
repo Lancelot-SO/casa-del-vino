@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/modernist-6abd48fb-5e3c-426e-bb15-6b411ce24ea2/styles.css">
+  <script src="_ds/modernist-6abd48fb-5e3c-426e-bb15-6b411ce24ea2/_ds_bundle.js"></script>
+  <script src="./image-slot.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+  <style>
+    :root { --color-bg: #0b0a0a; --color-surface: #161414; --color-text: #f3ece2; --color-divider: rgba(243,236,226,.12); }
+    html, body { margin: 0; background: #0b0a0a; color: #f3ece2; min-height: 100%; }
+    a { color: #c22b45; text-decoration: none; }
+    a:hover { color: #e0526b; }
+    input::placeholder, textarea::placeholder { color: rgba(243,236,226,.4); }
+    @keyframes cdvFloat { 0% { transform: rotateY(-10deg) rotateX(5deg) } 100% { transform: rotateY(10deg) rotateX(-5deg) } }
+    @keyframes cdvShard { 0% { transform: translate3d(0,0,0) rotateX(0) rotateY(0); opacity: 1 } 100% { transform: translate3d(var(--tx), var(--ty), var(--tz)) rotateX(var(--rx)) rotateY(var(--ry)); opacity: 0 } }
+    @keyframes cdvOut { to { opacity: 0; visibility: hidden } }
+    @keyframes cdvGlow { 0%,100% { opacity: .35 } 50% { opacity: .7 } }
+    @keyframes cdvSpin { from { transform: rotateY(0deg) rotateX(var(--tilt)) } to { transform: rotateY(360deg) rotateX(var(--tilt)) } }
+    @keyframes cdvDrift { 0% { transform: translate3d(0,0,0) } 33% { transform: translate3d(var(--dx), var(--dy), 120px) } 66% { transform: translate3d(calc(var(--dx) * -.6), calc(var(--dy) * .8), -160px) } 100% { transform: translate3d(0,0,0) } }
+    @keyframes cdvBob { from { margin-top: -3px } to { margin-top: 3px } }
+    @keyframes cdvRise { from { opacity: 0; transform: translate3d(0, 28px, -40px) rotateX(6deg) } to { opacity: 1; transform: translate3d(0,0,0) rotateX(0) } }
+    @keyframes cdvBottleRise { 0% { transform: translateY(0) scale(1) rotateY(0deg) } 30% { transform: translateY(-14px) scale(1.06) rotateY(-10deg) } 100% { transform: translateY(-10px) scale(1.06) rotateY(360deg) } }
+    @keyframes cdvBottleSpin { from { transform: translateY(-10px) scale(1.06) rotateY(0deg) } to { transform: translateY(-10px) scale(1.06) rotateY(360deg) } }
+    @keyframes cdvShadowShrink { from { transform: scaleX(1); opacity: 1 } to { transform: scaleX(.6); opacity: .5 } }
+    @keyframes cdvCork { 0% { opacity: 0; transform: translateY(0) rotate(0) } 10% { opacity: 1 } 100% { opacity: 0; transform: translateY(-140px) translateX(30px) rotate(540deg) } }
+    @keyframes cdvDrop { 0% { opacity: 0; transform: translate(0,0) rotate(var(--rot)) scale(.4) } 15% { opacity: 1 } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1) } }
+    @keyframes cdvRing { 0% { opacity: .9; transform: scale(.3) } 100% { opacity: 0; transform: scale(2.2) } }
+    @keyframes cdvPour { 0% { transform: scaleY(0); opacity: 0 } 15% { opacity: 1 } 100% { transform: scaleY(1); opacity: 1 } }
+    @keyframes cdvFill { from { height: 0 } to { height: 46% } }
+    @keyframes cdvWave { from { transform: translateX(-25%) rotate(0deg) } to { transform: translateX(-25%) rotate(360deg) } }
+    @keyframes cdvSplash { 0% { transform: translate(-50%, 0) scale(.2); opacity: .9 } 100% { transform: translate(-50%, -40px) scale(1.4); opacity: 0 } }
+    @keyframes cdvShine { from { transform: translateX(-160%) skewX(-20deg) } to { transform: translateX(260%) skewX(-20deg) } }
+    @keyframes cdvBreathe { 0%,100% { box-shadow: 0 0 22px rgba(194,43,69,.35) } 50% { box-shadow: 0 0 44px rgba(194,43,69,.7) } }
+    @keyframes cdvTumble { 0% { transform: translate3d(0,0,0) rotateY(0deg) rotateX(0deg) } 25% { transform: translate3d(3px,-8px,30px) rotateY(18deg) rotateX(-12deg) } 50% { transform: translate3d(-2px,5px,0) rotateY(0deg) rotateX(10deg) } 75% { transform: translate3d(-3px,-5px,-30px) rotateY(-18deg) rotateX(8deg) } 100% { transform: translate3d(0,0,0) rotateY(0deg) rotateX(0deg) } }
+    @keyframes cdvPulse { 0%,100% { opacity: .5; transform: scale(1) } 50% { opacity: .9; transform: scale(1.15) } }
+  </style>
+</helmet>
+
+{{ splash }}
+{{ bg }}
+
+<sc-if value="{{ notAdmin }}" hint-placeholder-val="{{ true }}">
+<div style="position:relative;z-index:1;min-height:100vh;display:flex;flex-wrap:wrap;gap: {{ pageGap }};padding: {{ pagePad }};font-family:var(--font-body);background:radial-gradient(ellipse 60% 40% at 80% 0%, rgba(74,10,20,.7) 0%, transparent 60%);color:#f3ece2">
+
+  <aside style="flex: {{ asideFlex }};max-width:100%;min-width:0;background:#1a1817;border-radius: {{ radiusLg }};animation:cdvRise .8s cubic-bezier(.2,.8,.2,1) both;padding: {{ asidePad }};display:flex;flex-direction:column;gap: {{ asideGap }};box-shadow:0 20px 60px rgba(0,0,0,.6);align-self:flex-start;position: {{ asidePos }};top: {{ asideTop }};z-index:5">
+    <div style="display:flex;align-items:center;gap:12px;padding:0 6px">
+      <img src="assets/logo.jpg" alt="" style="width:40px;height:40px;object-fit:cover;object-position:center 58%;border-radius:50%">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;line-height:1">Casa del Vino</span>
+    </div>
+    <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}"><div style="padding:0 6px;display:flex;flex-direction:column;gap:8px">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:500;line-height:1">Cellar</span>
+      <span style="width:36px;height:2px;background:#c22b45"></span>
+    </div></sc-if>
+    <nav style="display:flex;flex-direction: {{ navDir }};gap:4px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:0 4px">
+      <sc-for list="{{ categories }}" as="c" hint-placeholder-count="9">
+        <button onClick="{{ c.select }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:999px;font-family:inherit;font-size:13px;color:#f3ece2;border:1px solid {{ c.line }};background: {{ c.bg }};transition:transform .25s, background .25s;white-space:nowrap;flex:none" style-hover="background:rgba(243,236,226,.06);transform:translateX(6px)">
+          <span style="width:36px;height:36px;border-radius:50%;background:#262322;display:grid;place-items:center;flex:none;color: {{ c.icon }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ c.path }}"></path></svg></span>
+          <span style="flex:1">{{ c.label }}</span>
+          <span style="font-size:11px;opacity:.5">{{ c.count }}</span>
+        </button>
+      </sc-for>
+    </nav>
+    <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ goAdmin }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:999px;font-family:inherit;font-size:13px;color:#f3ece2;border:1px solid {{ adminLine }}" style-hover="background:rgba(243,236,226,.06)">
+      <span style="width:36px;height:36px;border-radius:50%;background:#262322;display:grid;place-items:center;flex:none;color:#c22b45"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg></span>
+      <span>Admin</span>
+    </button>
+    </sc-if>
+    <button onClick="{{ goAbout }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:999px;font-family:inherit;font-size:13px;color:#f3ece2;border:1px solid {{ aboutLine }}" style-hover="background:rgba(243,236,226,.06)">
+      <span style="width:36px;height:36px;border-radius:50%;background:#262322;display:grid;place-items:center;flex:none;color:#c22b45"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg></span>
+      <span>About us</span>
+    </button>
+    <button onClick="{{ goContact }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:999px;font-family:inherit;font-size:13px;color:#f3ece2;border:1px solid {{ contactLine }}" style-hover="background:rgba(243,236,226,.06)">
+      <span style="width:36px;height:36px;border-radius:50%;background:#262322;display:grid;place-items:center;flex:none;color:#c22b45"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg></span>
+      <span>Contact us</span>
+    </button>
+    <div onClick="{{ goShop }}" style="margin-top:auto;position:relative;border-radius:20px;overflow:hidden;aspect-ratio:1/1.15;cursor:pointer;transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s" style-hover="transform:perspective(600px) rotateX(4deg) rotateY(-6deg) translateY(-4px);box-shadow:0 20px 40px rgba(0,0,0,.6)">
+      <img src="assets/logo.jpg" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center 40%">
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.85));display:flex;flex-direction:column;justify-content:flex-end;gap:10px;padding:18px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:24px;line-height:1.1">Autumn<br>Collection<br><span style="color:#c22b45">2026</span></span>
+        <span style="display:inline-flex;align-items:center;gap:6px;align-self:flex-start;border:1px solid rgba(243,236,226,.5);border-radius:999px;padding:6px 12px;font-size:10px;letter-spacing:.14em;text-transform:uppercase">Explore now <span>›</span></span>
+      </div>
+    </div>
+    </sc-if>
+  </aside>
+
+  <main style="flex:1 1 {{ mainBasis }};min-width:0;display:flex;flex-direction:column;gap: {{ pageGap }}">
+
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="flex:1 1 180px;display:flex;align-items:center;gap:10px;background:#1a1817;border-radius:999px;padding:0 18px;height:50px;border:1px solid rgba(243,236,226,.08)">
+        <input value="{{ query }}" onChange="{{ setQuery }}" placeholder="Search for bottles…" style="flex:1;background:transparent;border:0;outline:0;color:#f3ece2;font:inherit;font-size:14px;min-width:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+      </div>
+      <button onClick="{{ goShop }}" style="all:unset;cursor:pointer;font-family:inherit;font-size:13px;padding:0 14px;color: {{ shopFg }}" style-hover="color:#c22b45">Shop</button>
+      <button onClick="{{ goAbout }}" style="all:unset;cursor:pointer;font-family:inherit;font-size:13px;padding:0 14px;color: {{ aboutFg }}" style-hover="color:#c22b45">About</button>
+      <button onClick="{{ goContact }}" style="all:unset;cursor:pointer;font-family:inherit;font-size:13px;padding:0 14px;color: {{ contactFg }}" style-hover="color:#c22b45">Contact</button>
+      <button onClick="{{ accountClick }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:8px;height:46px;padding:0 14px 0 6px;border-radius:999px;background:#1a1817;border:1px solid rgba(243,236,226,.08);font-family:inherit;font-size:13px;transition:border-color .25s" style-hover="border-color:#c22b45">
+        <sc-if value="{{ isSignedIn }}" hint-placeholder-val="{{ false }}"><span style="width:34px;height:34px;border-radius:50%;background:linear-gradient(180deg,#b8233d,#6e0f20);display:grid;place-items:center;font-size:13px;font-weight:600;color:#fff4f5">{{ userInitial }}</span></sc-if>
+        <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}"><span style="width:34px;height:34px;border-radius:50%;background:#262322;display:grid;place-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></span></sc-if>
+        <span>{{ userLabel }}</span>
+      </button>
+      <button onClick="{{ toggleWish }}" aria-label="Wishlist" style="all:unset;cursor:pointer;width:46px;height:46px;border-radius:50%;background:#1a1817;display:grid;place-items:center;transition:transform .25s;color: {{ wishFg }};border:1px solid rgba(243,236,226,.08)"><svg width="18" height="18" viewBox="0 0 24 24" fill="{{ wishFill }}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></button>
+      <button onClick="{{ openCart }}" aria-label="Cart" style="all:unset;cursor:pointer;position:relative;width:46px;height:46px;border-radius:50%;background:#1a1817;display:grid;place-items:center;border:1px solid rgba(243,236,226,.08);transition:transform .25s" style-hover="color:#c22b45;transform:scale(1.08)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        <span style="position:absolute;top:-2px;right:-2px;min-width:18px;height:18px;border-radius:999px;background:#c22b45;color:#fff4f5;font-size:10px;font-weight:600;display:grid;place-items:center;padding:0 4px">{{ cartCount }}</span>
+      </button>
+    </div>
+
+    <sc-if value="{{ onShop }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ hasProducts }}" hint-placeholder-val="{{ true }}">
+        <section onMouseMove="{{ tiltMove }}" onMouseLeave="{{ tiltReset }}" style="background:linear-gradient(135deg,#1c1917 0%,#141211 60%,#200a0f 100%);border-radius: {{ radiusLg }};padding: {{ panelPad }};display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:24px;box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;overflow:hidden;animation:cdvRise .8s cubic-bezier(.2,.8,.2,1) both;transform-style:preserve-3d">
+          <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at {{ tiltGlowX }} {{ tiltGlowY }}, rgba(194,43,69,.18), transparent 45%);transition:background .2s"></div>
+          <div style="display:flex;flex-direction:column;gap:14px;min-width:0;position:relative">
+            <span style="font-size:12px;color:#c22b45">{{ featured.category }} · {{ featured.country }}</span>
+            <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(34px,4vw,52px);line-height:1.02;margin:0;letter-spacing:-.01em;text-wrap:pretty">{{ featured.name }}</h1>
+            <p style="margin:0;font-size:13px;line-height:1.7;opacity:.75;max-width:40ch;text-wrap:pretty">{{ featured.description }}</p>
+            <div style="display:flex;align-items:baseline;gap:18px;flex-wrap:wrap"><span style="font-family:'Cormorant Garamond',serif;font-size:34px;color:#c22b45;line-height:1">{{ featured.priceLabel }}</span><span style="font-size:14px;opacity:.8">{{ featured.abv }} alc./vol</span></div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <span style="font-size:11px;letter-spacing:.06em;opacity:.6">Details</span>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <span style="padding:8px 14px;border-radius:12px;background:#c22b45;color:#fff4f5;font-size:12px;font-weight:600">{{ featured.sizeLabel }}</span>
+                <span style="padding:8px 14px;border-radius:12px;background:#262322;font-size:12px">{{ featured.origin }}</span>
+                <span style="padding:8px 14px;border-radius:12px;background:#262322;font-size:12px">{{ featured.category }}</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;margin-top:4px">
+              <span style="font-size:11px;letter-spacing:.06em;opacity:.6">Ingredients</span>
+              <p style="margin:0;font-size:12px;line-height:1.6;opacity:.7;text-wrap:pretty">{{ featured.ingredients }}</p>
+            </div>
+          </div>
+          <div style="position:relative;min-height: {{ featuredH }};border-radius:20px;overflow:hidden;background:radial-gradient(ellipse at 50% 55%, #4a0d18 0%, #0d0b0a 70%);transform:perspective(1000px) rotateX({{ tiltX }}) rotateY({{ tiltY }});transition:transform .25s ease-out;animation:cdvBreathe 5s ease-in-out infinite">
+            <img src="{{ featuredImg }}" alt="{{ featured.name }}" onClick="{{ openZoom }}" title="View full screen" style="cursor:zoom-in;width:100%;height:100%;object-fit:cover;object-position:center;position:absolute;inset:0;-webkit-mask-image:linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);mask-image:linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%)">
+            <sc-for list="{{ featured.chips }}" as="ch" hint-placeholder-count="0">
+              <div style="position:absolute;left: {{ ch.x }};top: {{ ch.y }};width:0;height:0;perspective:600px">
+                <span style="position:absolute;left:0;top:calc({{ ch.size }} / 2 + 8px);transform:translateX(-50%);white-space:nowrap;padding:4px 10px;border-radius:999px;background:rgba(20,8,10,.9);border:1px solid rgba(224,82,107,.45);font-size:11px;letter-spacing:.03em;color:#f3ece2;opacity: {{ ch.labelOpacity }};transition:opacity .2s;pointer-events:none;z-index:2">{{ ch.label }}</span>
+                <div style="position:absolute;left:0;top:0;width: {{ ch.size }};height: {{ ch.size }};margin-left:calc({{ ch.size }} / -2);margin-top:calc({{ ch.size }} / -2);border-radius:50%;overflow:hidden;border:2px solid rgba(224,82,107,.7);box-shadow:0 0 22px rgba(194,43,69,.55), inset 0 0 14px rgba(0,0,0,.6);background:#200a0f;transform-style:preserve-3d;animation:cdvTumble {{ ch.dur }} ease-in-out {{ ch.delay }} infinite" onMouseEnter="{{ ch.show }}" onMouseLeave="{{ ch.hide }}">
+                  <sc-if value="{{ ch.hasImg }}" hint-placeholder-val="{{ false }}"><image-slot id="{{ ch.slotId }}" shape="circle" src="{{ ch.img }}" placeholder="{{ ch.label }}" style="width:100%;height:100%"></image-slot></sc-if>
+                  <sc-if value="{{ ch.noImg }}" hint-placeholder-val="{{ true }}"><div style="width:100%;height:100%;display:grid;place-items:center;color:#e0526b"><svg width="55%" height="55%" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="{{ ch.icon }}"></path></svg></div></sc-if>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ hasGallery }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;left:16px;bottom:16px;display:flex;gap:8px;z-index:3">
+                <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="0"><button onClick="{{ g.pick }}" style="all:unset;cursor:pointer;width:44px;height:52px;border-radius:10px;overflow:hidden;border:2px solid {{ g.line }};box-shadow:0 6px 16px rgba(0,0,0,.5);transition:transform .2s" style-hover="transform:translateY(-2px)"><img src="{{ g.src }}" alt="" style="width:100%;height:100%;object-fit:cover"></button></sc-for>
+              </div>
+            </sc-if>
+            <button onClick="{{ featured.wish }}" aria-label="Save" style="all:unset;cursor:pointer;position:absolute;right:16px;bottom:16px;width:44px;height:44px;border-radius:50%;background: {{ featured.wishBg }};color: {{ featured.wishFg }};display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,0,0,.5)"><svg width="18" height="18" viewBox="0 0 24 24" fill="{{ featured.wishFill }}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></button>
+          </div>
+        </section>
+
+        <section style="display:flex;flex-direction:column;gap:14px;animation:cdvRise .8s cubic-bezier(.2,.8,.2,1) .15s both">
+          <h2 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:24px;margin:0;padding:0 4px">{{ railTitle }}</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,140px),1fr));gap:14px">
+            <sc-for list="{{ rail }}" as="p" hint-placeholder-count="4">
+              <div style="perspective:800px;animation:cdvRise .7s cubic-bezier(.2,.8,.2,1) {{ p.riseDelay }} both">
+              <button onClick="{{ p.open }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;width:100%;background:#1a1817;border-radius:20px;overflow:hidden;font-family:inherit;color:#f3ece2;border:1px solid {{ p.line }};transform-style:preserve-3d;transition:transform .45s cubic-bezier(.2,.8,.2,1), box-shadow .45s;transform: {{ p.cardTransform }};box-shadow: {{ p.cardShadow }}">
+                <div style="position:relative;aspect-ratio:1/1.1;background:#0f0d0c;overflow:hidden;width:100%">
+                  <div style="position:absolute;inset:0;perspective:700px;transform-style:preserve-3d">
+                    <img src="{{ p.img }}" alt="{{ p.name }}" style="width:100%;height:100%;object-fit:cover;object-position:center;transform-origin:50% 80%;animation: {{ p.riseAnim }}">
+                  </div>
+                  <div style="position:absolute;left:50%;bottom:8%;width:70%;height:12px;margin-left:-35%;border-radius:50%;background:radial-gradient(ellipse, rgba(0,0,0,.7), transparent 70%);animation: {{ p.shadowAnim }}"></div>
+                  <div style="position:absolute;left:50%;top:14%;width:14px;height:22px;margin-left:-7px;border-radius:5px 5px 3px 3px;background:linear-gradient(180deg,#d9b27a,#8a6234);box-shadow:0 2px 6px rgba(0,0,0,.6);opacity:0;animation: {{ p.corkAnim }}"></div>
+                  <sc-for list="{{ p.drops }}" as="d" hint-placeholder-count="0">
+                    <div style="position:absolute;left:50%;top:16%;width: {{ d.size }};height: {{ d.size }};border-radius:50% 50% 50% 0;background:#c22b45;box-shadow:0 0 8px rgba(194,43,69,.8);opacity:0;--dx: {{ d.dx }};--dy: {{ d.dy }};--rot: {{ d.rot }};animation: {{ d.anim }}"></div>
+                  </sc-for>
+                  <div style="position:absolute;left:50%;top:16%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:2px solid rgba(224,82,107,.85);opacity:0;animation: {{ p.ringAnim }}"></div>
+                </div>
+                <div style="padding:12px 14px 14px;display:flex;align-items:flex-end;gap:8px;width:100%;box-sizing:border-box">
+                  <div style="display:flex;flex-direction:column;gap:3px;flex:1;min-width:0"><span style="font-size:12px;line-height:1.3">{{ p.name }}</span><span style="font-size:12px;color:#c22b45">{{ p.priceLabel }} · {{ p.abv }}</span></div>
+                  <span style="color: {{ p.wishFg }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="{{ p.wishFill }}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></span>
+                </div>
+              </button>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+
+        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;animation:cdvRise .8s cubic-bezier(.2,.8,.2,1) .3s both">
+          <div style="display:flex;align-items:center;gap:12px;background:#1a1817;border-radius:16px;padding:14px 16px;transition:transform .3s, background .3s" style-hover="transform:translateY(-3px);background:#221d1c"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c22b45" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"></path><path d="M15 18H9"></path><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"></path><circle cx="17" cy="18" r="2"></circle><circle cx="7" cy="18" r="2"></circle></svg><div style="display:flex;flex-direction:column"><span style="font-size:13px">Free shipping</span><span style="font-size:11px;opacity:.55">On orders of 6+ bottles</span></div></div>
+          <div style="display:flex;align-items:center;gap:12px;background:#1a1817;border-radius:16px;padding:14px 16px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c22b45" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg><div style="display:flex;flex-direction:column"><span style="font-size:13px">Easy returns</span><span style="font-size:11px;opacity:.55">Unopened, within 30 days</span></div></div>
+          <div style="display:flex;align-items:center;gap:12px;background:#1a1817;border-radius:16px;padding:14px 16px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#c22b45" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg><div style="display:flex;flex-direction:column"><span style="font-size:13px">Secure payment</span><span style="font-size:11px;opacity:.55">Age verified at checkout</span></div></div>
+        </section>
+
+        <section style="display:flex;flex-wrap:wrap;gap:12px">
+          <button onClick="{{ featured.add }}" style="all:unset;cursor:pointer;flex:1 1 260px;height:56px;border-radius:14px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 10px 30px rgba(194,43,69,.3);position:relative;overflow:hidden;transition:transform .25s, box-shadow .25s" style-hover="transform:translateY(-2px) scale(1.01);box-shadow:0 16px 40px rgba(194,43,69,.45)">
+            <span style="position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);animation:cdvShine 3.2s ease-in-out infinite;pointer-events:none"></span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>Add to bag
+          </button>
+          <button onClick="{{ featured.buy }}" style="all:unset;cursor:pointer;flex:1 1 200px;height:56px;border-radius:14px;background:#1a1817;border:1px solid rgba(243,236,226,.15);color:#f3ece2;font-family:inherit;font-size:13px;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:center" style-hover="border-color:#c22b45">Buy now</button>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ noProducts }}" hint-placeholder-val="{{ false }}">
+        <section style="background:#1a1817;border-radius:28px;padding:56px 32px;display:flex;flex-direction:column;gap:12px;align-items:flex-start">
+          <span style="font-size:12px;color:#c22b45;letter-spacing:.12em;text-transform:uppercase">Coming soon</span>
+          <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:40px;margin:0;line-height:1.05">{{ emptyTitle }}</h1>
+          <p style="margin:0;opacity:.7;max-width:48ch;text-wrap:pretty">We are still sourcing bottles for this shelf. Check back shortly, or browse the rest of the cellar.</p>
+          <button onClick="{{ resetFilters }}" style="all:unset;cursor:pointer;margin-top:8px;padding:12px 22px;border-radius:12px;background:#c22b45;color:#fff4f5;font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase">Show everything</button>
+        </section>
+      </sc-if>
+    </sc-if>
+
+    <sc-if value="{{ onAbout }}" hint-placeholder-val="{{ false }}">
+      <section style="animation:cdvRise .8s cubic-bezier(.2,.8,.2,1) both;background:linear-gradient(135deg,#1c1917 0%,#141211 60%,#200a0f 100%);border-radius:28px;overflow:hidden;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));box-shadow:0 20px 60px rgba(0,0,0,.5)">
+        <div style="position:relative;min-height:360px"><img src="assets/logo.jpg" alt="Casa del Vino" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 35%"><div style="position:absolute;inset:0;background:linear-gradient(90deg, transparent 55%, #141211 100%), linear-gradient(0deg, #141211 0%, transparent 30%)"></div></div>
+        <div style="padding:40px 36px;display:flex;flex-direction:column;gap:18px;justify-content:center">
+          <span style="font-size:12px;color:#c22b45">About us</span>
+          <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(36px,4vw,54px);line-height:1.02;margin:0;text-wrap:pretty">Good wine.<br>Better company.</h1>
+          <p style="margin:0;font-size:15px;line-height:1.75;opacity:.8;max-width:46ch;text-wrap:pretty">Casa del Vino, the house of wine, is a cellar built on one idea: a bottle should be honest about what it is. We source wines and spirits from Spain, Italy, Sweden and France, and list every one with its origin, its strength and what went into it.</p>
+          <p style="margin:0;font-size:15px;line-height:1.75;opacity:.8;max-width:46ch;text-wrap:pretty">From a full-bodied Spanish Syrah to a Galician cream liqueur and a Swedish vodka, the shelf is chosen bottle by bottle. Non-alcoholic reds and whites are on their way.</p>
+        </div>
+      </section>
+      <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;animation:cdvRise .8s cubic-bezier(.2,.8,.2,1) .15s both">
+        <div style="background:#1a1817;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:8px;transition:transform .35s, box-shadow .35s" style-hover="transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,.5), 0 0 24px rgba(194,43,69,.25)"><span style="font-family:'Cormorant Garamond',serif;font-size:44px;line-height:1;color:#c22b45">4</span><span style="font-size:13px">Countries of origin</span><span style="font-size:12px;opacity:.55">Spain · Italy · Sweden · France</span></div>
+        <div style="background:#1a1817;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:8px;transition:transform .35s, box-shadow .35s" style-hover="transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,.5), 0 0 24px rgba(194,43,69,.25)"><span style="font-family:'Cormorant Garamond',serif;font-size:44px;line-height:1;color:#c22b45">{{ productCount }}</span><span style="font-size:13px">Bottles in the cellar</span><span style="font-size:12px;opacity:.55">Each with origin, strength and ingredients</span></div>
+        <div style="background:#1a1817;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:8px;transition:transform .35s, box-shadow .35s" style-hover="transform:translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,.5), 0 0 24px rgba(194,43,69,.25)"><span style="font-family:'Cormorant Garamond',serif;font-size:44px;line-height:1;color:#c22b45">9</span><span style="font-size:13px">Shelves</span><span style="font-size:12px;opacity:.55">From red wine to non-alcoholic white</span></div>
+      </section>
+      <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;animation:cdvRise .8s cubic-bezier(.2,.8,.2,1) .3s both">
+        <div style="background:#1a1817;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:10px;transition:transform .35s, box-shadow .35s" style-hover="transform:perspective(700px) rotateX(3deg) translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,.5), 0 0 24px rgba(194,43,69,.25)"><span style="width:40px;height:40px;border-radius:50%;background:#262322;display:grid;place-items:center;color:#c22b45"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg></span><span style="font-family:'Cormorant Garamond',serif;font-size:22px">Sourced at origin</span><p style="margin:0;font-size:13px;line-height:1.65;opacity:.7;text-wrap:pretty">We buy from the regions the bottles come from and say exactly where: Åhus, Galicia, the Highlands.</p></div>
+        <div style="background:#1a1817;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:10px;transition:transform .35s, box-shadow .35s" style-hover="transform:perspective(700px) rotateX(3deg) translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,.5), 0 0 24px rgba(194,43,69,.25)"><span style="width:40px;height:40px;border-radius:50%;background:#262322;display:grid;place-items:center;color:#c22b45"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"></path></svg></span><span style="font-family:'Cormorant Garamond',serif;font-size:22px">Nothing hidden</span><p style="margin:0;font-size:13px;line-height:1.65;opacity:.7;text-wrap:pretty">Alcohol strength, bottle size and the full ingredient list sit next to every product, not in the small print.</p></div>
+        <div style="background:#1a1817;border-radius:20px;padding:24px;display:flex;flex-direction:column;gap:10px;transition:transform .35s, box-shadow .35s" style-hover="transform:perspective(700px) rotateX(3deg) translateY(-6px);box-shadow:0 18px 40px rgba(0,0,0,.5), 0 0 24px rgba(194,43,69,.25)"><span style="width:40px;height:40px;border-radius:50%;background:#262322;display:grid;place-items:center;color:#c22b45"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></span><span style="font-family:'Cormorant Garamond',serif;font-size:22px">Better company</span><p style="margin:0;font-size:13px;line-height:1.65;opacity:.7;text-wrap:pretty">Wine is for sharing. Tell us the occasion and we'll help you pick the bottle.</p></div>
+      </section>
+      <section style="display:flex;flex-wrap:wrap;gap:12px">
+        <button onClick="{{ goShop }}" style="all:unset;cursor:pointer;flex:1 1 240px;height:56px;border-radius:14px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(194,43,69,.3)" style-hover="filter:brightness(1.06)">Explore the cellar</button>
+        <button onClick="{{ goContact }}" style="all:unset;cursor:pointer;flex:1 1 200px;height:56px;border-radius:14px;background:#1a1817;border:1px solid rgba(243,236,226,.15);color:#f3ece2;font-family:inherit;font-size:13px;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:center" style-hover="border-color:#c22b45">Get in touch</button>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ onCheckout }}" hint-placeholder-val="{{ false }}">
+      <section style="display:flex;align-items:center;gap:0;flex-wrap:wrap;animation:cdvRise .7s cubic-bezier(.2,.8,.2,1) both">
+        <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
+          <button onClick="{{ st.go }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border-radius:999px;font-family:inherit;font-size:12px;color: {{ st.fg }};background: {{ st.bg }};transition:background .3s">
+            <span style="width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:600;background: {{ st.dotBg }};color: {{ st.dotFg }};transition:background .3s">{{ st.n }}</span>
+            <span>{{ st.label }}</span>
+          </button>
+          <span style="width:28px;height:1px;background:rgba(243,236,226,.15);flex:none"></span>
+        </sc-for>
+      </section>
+
+      <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:20px;align-items:start">
+        <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+
+          <sc-if value="{{ stepBag }}" hint-placeholder-val="{{ true }}">
+            <section style="background:#1a1817;border-radius: {{ radiusLg }};padding: {{ panelPad }};display:flex;flex-direction:column;gap:18px;animation:cdvRise .6s cubic-bezier(.2,.8,.2,1) both">
+              <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:34px;margin:0;line-height:1.05">Your bag</h1>
+              <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ false }}"><p style="margin:0;opacity:.7">Your bag is empty. <a href="#" onClick="{{ goShopEvt }}">Back to the cellar</a>.</p></sc-if>
+              <sc-for list="{{ cartLines }}" as="l" hint-placeholder-count="0">
+                <div style="display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;padding:14px 0;border-bottom:1px solid rgba(243,236,226,.08)">
+                  <div style="width:72px;height:84px;border-radius:14px;overflow:hidden;background:#0f0d0c"><img src="{{ l.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></div>
+                  <div style="display:flex;flex-direction:column;gap:4px;flex:1 1 160px;min-width:0"><span style="font-family:'Cormorant Garamond',serif;font-size:20px;line-height:1.1">{{ l.name }}</span><span style="font-size:12px;opacity:.6">{{ l.category }} · {{ l.country }} · {{ l.abv }} · {{ l.sizeLabel }}</span><span style="font-size:12px;color:#c22b45">{{ l.unitPrice }} each</span></div>
+                  <div style="display:flex;align-items:center;background:#262322;border-radius:999px;padding:2px">
+                    <button onClick="{{ l.dec }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:50%;display:grid;place-items:center" style-hover="background:rgba(243,236,226,.08)">−</button>
+                    <span style="min-width:24px;text-align:center;font-size:13px">{{ l.qty }}</span>
+                    <button onClick="{{ l.inc }}" style="all:unset;cursor:pointer;width:30px;height:30px;border-radius:50%;display:grid;place-items:center" style-hover="background:rgba(243,236,226,.08)">+</button>
+                  </div>
+                  <span style="font-size:15px;min-width:64px;text-align:right;margin-left:auto">{{ l.lineTotal }}</span>
+                </div>
+              </sc-for>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px">
+                <button onClick="{{ goShop }}" style="all:unset;cursor:pointer;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,236,226,.7)" style-hover="color:#c22b45">← Continue shopping</button>
+                <button onClick="{{ toDelivery }}" disabled="{{ cartEmpty }}" style="all:unset;cursor:pointer;height:52px;padding:0 28px;border-radius:14px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;opacity: {{ checkoutOpacity }}" style-hover="filter:brightness(1.06)">Continue to delivery</button>
+              </div>
+            </section>
+          </sc-if>
+
+          <sc-if value="{{ stepDelivery }}" hint-placeholder-val="{{ false }}">
+            <form onSubmit="{{ toPayment }}" style="background:#1a1817;border-radius: {{ radiusLg }};padding: {{ panelPad }};display:flex;flex-direction:column;gap:16px;animation:cdvRise .6s cubic-bezier(.2,.8,.2,1) both">
+              <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:34px;margin:0;line-height:1.05">Delivery</h1>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+                <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Full name<input required name="name" value="{{ form.name }}" onChange="{{ setField }}" placeholder="Your name" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+                <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Email<input required type="email" name="email" value="{{ form.email }}" onChange="{{ setField }}" placeholder="you@example.com" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+                <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Phone<input required type="tel" name="phone" value="{{ form.phone }}" onChange="{{ setField }}" placeholder="+34 …" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+                <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">City<input required name="city" value="{{ form.city }}" onChange="{{ setField }}" placeholder="City" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+              </div>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Street address<input required name="address" value="{{ form.address }}" onChange="{{ setField }}" placeholder="Street, number, floor" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <span style="font-size:11px;opacity:.85">Delivery</span>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+                  <sc-for list="{{ shippingOptions }}" as="o" hint-placeholder-count="3">
+                    <button type="button" onClick="{{ o.pick }}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:14px;background:#262322;border:1px solid {{ o.line }};font-family:inherit;transition:border-color .2s, transform .2s" style-hover="transform:translateY(-2px)">
+                      <span style="display:flex;justify-content:space-between;font-size:13px"><span>{{ o.label }}</span><span style="color:#c22b45">{{ o.price }}</span></span>
+                      <span style="font-size:11px;opacity:.55">{{ o.note }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13px;cursor:pointer"><input required type="checkbox" name="adult" checked="{{ form.adult }}" onChange="{{ setCheck }}" style="width:18px;height:18px;accent-color:#c22b45">I confirm I am of legal drinking age and someone 18+ will receive the order.</label>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px">
+                <button type="button" onClick="{{ toBag }}" style="all:unset;cursor:pointer;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,236,226,.7)" style-hover="color:#c22b45">← Back to bag</button>
+                <button type="submit" style="all:unset;cursor:pointer;height:52px;padding:0 28px;border-radius:14px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center" style-hover="filter:brightness(1.06)">Continue to payment</button>
+              </div>
+            </form>
+          </sc-if>
+
+          <sc-if value="{{ stepPayment }}" hint-placeholder-val="{{ false }}">
+            <form onSubmit="{{ placeOrder }}" style="background:#1a1817;border-radius: {{ radiusLg }};padding: {{ panelPad }};display:flex;flex-direction:column;gap:16px;animation:cdvRise .6s cubic-bezier(.2,.8,.2,1) both">
+              <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:34px;margin:0;line-height:1.05">Payment</h1>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+                <sc-for list="{{ payOptions }}" as="o" hint-placeholder-count="3">
+                  <button type="button" onClick="{{ o.pick }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:14px;background:#262322;border:1px solid {{ o.line }};font-family:inherit;font-size:13px;transition:border-color .2s, transform .2s" style-hover="transform:translateY(-2px)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c22b45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ o.icon }}"></path></svg>{{ o.label }}
+                  </button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ payIsCard }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;perspective:900px">
+                  <div style="grid-column:1/-1;border-radius:18px;padding:22px;background:linear-gradient(135deg,#6e0f20,#2a0a10 60%,#1a1817);border:1px solid rgba(243,236,226,.1);display:flex;flex-direction:column;gap:18px;box-shadow:0 20px 40px rgba(0,0,0,.5);transition:transform .5s" style-hover="transform:rotateY(-6deg) rotateX(4deg)">
+                    <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-family:'Cormorant Garamond',serif;font-size:20px">Casa del Vino</span><span style="width:36px;height:26px;border-radius:6px;background:linear-gradient(135deg,#e0c27a,#a67c2e)"></span></div>
+                    <span style="font-size:20px;letter-spacing:.18em;font-variant-numeric:tabular-nums">{{ cardPreview }}</span>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;opacity:.8"><span>{{ cardNamePreview }}</span><span>{{ form.exp }}</span></div>
+                  </div>
+                  <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Card number<input required name="card" value="{{ form.card }}" onChange="{{ setField }}" inputMode="numeric" maxLength="19" placeholder="1234 5678 9012 3456" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+                  <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Name on card<input required name="cardName" value="{{ form.cardName }}" onChange="{{ setField }}" placeholder="As printed" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+                  <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;min-width:0">
+                    <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Expiry<input required name="exp" value="{{ form.exp }}" onChange="{{ setField }}" placeholder="MM/YY" maxLength="5" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+                    <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">CVC<input required name="cvc" value="{{ form.cvc }}" onChange="{{ setField }}" inputMode="numeric" maxLength="4" placeholder="•••" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ payIsTransfer }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:13px;line-height:1.7;opacity:.75;background:#262322;border-radius:14px;padding:14px 16px">Bank details are sent with your order confirmation. We ship once the transfer arrives, usually within 1–2 working days.</p></sc-if>
+              <sc-if value="{{ payIsCod }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:13px;line-height:1.7;opacity:.75;background:#262322;border-radius:14px;padding:14px 16px">Pay the courier in cash or by card when the order arrives. ID will be checked at the door.</p></sc-if>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px">
+                <button type="button" onClick="{{ toDeliveryBtn }}" style="all:unset;cursor:pointer;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,236,226,.7)" style-hover="color:#c22b45">← Back to delivery</button>
+                <button type="submit" style="all:unset;cursor:pointer;height:56px;padding:0 32px;border-radius:14px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(194,43,69,.3);position:relative;overflow:hidden" style-hover="filter:brightness(1.06)">
+                  <span style="position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);animation:cdvShine 3.2s ease-in-out infinite;pointer-events:none"></span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Pay {{ total }}
+                </button>
+              </div>
+            </form>
+          </sc-if>
+
+          <sc-if value="{{ stepDone }}" hint-placeholder-val="{{ false }}">
+            <section style="background:linear-gradient(135deg,#1c1917 0%,#141211 60%,#200a0f 100%);border-radius:28px;padding:40px 32px;display:flex;flex-direction:column;gap:16px;align-items:flex-start;animation:cdvRise .7s cubic-bezier(.2,.8,.2,1) both">
+              <span style="width:64px;height:64px;border-radius:50%;background:#c22b45;color:#fff4f5;display:grid;place-items:center;box-shadow:0 0 40px rgba(194,43,69,.6);animation:cdvBreathe 3s ease-in-out infinite"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>
+              <span style="font-size:12px;color:#c22b45;letter-spacing:.12em;text-transform:uppercase">Order {{ orderNo }}</span>
+              <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(34px,4vw,50px);margin:0;line-height:1.02">Thank you, {{ firstName }}.<br>Your bottles are on their way.</h1>
+              <p style="margin:0;font-size:14px;line-height:1.7;opacity:.75;max-width:52ch;text-wrap:pretty">A confirmation has been sent to {{ form.email }}. {{ shippingLabel }} to {{ form.address }}, {{ form.city }}. Someone over 18 must sign for the delivery.</p>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;width:100%;margin-top:6px">
+                <div style="background:#1a1817;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;opacity:.55">Bottles</span><span style="font-size:16px">{{ orderCount }}</span></div>
+                <div style="background:#1a1817;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;opacity:.55">Paid</span><span style="font-size:16px">{{ orderTotal }}</span></div>
+                <div style="background:#1a1817;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;opacity:.55">Method</span><span style="font-size:16px">{{ payLabel }}</span></div>
+              </div>
+              <button onClick="{{ finishOrder }}" style="all:unset;cursor:pointer;margin-top:10px;height:52px;padding:0 28px;border-radius:14px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center" style-hover="filter:brightness(1.06)">Back to the cellar</button>
+            </section>
+          </sc-if>
+        </div>
+
+        <aside style="background:#1a1817;border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:14px;position: {{ summaryPos }};top:20px;animation:cdvRise .7s cubic-bezier(.2,.8,.2,1) .15s both">
+          <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:500;font-size:24px">Summary</h3>
+          <sc-for list="{{ summaryLines }}" as="l" hint-placeholder-count="0">
+            <div style="display:flex;justify-content:space-between;gap:12px;font-size:13px"><span style="opacity:.8;min-width:0">{{ l.qty }} × {{ l.name }}</span><span>{{ l.lineTotal }}</span></div>
+          </sc-for>
+          <div style="height:1px;background:rgba(243,236,226,.1)"></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;opacity:.75"><span>Subtotal</span><span>{{ subtotal }}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;opacity:.75"><span>{{ shippingLabel }}</span><span>{{ shippingPrice }}</span></div>
+          <div style="height:1px;background:rgba(243,236,226,.1)"></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:13px">Total</span><span style="font-family:'Cormorant Garamond',serif;font-size:30px;color:#c22b45">{{ total }}</span></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:11px;opacity:.55"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path></svg>Secure checkout · 18+ only</div>
+        </aside>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ onWishlist }}" hint-placeholder-val="{{ false }}">
+      <section style="background:#1a1817;border-radius: {{ radiusLg }};padding: {{ panelPad }};display:flex;flex-direction:column;gap:18px;animation:cdvRise .7s cubic-bezier(.2,.8,.2,1) both">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;color:#c22b45">Saved bottles</span><h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:34px;margin:0;line-height:1.05">Wishlist</h1></div>
+          <sc-if value="{{ hasWish }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearWish }}" style="all:unset;cursor:pointer;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,236,226,.6);padding:8px 12px;border-radius:999px;border:1px solid rgba(243,236,226,.12)" style-hover="color:#c22b45;border-color:#c22b45">Clear all</button></sc-if>
+        </div>
+        <sc-if value="{{ noWish }}" hint-placeholder-val="{{ true }}"><p style="margin:0;opacity:.7;font-size:14px">Nothing saved yet. Tap the heart on any bottle to keep it here.</p><button onClick="{{ goShop }}" style="align-self:flex-start;all:unset;cursor:pointer;height:50px;padding:0 24px;border-radius:14px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="filter:brightness(1.06)">Browse the cellar</button></sc-if>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:14px">
+          <sc-for list="{{ wishItems }}" as="w" hint-placeholder-count="0">
+            <div style="background:#262322;border-radius:20px;overflow:hidden;display:flex;flex-direction:column">
+              <div onClick="{{ w.open }}" style="aspect-ratio:1/1;overflow:hidden;cursor:pointer"><img src="{{ w.img }}" alt="{{ w.name }}" style="width:100%;height:100%;object-fit:cover"></div>
+              <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;flex-direction:column;gap:3px"><span style="font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.1">{{ w.name }}</span><span style="font-size:12px;opacity:.6">{{ w.category }} · {{ w.abv }} · {{ w.sizeLabel }}</span><span style="font-size:13px;color:#c22b45">{{ w.priceLabel }}</span></div>
+                <div style="display:flex;gap:8px">
+                  <button onClick="{{ w.add }}" style="all:unset;cursor:pointer;flex:1;height:40px;border-radius:12px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;display:flex;align-items:center;justify-content:center" style-hover="filter:brightness(1.06)">Add to bag</button>
+                  <button onClick="{{ w.wish }}" aria-label="Remove from wishlist" style="all:unset;cursor:pointer;width:40px;height:40px;border-radius:12px;background:#1a1817;display:grid;place-items:center;color:#c22b45" style-hover="background:#2a0a10"><svg width="16" height="16" viewBox="0 0 24 24" fill="#c22b45" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></button>
+                </div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ onAccount }}" hint-placeholder-val="{{ false }}">
+      <section style="background:linear-gradient(135deg,#1c1917 0%,#141211 60%,#200a0f 100%);border-radius: {{ radiusLg }};padding: {{ panelPad }};display:flex;flex-direction:column;gap:18px;animation:cdvRise .7s cubic-bezier(.2,.8,.2,1) both">
+        <span style="font-size:12px;color:#c22b45">Your account</span>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(32px,4vw,46px);margin:0;line-height:1.05">Hello, {{ userLabel }}.</h1>
+        <p style="margin:0;font-size:14px;opacity:.75;max-width:50ch;text-wrap:pretty">{{ user.email }}</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+          <button onClick="{{ toggleWish }}" style="all:unset;cursor:pointer;height:50px;padding:0 20px;border-radius:14px;background:#262322;border:1px solid rgba(243,236,226,.12);color:#f3ece2;font-family:inherit;font-size:13px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:center" style-hover="border-color:#c22b45">Wishlist ({{ wishCount }})</button>
+          <button onClick="{{ openCart }}" style="all:unset;cursor:pointer;height:50px;padding:0 20px;border-radius:14px;background:#262322;border:1px solid rgba(243,236,226,.12);color:#f3ece2;font-family:inherit;font-size:13px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:center" style-hover="border-color:#c22b45">Bag ({{ cartCount }})</button>
+          <button onClick="{{ signOut }}" style="all:unset;cursor:pointer;height:50px;padding:0 20px;border-radius:14px;background:#262322;border:1px solid rgba(243,236,226,.12);color:#f3ece2;font-family:inherit;font-size:13px;letter-spacing:.08em;text-transform:uppercase;display:flex;align-items:center;justify-content:center" style-hover="border-color:#c22b45">Sign out</button>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ onContact }}" hint-placeholder-val="{{ false }}">
+      <section style="animation:cdvRise .8s cubic-bezier(.2,.8,.2,1) both;background:linear-gradient(135deg,#1c1917 0%,#141211 60%,#200a0f 100%);border-radius: {{ radiusLg }};padding: {{ panelPad }};display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:32px;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <span style="font-size:12px;color:#c22b45">Contact us</span>
+          <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(36px,4vw,54px);line-height:1.02;margin:0;text-wrap:pretty">Let's talk<br>about wine.</h1>
+          <p style="margin:0;font-size:14px;line-height:1.7;opacity:.75;max-width:40ch;text-wrap:pretty">Orders, trade enquiries, tastings or a bottle you can't find in the cellar. We reply within one working day.</p>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+            <a href="{{ mailHref }}" style="display:flex;align-items:center;gap:14px;color:#f3ece2"><span style="width:40px;height:40px;border-radius:50%;background:#262322;display:grid;place-items:center;color:#c22b45;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:11px;opacity:.55">Email</span><span style="font-size:14px">{{ settings.email }}</span></span></a>
+            <a href="https://wa.me/" style="display:flex;align-items:center;gap:14px;color:#f3ece2"><span style="width:40px;height:40px;border-radius:50%;background:#262322;display:grid;place-items:center;color:#c22b45;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:11px;opacity:.55">Phone / WhatsApp</span><span style="font-size:14px">{{ settings.phone }}</span></span></a>
+            <div style="display:flex;align-items:center;gap:14px"><span style="width:40px;height:40px;border-radius:50%;background:#262322;display:grid;place-items:center;color:#c22b45;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:11px;opacity:.55">Hours</span><span style="font-size:14px">{{ settings.hours }}</span></span></div>
+            <div style="display:flex;align-items:center;gap:14px"><span style="width:40px;height:40px;border-radius:50%;background:#262322;display:grid;place-items:center;color:#c22b45;flex:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg></span><span style="display:flex;flex-direction:column"><span style="font-size:11px;opacity:.55">Address</span><span style="font-size:14px">{{ settings.address }}</span></span></div>
+          </div>
+        </div>
+        <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+          <form onSubmit="{{ submitContact }}" style="display:flex;flex-direction:column;gap:12px;background:#1a1817;border-radius:20px;padding:22px">
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Name<input required placeholder="Your name" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Email<input required type="email" placeholder="you@example.com" style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Subject<select style="height:46px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0"><option>Order enquiry</option><option>Trade / wholesale</option><option>Tasting or event</option><option>Request a bottle</option><option>Other</option></select></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;opacity:.85">Message<textarea required rows="5" placeholder="How can we help?" style="border-radius:12px;background:#262322;border:1px solid rgba(243,236,226,.08);padding:12px 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0;resize:vertical" style-focus="border-color:#c22b45"></textarea></label>
+            <button type="submit" style="all:unset;cursor:pointer;margin-top:6px;height:52px;border-radius:14px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(194,43,69,.3)" style-hover="filter:brightness(1.06)">Send message</button>
+          </form>
+        </sc-if>
+        <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;justify-content:center;gap:12px;background:#1a1817;border-radius:20px;padding:32px">
+            <span style="width:48px;height:48px;border-radius:50%;background:#c22b45;color:#fff4f5;display:grid;place-items:center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></span>
+            <h2 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:30px;margin:0">Message sent</h2>
+            <p style="margin:0;opacity:.7;font-size:14px">Thank you. We'll be in touch within one working day.</p>
+            <button onClick="{{ resetContact }}" style="all:unset;cursor:pointer;align-self:flex-start;margin-top:6px;font-size:12px;color:#c22b45;letter-spacing:.08em;text-transform:uppercase">Send another</button>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <footer style="margin-top:auto;padding:12px 8px 0;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:11px;opacity:.45">
+      <span>© Casa del Vino — Premium wines. Good wine… better company.</span>
+      <span>Drink responsibly. 18+ only.</span>
+    </footer>
+  </main>
+</div>
+</sc-if>
+
+<sc-if value="{{ onAdmin }}" hint-placeholder-val="{{ false }}">
+<div style="position:relative;z-index:1;min-height:100vh;padding: {{ pagePad }};font-family:var(--font-body);color:#f3ece2">
+  <div style="display:flex;flex-wrap:wrap;gap:16px;min-height:calc(100vh - 40px);border-radius:32px;padding:16px;background:linear-gradient(160deg, rgba(74,10,20,.45), rgba(20,8,10,.6));border:1px solid rgba(194,43,69,.25);backdrop-filter:blur(20px);box-shadow:0 40px 120px rgba(0,0,0,.6)">
+    <aside style="flex: {{ asideFlex }};min-width:0;background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:24px;padding:22px 16px;display:flex;flex-direction: column;gap:8px;align-self:stretch">
+      <div style="display:flex;align-items:center;gap:10px;padding:6px 8px 18px"><img src="assets/logo.jpg" alt="" style="width:34px;height:34px;object-fit:cover;object-position:center 58%;border-radius:50%"><span style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;line-height:1">Casa del Vino</span></div>
+      <nav style="display:flex;flex-direction: {{ navDir }};gap:4px;overflow-x:auto;scrollbar-width:none">
+        <button onClick="{{ tabDash.go }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;font-family:inherit;font-size:13px;color: {{ tabDash.fg }};background: {{ tabDash.bg }};transition:background .25s" style-hover="background:rgba(243,236,226,.08)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"></path></svg>Dashboard</button>
+        <button onClick="{{ tabProducts.go }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;font-family:inherit;font-size:13px;color: {{ tabProducts.fg }};background: {{ tabProducts.bg }};transition:background .25s" style-hover="background:rgba(243,236,226,.08)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8M7 10h10M12 15v7M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"></path></svg>Products</button>
+        <button onClick="{{ tabOrders.go }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;font-family:inherit;font-size:13px;color: {{ tabOrders.fg }};background: {{ tabOrders.bg }};transition:background .25s" style-hover="background:rgba(243,236,226,.08)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18M16 10a4 4 0 0 1-8 0"></path></svg>Orders</button>
+        <button onClick="{{ tabCustomers.go }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;font-family:inherit;font-size:13px;color: {{ tabCustomers.fg }};background: {{ tabCustomers.bg }};transition:background .25s" style-hover="background:rgba(243,236,226,.08)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 1 0 0-8ZM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"></path></svg>Customers</button>
+        <button onClick="{{ tabSettings.go }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;font-family:inherit;font-size:13px;color: {{ tabSettings.fg }};background: {{ tabSettings.bg }};transition:background .25s" style-hover="background:rgba(243,236,226,.08)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>Settings</button>
+      </nav>
+      <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+        <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;opacity:.5;padding:18px 14px 6px">Shelves</span>
+        <sc-for list="{{ adminCategories }}" as="c" hint-placeholder-count="0"><div style="display:flex;justify-content:space-between;padding:6px 14px;font-size:12px;opacity:.8"><span style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background: {{ c.dot }}"></span>{{ c.label }}</span><span>{{ c.count }}</span></div></sc-for>
+        <div style="margin-top:auto;padding-top:16px;display:flex;flex-direction:column;gap:4px">
+          <button onClick="{{ goShop }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;font-family:inherit;font-size:13px" style-hover="background:rgba(243,236,226,.06)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>View the shop</button>
+          <button onClick="{{ signOut }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:14px;font-family:inherit;font-size:13px;opacity:.7" style-hover="background:rgba(243,236,226,.06)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"></path></svg>Sign out</button>
+        </div>
+      </sc-if>
+    </aside>
+
+    <main style="flex:1 1 {{ mainBasis }};min-width:0;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 4px">
+        <h1 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(28px,3vw,38px);margin:0 auto 0 0;line-height:1">Hi, {{ user.name }}!</h1>
+        <div style="display:flex;align-items:center;gap:8px;flex:none;flex-wrap:wrap">
+        <button onClick="{{ startAdd }}" style="all:unset;cursor:pointer;height:42px;padding:0 18px;border-radius:999px;background:linear-gradient(160deg,#6e0f20,#2a0a10);color:#f3ece2;font-family:inherit;font-size:13px;display:flex;align-items:center;gap:8px;border:1px solid rgba(243,236,226,.12)" style-hover="filter:brightness(1.12)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add bottle</button>
+        <div style="display:flex;align-items:center;gap:8px;height:42px;padding:0 14px;border-radius:999px;background:#241012;color:#f3ece2;border:1px solid rgba(243,236,226,.1)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg><input value="{{ adminQuery }}" onChange="{{ setAdminQuery }}" placeholder="Search bottles" style="background:transparent;border:0;outline:0;font:inherit;font-size:13px;color:#f3ece2;width:clamp(60px,10vw,120px)"></div>
+        <div style="position:relative">
+          <button onClick="{{ toggleNotif }}" aria-label="Notifications" style="all:unset;cursor:pointer;width:42px;height:42px;border-radius:50%;background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);display:grid;place-items:center;position:relative" style-hover="border-color:#c22b45"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg><sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:#c22b45;color:#fff4f5;font-size:10px;font-weight:600;display:grid;place-items:center">{{ unreadCount }}</span></sc-if></button>
+          <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute;right:0;top:52px;width:min(360px,calc(100vw - 40px));z-index:30;background:linear-gradient(160deg,#241012,#160a0c);border:1px solid rgba(243,236,226,.1);border-radius:20px;box-shadow:0 30px 70px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden;animation:cdvRise .3s cubic-bezier(.2,.8,.2,1) both">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(243,236,226,.08)"><span style="font-size:14px;font-weight:600">Notifications</span><button onClick="{{ markAllRead }}" style="all:unset;cursor:pointer;font-size:11px;color:#e0526b" style-hover="color:#f3ece2">Mark all read</button></div>
+              <div style="max-height:380px;overflow:auto;display:flex;flex-direction:column">
+                <sc-if value="{{ noNotifs }}" hint-placeholder-val="{{ true }}"><span style="padding:20px 16px;font-size:13px;opacity:.6">You're all caught up.</span></sc-if>
+                <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="0">
+                  <button onClick="{{ n.go }}" style="all:unset;cursor:pointer;display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-bottom:1px solid rgba(243,236,226,.06);font-family:inherit;background: {{ n.bg }}" style-hover="background:rgba(194,43,69,.12)">
+                    <span style="width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;background: {{ n.iconBg }};color:#fff4f5"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ n.icon }}"></path></svg></span>
+                    <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0"><span style="font-size:13px;line-height:1.3">{{ n.title }}</span><span style="font-size:11px;opacity:.6">{{ n.meta }}</span></span>
+                    <sc-if value="{{ n.unread }}" hint-placeholder-val="{{ false }}"><span style="width:8px;height:8px;border-radius:50%;background:#c22b45;margin-top:6px;flex:none"></span></sc-if>
+                  </button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+        <span style="width:42px;height:42px;border-radius:50%;background:linear-gradient(180deg,#c22b45,#6e0f20);display:grid;place-items:center;font-size:14px;font-weight:600">{{ userInitial }}</span>
+        </div>
+      </div>
+
+      <sc-if value="{{ adminEditing }}" hint-placeholder-val="{{ false }}">
+        <form onSubmit="{{ saveEdit }}" style="background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:24px;padding: {{ panelPad }};display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:22px;animation:cdvRise .4s cubic-bezier(.2,.8,.2,1) both">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <h2 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:30px;margin:0;line-height:1.05">{{ adminEditTitle }}</h2>
+            <div style="aspect-ratio:3/4;max-height:320px;border-radius:18px;overflow:hidden;background:#0f0708;position:relative"><img src="{{ adminEditImg }}" alt="" style="width:100%;height:100%;object-fit:cover"><span style="position:absolute;left:10px;top:10px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:999px;background:rgba(194,43,69,.9);color:#fff4f5">Cover</span></div>
+            <div style="display:flex;flex-wrap:wrap;gap:8px">
+              <sc-for list="{{ adminImages }}" as="im" hint-placeholder-count="0">
+                <div style="position:relative;width:64px;height:76px;border-radius:12px;overflow:hidden;border:2px solid {{ im.line }};cursor:pointer" onClick="{{ im.makeCover }}" title="Set as cover">
+                  <img src="{{ im.src }}" alt="" style="width:100%;height:100%;object-fit:cover">
+                  <button type="button" onClick="{{ im.remove }}" aria-label="Remove image" style="all:unset;cursor:pointer;position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.7);color:#f3ece2;display:grid;place-items:center" style-hover="background:#c22b45"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+                </div>
+              </sc-for>
+              <label style="width:64px;height:76px;border-radius:12px;border:1px dashed rgba(243,236,226,.35);display:grid;place-items:center;cursor:pointer;font-size:22px;opacity:.7" style-hover="border-color:#c22b45;opacity:1" title="Add photos">+<input type="file" accept="image/*" multiple="{{ true }}" onChange="{{ onImageFile }}" style="display:none"></label>
+            </div>
+            <span style="font-size:11px;opacity:.55">{{ adminImageCount }} · click a thumbnail to make it the cover</span>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Add image by URL<span style="display:flex;gap:8px"><input name="imgUrl" value="{{ adminEdit.imgUrl }}" onChange="{{ setEditField }}" placeholder="https://…" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"><button type="button" onClick="{{ addImageUrl }}" style="all:unset;cursor:pointer;height:44px;padding:0 16px;border-radius:12px;background:#c22b45;color:#fff4f5;font-family:inherit;font-size:12px;font-weight:600;display:flex;align-items:center;flex:none" style-hover="filter:brightness(1.12)">Add</button></span></label>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Name<input required name="name" value="{{ adminEdit.name }}" onChange="{{ setEditField }}" placeholder="e.g. Rioja Reserva" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+            <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px">
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Category<select name="category" value="{{ adminEdit.category }}" onChange="{{ setEditField }}" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"><sc-for list="{{ categoryOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o }}">{{ o }}</option></sc-for></select></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Country<select name="country" value="{{ adminEdit.country }}" onChange="{{ setEditField }}" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"><sc-for list="{{ countryOptions }}" as="o" hint-placeholder-count="0"><option value="{{ o }}">{{ o }}</option></sc-for></select></label>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Origin (region)<input name="origin" value="{{ adminEdit.origin }}" onChange="{{ setEditField }}" placeholder="e.g. Rioja, Spain" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Alcohol<input required name="abv" value="{{ adminEdit.abv }}" onChange="{{ setEditField }}" placeholder="13.5%" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Size<input name="size" value="{{ adminEdit.size }}" onChange="{{ setEditField }}" placeholder="75cl" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+              <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Price €<input required name="price" value="{{ adminEdit.price }}" onChange="{{ setEditField }}" inputMode="decimal" placeholder="12.50" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+            </div>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Description<textarea name="description" value="{{ adminEdit.description }}" onChange="{{ setEditField }}" rows="3" style="width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:12px 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0;resize:vertical" style-focus="border-color:#c22b45"></textarea></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Ingredients (as on the label)<textarea name="ingredients" value="{{ adminEdit.ingredients }}" onChange="{{ setEditField }}" rows="2" style="width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:12px 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0;resize:vertical" style-focus="border-color:#c22b45"></textarea></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Floating ingredients (comma separated)<input name="listText" value="{{ adminEdit.listText }}" onChange="{{ setEditField }}" placeholder="Blackberry, Plum, Black pepper" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px"><button type="submit" style="all:unset;cursor:pointer;height:44px;padding:0 20px;border-radius:12px;background:linear-gradient(180deg,#c22b45,#7e1424);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="filter:brightness(1.12)">Save bottle</button><button type="button" onClick="{{ cancelEdit }}" style="all:unset;cursor:pointer;height:44px;padding:0 18px;border-radius:12px;border:1px solid rgba(243,236,226,.2);color:#f3ece2;font-family:inherit;font-size:13px;display:flex;align-items:center;justify-content:center" style-hover="border-color:#c22b45;color:#c22b45">Cancel</button></div>
+          </div>
+        </form>
+      </sc-if>
+
+      <sc-if value="{{ tabDash.on }}" hint-placeholder-val="{{ true }}">
+        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;animation:cdvRise .5s cubic-bezier(.2,.8,.2,1) both">
+          <div style="background:linear-gradient(160deg,#6e0f20,#2a0a10);color:#f3ece2;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:18px;border:1px solid rgba(243,236,226,.08)">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">Overall information</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></div>
+            <div style="display:flex;gap:28px;flex-wrap:wrap">
+              <div style="display:flex;align-items:baseline;gap:8px"><span style="font-family:'Cormorant Garamond',serif;font-size:52px;line-height:1">{{ statOrders }}</span><span style="font-size:11px;opacity:.6;line-height:1.3">orders<br>all time</span></div>
+              <div style="display:flex;align-items:baseline;gap:8px"><span style="font-family:'Cormorant Garamond',serif;font-size:52px;line-height:1">{{ statRevenue }}</span><span style="font-size:11px;opacity:.6;line-height:1.3">revenue<br>all time</span></div>
+            </div>
+            <div style="height:3px;background:rgba(243,236,226,.12);border-radius:2px"><div style="height:100%;width: {{ statBar }};background:#c22b45;border-radius:2px;transition:width .6s"></div></div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+              <div style="background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-family:'Cormorant Garamond',serif;font-size:30px;line-height:1">{{ adminCount }}</span><span style="font-size:10px;opacity:.7">Bottles</span></div>
+              <div style="background:rgba(243,236,226,.12);border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-family:'Cormorant Garamond',serif;font-size:30px;line-height:1">{{ statCategories }}</span><span style="font-size:10px;opacity:.7">Shelves live</span></div>
+              <div style="background:rgba(243,236,226,.12);border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font-family:'Cormorant Garamond',serif;font-size:30px;line-height:1">{{ statCustomers }}</span><span style="font-size:10px;opacity:.7">Customers</span></div>
+            </div>
+          </div>
+          <div style="background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">Weekly sales</span><span style="font-size:11px;padding:4px 8px;border-radius:999px;background:#c22b45;color:#fff4f5">{{ weekDelta }}</span></div>
+            <div style="display:flex;gap:14px;font-size:11px;opacity:.7"><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:#f3ece2"></span>This week</span><span style="display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:rgba(243,236,226,.35)"></span>Last week</span></div>
+            <svg viewBox="0 0 280 120" width="100%" style="display:block;overflow:visible"><g stroke="rgba(243,236,226,.12)" stroke-width="1"><line x1="0" y1="30" x2="280" y2="30"></line><line x1="0" y1="60" x2="280" y2="60"></line><line x1="0" y1="90" x2="280" y2="90"></line></g><path d="{{ chartLast }}" fill="none" stroke="rgba(243,236,226,.35)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><path d="{{ chartArea }}" fill="rgba(194,43,69,.12)"></path><path d="{{ chartThis }}" fill="none" stroke="#f3ece2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="{{ chartPeakX }}" cy="{{ chartPeakY }}" r="4" fill="#c22b45"></circle></svg>
+            <div style="display:flex;justify-content:space-between;font-size:11px;opacity:.6;padding:0 2px"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span style="background:#c22b45;color:#fff4f5;border-radius:50%;width:20px;height:20px;display:grid;place-items:center;opacity:1;margin:-4px 0">S</span><span>S</span></div>
+          </div>
+          <div style="background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">Cellar by shelf</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"></path></svg></div>
+            <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;flex:1 1 120px"><sc-for list="{{ ringLegend }}" as="r" hint-placeholder-count="0"><span style="display:flex;align-items:center;gap:8px"><span style="width:8px;height:8px;border-radius:50%;background: {{ r.color }}"></span>{{ r.label }}<span style="margin-left:auto;opacity:.6">{{ r.count }}</span></span></sc-for></div>
+              <svg viewBox="0 0 120 120" width="130" height="130" style="flex:none"><circle cx="60" cy="60" r="46" fill="none" stroke="rgba(243,236,226,.1)" stroke-width="12"></circle><sc-for list="{{ ringArcs }}" as="a" hint-placeholder-count="0"><circle cx="60" cy="60" r="46" fill="none" stroke="{{ a.color }}" stroke-width="12" stroke-dasharray="{{ a.dash }}" stroke-dashoffset="{{ a.offset }}" transform="rotate(-90 60 60)" stroke-linecap="butt"></circle></sc-for><text x="60" y="58" text-anchor="middle" font-family="Cormorant Garamond, serif" font-size="26" fill="#f3ece2">{{ adminCount }}</text><text x="60" y="74" text-anchor="middle" font-size="9" fill="rgba(243,236,226,.6)">bottles</text></svg>
+            </div>
+            <button onClick="{{ tabProducts.go }}" style="all:unset;cursor:pointer;height:44px;padding:0 20px;border-radius:12px;background:linear-gradient(180deg,#c22b45,#7e1424);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="filter:brightness(1.12)">Manage products<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+          </div>
+        </section>
+
+        <section style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;animation:cdvRise .5s cubic-bezier(.2,.8,.2,1) .1s both">
+          <div style="background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:16px;font-weight:600">Recent orders</span><button onClick="{{ tabOrders.go }}" style="all:unset;cursor:pointer;font-size:12px;opacity:.7" style-hover="color:#c22b45;opacity:1">Open all ›</button></div>
+            <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;opacity:.6;padding:8px 0">No orders yet. They will appear here as customers check out.</span></sc-if>
+            <sc-for list="{{ recentOrders }}" as="o" hint-placeholder-count="0"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(243,236,226,.1);font-size:13px"><span style="display:flex;flex-direction:column;gap:2px"><span>{{ o.no }}</span><span style="font-size:11px;opacity:.6">{{ o.customer }} · {{ o.count }} bottles · {{ o.date }}</span></span><span style="font-weight:600">{{ o.totalLabel }}</span></div></sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <span style="font-size:16px;font-weight:600;padding:0 4px">Latest bottles</span>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+              <sc-for list="{{ latestProducts }}" as="p" hint-placeholder-count="0"><button onClick="{{ p.edit }}" style="all:unset;cursor:pointer;background:linear-gradient(160deg,#6e0f20,#2a0a10);color:#f3ece2;border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:8px;border:1px solid rgba(243,236,226,.08);font-family:inherit;transition:transform .25s" style-hover="transform:translateY(-3px)"><span style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font-size:14px;font-weight:600;line-height:1.2">{{ p.name }}</span><span style="width:34px;height:34px;border-radius:50%;overflow:hidden;flex:none"><img src="{{ p.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></span></span><span style="font-size:11px;opacity:.6;display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:50%;background:#c22b45"></span>{{ p.category }} · {{ p.priceLabel }}</span></button></sc-for>
+              <button onClick="{{ startAdd }}" style="all:unset;cursor:pointer;border-radius:20px;padding:16px;min-height:88px;border:1px dashed rgba(243,236,226,.35);display:grid;place-items:center;font-family:inherit;font-size:13px;opacity:.8" style-hover="border-color:#c22b45;opacity:1">+ Add bottle</button>
+            </div>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ tabProducts.on }}" hint-placeholder-val="{{ false }}">
+        <section style="background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:24px;padding: {{ panelPad }};display:flex;flex-direction:column;gap:14px;animation:cdvRise .5s cubic-bezier(.2,.8,.2,1) both">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><span style="font-size:18px;font-weight:600">Products · {{ adminCount }}</span><div style="display:flex;gap:8px"><button onClick="{{ resetCatalog }}" style="all:unset;cursor:pointer;height:44px;padding:0 18px;border-radius:12px;border:1px solid rgba(243,236,226,.2);color:#f3ece2;font-family:inherit;font-size:13px;display:flex;align-items:center;justify-content:center" style-hover="border-color:#c22b45;color:#c22b45">Restore defaults</button><button onClick="{{ startAdd }}" style="all:unset;cursor:pointer;height:44px;padding:0 20px;border-radius:12px;background:linear-gradient(180deg,#c22b45,#7e1424);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="filter:brightness(1.12)">+ Add bottle</button></div></div>
+          <div style="display:flex;flex-direction:column">
+            <sc-for list="{{ adminProducts }}" as="a" hint-placeholder-count="0">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px 16px;padding:12px 0;border-bottom:1px solid rgba(243,236,226,.1)">
+                <div style="width:48px;height:56px;border-radius:12px;overflow:hidden;background:#0f0708;flex:none"><img src="{{ a.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></div>
+                <div style="display:flex;flex-direction:column;gap:2px;flex:1 1 180px;min-width:0"><span style="font-size:14px;font-weight:600">{{ a.name }}</span><span style="font-size:12px;opacity:.6">{{ a.category }} · {{ a.country }} · {{ a.abv }} · {{ a.size }}</span></div>
+                <span style="font-size:14px;font-weight:600;min-width:64px">{{ a.priceLabel }}</span>
+                <div style="display:flex;gap:6px;margin-left:auto"><button onClick="{{ a.edit }}" style="all:unset;cursor:pointer;height:34px;padding:0 14px;border-radius:10px;background:#c22b45;color:#fff4f5;font-family:inherit;font-size:12px;display:flex;align-items:center" style-hover="filter:brightness(1.12)">Edit</button><button onClick="{{ a.remove }}" style="all:unset;cursor:pointer;height:34px;padding:0 14px;border-radius:10px;border:1px solid rgba(243,236,226,.2);font-family:inherit;font-size:12px;display:flex;align-items:center" style-hover="border-color:#c22b45;color:#c22b45">Remove</button></div>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ tabOrders.on }}" hint-placeholder-val="{{ false }}">
+        <section style="background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:24px;padding: {{ panelPad }};display:flex;flex-direction:column;gap:14px;animation:cdvRise .5s cubic-bezier(.2,.8,.2,1) both">
+          <span style="font-size:18px;font-weight:600">Orders · {{ statOrders }}</span>
+          <sc-if value="{{ noOrders }}" hint-placeholder-val="{{ true }}"><span style="font-size:13px;opacity:.6">No orders yet.</span></sc-if>
+          <sc-for list="{{ allOrders }}" as="o" hint-placeholder-count="0"><div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;padding:12px 0;border-bottom:1px solid rgba(243,236,226,.1);font-size:13px"><span style="font-weight:600;min-width:90px">{{ o.no }}</span><span style="flex:1 1 160px;opacity:.75">{{ o.customer }} · {{ o.items }}</span><span style="opacity:.6">{{ o.ship }} · {{ o.pay }}</span><span style="font-size:11px;opacity:.6">{{ o.date }}</span><span style="font-weight:600">{{ o.totalLabel }}</span></div></sc-for>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ tabCustomers.on }}" hint-placeholder-val="{{ false }}">
+        <section style="background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:24px;padding: {{ panelPad }};display:flex;flex-direction:column;gap:14px;animation:cdvRise .5s cubic-bezier(.2,.8,.2,1) both">
+          <span style="font-size:18px;font-weight:600">Customers · {{ statCustomers }}</span>
+          <sc-for list="{{ customerRows }}" as="c" hint-placeholder-count="0"><div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(243,236,226,.1);font-size:13px"><span style="width:38px;height:38px;border-radius:50%;background:#c22b45;color:#fff4f5;display:grid;place-items:center;font-weight:600">{{ c.initial }}</span><span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0"><span style="font-weight:600">{{ c.name }}</span><span style="opacity:.6;font-size:12px">{{ c.email }}</span></span><span style="font-size:11px;padding:4px 10px;border-radius:999px;background:rgba(243,236,226,.08)">{{ c.role }}</span><span style="opacity:.7">{{ c.orders }} orders</span></div></sc-for>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ tabSettings.on }}" hint-placeholder-val="{{ false }}">
+        <form onSubmit="{{ saveSettings }}" style="background:linear-gradient(160deg,#241012,#160a0c);color:#f3ece2;border:1px solid rgba(243,236,226,.08);border-radius:24px;padding: {{ panelPad }};display:flex;flex-direction:column;gap:14px;max-width:640px;animation:cdvRise .5s cubic-bezier(.2,.8,.2,1) both">
+          <span style="font-size:18px;font-weight:600">Website details</span>
+          <span style="font-size:12px;opacity:.65">Shown on the Contact page and in order confirmations.</span>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Contact email<input name="email" value="{{ settings.email }}" onChange="{{ setSetting }}" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Phone / WhatsApp<input name="phone" value="{{ settings.phone }}" onChange="{{ setSetting }}" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Opening hours<input name="hours" value="{{ settings.hours }}" onChange="{{ setSetting }}" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Address<input name="address" value="{{ settings.address }}" onChange="{{ setSetting }}" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:rgba(243,236,226,.7)">Free-shipping threshold (€)<input name="freeShip" value="{{ settings.freeShip }}" onChange="{{ setSetting }}" inputMode="decimal" style="height:44px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.06);border:1px solid rgba(243,236,226,.15);padding:0 14px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45"></label>
+          <button type="submit" style="all:unset;cursor:pointer;height:44px;padding:0 20px;border-radius:12px;background:linear-gradient(180deg,#c22b45,#7e1424);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px" style-hover="background:#c22b45" >Save details</button>
+        </form>
+      </sc-if>
+    </main>
+  </div>
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}"><div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:70;padding:10px 18px;border-radius:999px;background:#c22b45;color:#fff4f5;font-size:13px;box-shadow:0 10px 30px rgba(194,43,69,.4);animation:cdvRise .3s ease both">{{ adminToast }}</div></sc-if>
+</div>
+</sc-if>
+<sc-if value="{{ authOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;inset:0;z-index:65;background:#050202;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));overflow:auto">
+    <div style="position:relative;min-height:220px;overflow:hidden">
+      <img src="assets/syrah.jpg" alt="" style="position:absolute;inset:-6%;width:112%;height:112%;object-fit:cover;filter:blur(3px) brightness(.55) saturate(1.1)">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%, rgba(194,43,69,.25), transparent 60%), linear-gradient(90deg, transparent 60%, #050202 100%), linear-gradient(0deg, #050202 0%, transparent 35%)"></div>
+      <div style="position:absolute;left:clamp(20px,6vw,72px);bottom:clamp(24px,6vh,72px);display:flex;flex-direction:column;gap:14px;max-width:420px">
+        <img src="assets/logo.jpg" alt="" style="width:56px;height:56px;object-fit:cover;object-position:center 58%;border-radius:50%;box-shadow:0 0 30px rgba(194,43,69,.5)">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:clamp(30px,3.4vw,46px);line-height:1.05">Good wine.<br>Better company.</span>
+        <span style="font-size:13px;opacity:.7;line-height:1.6">Sign in to keep your wishlist, check out faster and follow your orders.</span>
+      </div>
+    </div>
+    <div style="display:grid;place-items:center;padding:clamp(16px,4vw,48px)">
+      <div style="width:min(440px,100%);position:relative;border-radius:22px;padding:36px 32px;background:linear-gradient(160deg, rgba(30,24,24,.92), rgba(14,9,10,.96));border:1px solid rgba(243,236,226,.1);box-shadow:0 40px 100px rgba(0,0,0,.7), inset 0 1px 0 rgba(243,236,226,.08);display:flex;flex-direction:column;gap:22px;animation:cdvRise .6s cubic-bezier(.2,.8,.2,1) both">
+        <div style="position:absolute;left:0;top:10%;bottom:10%;width:1px;background:linear-gradient(180deg, transparent, #c22b45, transparent)"></div>
+        <button onClick="{{ closeAuth }}" aria-label="Close" style="all:unset;cursor:pointer;position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;border:1px solid rgba(243,236,226,.12);display:grid;place-items:center;color:rgba(243,236,226,.7)" style-hover="border-color:#c22b45;color:#f3ece2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;margin-top:8px">
+          <span style="width:64px;height:64px;display:grid;place-items:center;color:#c22b45"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8M7 10h10M12 15v7M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"></path></svg></span>
+          <h2 style="font-family:'Cormorant Garamond',serif;font-weight:500;font-size:34px;margin:0;line-height:1">{{ authTitle }}</h2>
+          <span style="font-size:13px;opacity:.6">{{ authSubtitle }}</span>
+        </div>
+        <sc-if value="{{ authIsSignin }}" hint-placeholder-val="{{ true }}">
+          <form onSubmit="{{ submitSignin }}" style="display:flex;flex-direction:column;gap:16px">
+            <label style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:rgba(243,236,226,.75)">Email address<span style="position:relative;display:block"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(243,236,226,.45);display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg></span><input required type="email" name="email" value="{{ authForm.email }}" onChange="{{ setAuthField }}" placeholder="you@example.com" style="height:48px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.04);border:1px solid rgba(243,236,226,.12);padding:0 14px 0 42px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45;background:rgba(194,43,69,.06)"></span></label>
+            <label style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:rgba(243,236,226,.75)">Password<span style="position:relative;display:block"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(243,236,226,.45);display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span><input required type="{{ pwType }}" name="password" value="{{ authForm.password }}" onChange="{{ setAuthField }}" placeholder="Enter your password" style="height:48px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.04);border:1px solid rgba(243,236,226,.12);padding:0 14px 0 42px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45;background:rgba(194,43,69,.06)"><button type="button" onClick="{{ togglePw }}" aria-label="Show password" style="all:unset;cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:rgba(243,236,226,.5);display:flex" style-hover="color:#f3ece2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button></span></label>
+            <div style="display:flex;justify-content:flex-end;margin-top:-6px"><button type="button" onClick="{{ forgotPw }}" style="all:unset;cursor:pointer;font-size:12px;color:#e0526b" style-hover="color:#f3ece2">Forgot password?</button></div>
+            <sc-if value="{{ hasAuthError }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#e0526b;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>{{ authError }}</span></sc-if>
+            <button type="submit" style="all:unset;cursor:pointer;height:52px;border-radius:12px;background:linear-gradient(180deg,#c22b45,#7e1424);color:#fff4f5;font-family:inherit;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;box-shadow:0 10px 30px rgba(194,43,69,.35);transition:transform .2s, box-shadow .2s" style-hover="transform:translateY(-1px);box-shadow:0 14px 36px rgba(194,43,69,.5)">Login<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;right:18px"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+          </form>
+        </sc-if>
+        <sc-if value="{{ authIsSignup }}" hint-placeholder-val="{{ false }}">
+          <form onSubmit="{{ submitSignup }}" style="display:flex;flex-direction:column;gap:16px">
+            <label style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:rgba(243,236,226,.75)">Full name<span style="position:relative;display:block"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(243,236,226,.45);display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg></span><input required name="name" value="{{ authForm.name }}" onChange="{{ setAuthField }}" placeholder="Your name" style="height:48px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.04);border:1px solid rgba(243,236,226,.12);padding:0 14px 0 42px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45;background:rgba(194,43,69,.06)"></span></label>
+            <label style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:rgba(243,236,226,.75)">Email address<span style="position:relative;display:block"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(243,236,226,.45);display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg></span><input required type="email" name="email" value="{{ authForm.email }}" onChange="{{ setAuthField }}" placeholder="you@example.com" style="height:48px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.04);border:1px solid rgba(243,236,226,.12);padding:0 14px 0 42px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45;background:rgba(194,43,69,.06)"></span></label>
+            <label style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:rgba(243,236,226,.75)">Password<span style="position:relative;display:block"><span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(243,236,226,.45);display:flex"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span><input required type="{{ pwType }}" name="password" value="{{ authForm.password }}" onChange="{{ setAuthField }}" placeholder="At least 4 characters" style="height:48px;width:100%;min-width:0;box-sizing:border-box;border-radius:12px;background:rgba(243,236,226,.04);border:1px solid rgba(243,236,226,.12);padding:0 14px 0 42px;color:#f3ece2;font:inherit;font-size:14px;outline:0" style-focus="border-color:#c22b45;background:rgba(194,43,69,.06)"><button type="button" onClick="{{ togglePw }}" aria-label="Show password" style="all:unset;cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:rgba(243,236,226,.5);display:flex" style-hover="color:#f3ece2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button></span></label>
+            <sc-if value="{{ hasAuthError }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#e0526b;display:flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4M12 16h.01"></path></svg>{{ authError }}</span></sc-if>
+            <button type="submit" style="all:unset;cursor:pointer;height:52px;border-radius:12px;background:linear-gradient(180deg,#c22b45,#7e1424);color:#fff4f5;font-family:inherit;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;box-shadow:0 10px 30px rgba(194,43,69,.35);transition:transform .2s, box-shadow .2s" style-hover="transform:translateY(-1px);box-shadow:0 14px 36px rgba(194,43,69,.5)">Create account<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;right:18px"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></button>
+          </form>
+        </sc-if>
+        <div style="display:flex;align-items:center;gap:12px;font-size:11px;opacity:.5"><span style="flex:1;height:1px;background:rgba(243,236,226,.2)"></span>or continue with<span style="flex:1;height:1px;background:rgba(243,236,226,.2)"></span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <button onClick="{{ socialGoogle }}" style="all:unset;cursor:pointer;height:48px;border-radius:12px;background:rgba(243,236,226,.04);border:1px solid rgba(243,236,226,.12);color:#f3ece2;font-family:inherit;font-size:13px;display:flex;align-items:center;justify-content:center;gap:10px" style-hover="border-color:rgba(243,236,226,.35)"><svg width="16" height="16" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5.4c1.6 0 3 .6 4.1 1.6l3-3A10.6 10.6 0 0 0 12 1.2 10.8 10.8 0 0 0 2.4 7.1l3.5 2.7A6.4 6.4 0 0 1 12 5.4z"></path><path fill="#4285F4" d="M22.6 12.2c0-.8-.1-1.5-.2-2.2H12v4.2h6a5.2 5.2 0 0 1-2.2 3.4l3.4 2.6c2-1.8 3.4-4.6 3.4-8z"></path><path fill="#FBBC05" d="M5.9 14.2A6.5 6.5 0 0 1 5.5 12c0-.8.1-1.5.4-2.2L2.4 7.1A10.8 10.8 0 0 0 1.2 12c0 1.8.4 3.4 1.2 4.9l3.5-2.7z"></path><path fill="#34A853" d="M12 22.8c2.9 0 5.4-1 7.2-2.6l-3.4-2.6c-1 .6-2.2 1-3.8 1a6.4 6.4 0 0 1-6.1-4.4l-3.5 2.7A10.8 10.8 0 0 0 12 22.8z"></path></svg>Google</button>
+          <button onClick="{{ continueGuest }}" style="all:unset;cursor:pointer;height:48px;border-radius:12px;background:rgba(243,236,226,.04);border:1px solid rgba(243,236,226,.12);color:#f3ece2;font-family:inherit;font-size:13px;display:flex;align-items:center;justify-content:center;gap:10px" style-hover="border-color:rgba(243,236,226,.35)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M20 21a8 8 0 0 0-16 0"></path></svg>Guest</button>
+        </div>
+        <span style="font-size:13px;opacity:.7;text-align:center">{{ authSwitchText }} <button onClick="{{ toggleAuthMode }}" style="all:unset;cursor:pointer;color:#e0526b" style-hover="color:#f3ece2">{{ authSwitchCta }}</button></span>
+        <sc-if value="{{ authIsSignin }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ fillDemoAdmin }}" style="all:unset;cursor:pointer;font-size:11px;color:rgba(243,236,226,.4);text-align:center" style-hover="color:#c22b45">Demo admin · admin@casadelvino.com / admin</button></sc-if>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ zoomOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeZoom }}" style="position:fixed;inset:0;z-index:60;background:rgba(5,2,2,.96);display:grid;place-items:center;cursor:zoom-out">
+    <img src="{{ featured.img }}" alt="{{ featured.name }}" style="max-width:100vw;max-height:100vh;width:auto;height:auto;object-fit:contain;box-shadow:0 30px 80px rgba(0,0,0,.8)">
+    <div style="position:absolute;left:24px;bottom:24px;display:flex;flex-direction:column;gap:4px;pointer-events:none">
+      <span style="font-family:'Cormorant Garamond',serif;font-size:26px">{{ featured.name }}</span>
+      <span style="font-size:12px;color:#e0526b">{{ featured.category }} · {{ featured.country }} · {{ featured.abv }} vol</span>
+    </div>
+    <button onClick="{{ closeZoom }}" aria-label="Close" style="all:unset;cursor:pointer;position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;background:rgba(243,236,226,.1);display:grid;place-items:center;color:#f3ece2" style-hover="background:#c22b45"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ cartOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeCart }}" style="position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);display:flex;justify-content:flex-end;padding: {{ drawerPad }}">
+    <aside onClick="{{ stop }}" style="width:min(400px,100%);height:100%;background:#1a1817;border-radius:24px;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.7);overflow:hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;border-bottom:1px solid rgba(243,236,226,.08)">
+        <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-weight:500;font-size:26px">Your bag</h3>
+        <div style="display:flex;align-items:center;gap:8px">
+          <sc-if value="{{ cartHasItems }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearCart }}" style="all:unset;cursor:pointer;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(243,236,226,.6);padding:8px 10px;border-radius:999px" style-hover="color:#c22b45;background:rgba(194,43,69,.1)">Clear all</button></sc-if>
+        <button onClick="{{ closeCart }}" aria-label="Close" style="all:unset;cursor:pointer;width:36px;height:36px;border-radius:50%;background:#262322;display:grid;place-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+        </div>
+      </div>
+      <div style="flex:1;overflow:auto;display:flex;flex-direction:column">
+        <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
+          <p style="padding:24px 22px;margin:0;opacity:.6;font-size:14px">Your bag is empty. Add a bottle from the cellar.</p>
+        </sc-if>
+        <sc-for list="{{ cartLines }}" as="l" hint-placeholder-count="0">
+          <div style="display:grid;grid-template-columns:56px 1fr auto;gap:12px;padding:14px 22px;border-bottom:1px solid rgba(243,236,226,.08);align-items:center">
+            <div style="width:56px;height:64px;overflow:hidden;background:#0f0d0c;border-radius:12px"><img src="{{ l.img }}" alt="" style="width:100%;height:100%;object-fit:cover"></div>
+            <div style="display:flex;flex-direction:column;gap:3px;min-width:0">
+              <span style="font-size:13px;line-height:1.3">{{ l.name }}</span>
+              <span style="font-size:12px;color:#c22b45">{{ l.abv }} · {{ l.sizeLabel }} · {{ l.lineTotal }}</span>
+            </div>
+            <div style="display:flex;align-items:center;background:#262322;border-radius:999px;padding:2px">
+              <button onClick="{{ l.dec }}" style="all:unset;cursor:pointer;width:28px;height:28px;border-radius:50%;display:grid;place-items:center">−</button>
+              <span style="min-width:22px;text-align:center;font-size:13px">{{ l.qty }}</span>
+              <button onClick="{{ l.inc }}" style="all:unset;cursor:pointer;width:28px;height:28px;border-radius:50%;display:grid;place-items:center">+</button>
+            </div>
+            <button onClick="{{ l.remove }}" aria-label="Remove" style="all:unset;cursor:pointer;grid-column:3;justify-self:end;font-size:11px;color:rgba(243,236,226,.5);margin-top:-6px" style-hover="color:#c22b45">Remove</button>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding:18px 22px;border-top:1px solid rgba(243,236,226,.08);display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;font-size:13px;opacity:.7"><span>{{ cartCount }} bottles</span><span>Subtotal <b style="color:#f3ece2">{{ subtotal }}</b></span></div>
+        <button disabled="{{ cartEmpty }}" onClick="{{ startCheckout }}" style="all:unset;cursor:pointer;height:52px;border-radius:14px;background:linear-gradient(180deg,#b8233d,#6e0f20);color:#fff4f5;font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;justify-content:center;opacity: {{ checkoutOpacity }}">Checkout</button>
+      </div>
+    </aside>
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showSplash&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Entry&quot;},&quot;splashSeconds&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:3,&quot;min&quot;:1,&quot;max&quot;:6,&quot;step&quot;:0.5,&quot;unit&quot;:&quot;s&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Entry&quot;},&quot;maxIngredients&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:3,&quot;max&quot;:8,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Product&quot;}}">
+const PRODUCTS = [
+  { id: 'syrah', name: 'Syrah — Vino Tinto', category: 'Red wine', country: 'Spain', origin: 'Spain', size: '75cl', abv: '13.5%', price: 12.5, img: 'assets/syrah.jpg',
+    description: 'Syrah is a rich, full-bodied red wine known for its deep dark color, bold fruit flavors, and signature peppery spice.',
+    ingredients: 'Blackberry, blueberry, dark plum, black pepper and tobacco.', list: [['Blackberry','Blackberry','berry'],['Blueberry','Blueberry','berry'],['Dark plum','Plum','plum'],['Black pepper','Black_pepper','pepper'],['Tobacco','Tobacco','leaf']] },
+  { id: 'vermouth', name: 'Vermouth Rojo Gaztelu', category: 'Vermouth', country: 'Spain', origin: 'Spain', size: '1L', abv: '15%', price: 9.9, img: 'assets/vermouth.jpg',
+    description: 'A red vermouth made in Spain on a white-wine base with sugars, botanical aromas and a touch of caramel colour.',
+    ingredients: 'White wine (contains sulfites), sugars, ethyl alcohol of agricultural origin, water, aromas, dye (ammonium sulfite candy), conservatives and antioxidants (Potassium metabisulphite and L ascorbic acid), conservatives (Potassium sorbate), stabilizing agents (Metatartaric acid), acidity regulators (citric acid).', list: [['White wine','White_wine','wine'],['Sugars','Sugar','sugar'],['Botanical aromas','Herb','leaf'],['Water','Waterfall','drop'],['Caramel colour','Caramel','sugar']] },
+  { id: 'jb', name: 'J&B Rare Blended Scotch Whisky', category: 'Scotch whisky', country: 'Italy', origin: 'Italy', size: '70cl', abv: '40%', price: 21, img: 'assets/jb.jpg',
+    description: 'A blend of the purest old scotch whiskey.',
+    ingredients: 'Blended Scotch whisky.', list: [['Malted barley','Barley','wheat'],['Grain whisky','Scotch_whisky','wine'],['Scottish water','Steall_Waterfall','drop'],['Oak cask','Barrel','barrel']] },
+  { id: 'absolut', name: 'Absolut Vodka', category: 'Vodka', country: 'Sweden', origin: 'Åhus, Sweden', size: '50ml', abv: '40%', price: 3.5, img: 'assets/absolut.jpg',
+    description: 'Made with Swedish water and winter wheat, Absolut since 1879.',
+    ingredients: 'Winter wheat, water.', list: [['Winter wheat','Winter_wheat','wheat'],['Swedish water','Ristafallet','drop'],['Åhus, Sweden','Åhus','pin']] },
+  { id: 'ruavieja', name: 'Ruavieja Crema de Orujo', category: 'Cream liqueur', country: 'Spain', origin: 'Galicia, Spain', size: '50ml', abv: '17%', price: 3.2, img: 'assets/ruavieja.jpg',
+    description: 'A famous Spanish cream liqueur made in Galicia using traditional pomace brandy.',
+    ingredients: 'Cream, pomace brandy (orujo), sugar.', list: [['Cream','Cream','drop'],['Orujo brandy','Orujo','wine'],['Sugar','Sugar','sugar'],['Galicia','Galicia_(Spain)','pin']] },
+];
+const ING_ICON = {
+  berry: 'M12 21a7 7 0 0 0 7-7c0-4-3-6-7-6s-7 2-7 6a7 7 0 0 0 7 7ZM12 8V4M12 4l3-2M12 4 9 2',
+  plum: 'M12 21c5 0 8-3.5 8-8 0-4-3-7-8-7s-8 3-8 7c0 4.5 3 8 8 8ZM12 6c0-2 1-3 3-4',
+  pepper: 'M8 9a4 4 0 1 1 8 0 4 4 0 1 1-8 0ZM6 16a3 3 0 1 0 6 0 3 3 0 1 0-6 0ZM15 17a2.5 2.5 0 1 0 5 0 2.5 2.5 0 1 0-5 0',
+  leaf: 'M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10ZM2 21c0-3 1.85-5.36 5.08-6',
+  wine: 'M8 22h8M7 10h10M12 15v7M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z',
+  sugar: 'M3 9l9-5 9 5-9 5-9-5ZM3 9v8l9 5 9-5V9M12 14v8',
+  drop: 'M12 22a7 7 0 0 0 7-7c0-4-4-9-7-13-3 4-7 9-7 13a7 7 0 0 0 7 7Z',
+  wheat: 'M12 22V8M12 8c-3 0-5-2-5-5 3 0 5 2 5 5ZM12 8c3 0 5-2 5-5-3 0-5 2-5 5ZM12 14c-3 0-5-2-5-5 3 0 5 2 5 5ZM12 14c3 0 5-2 5-5-3 0-5 2-5 5Z',
+  barrel: 'M6 3h12c1 3 1.5 6 1.5 9s-.5 6-1.5 9H6c-1-3-1.5-6-1.5-9S5 6 6 3ZM4.5 9h15M4.5 15h15',
+  pin: 'M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0ZM12 10m-3 0a3 3 0 1 0 6 0 3 3 0 1 0-6 0',
+};
+const ICON = {
+  grid: 'M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z',
+  wine: 'M8 22h8M7 10h10M12 15v7M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z',
+  martini: 'M8 22h8M12 11v11M19 3l-7 8-7-8Z',
+  glass: 'M15.2 22H8.8a2 2 0 0 1-2-1.79L5 3h14l-1.81 17.21A2 2 0 0 1 15.2 22ZM6 12a5 5 0 0 1 6 0 5 5 0 0 0 6 0',
+  cream: 'M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4ZM6 2v3M10 2v3M14 2v3',
+  whisky: 'M6 3h12l-1 18H7ZM6 10h12',
+  leaf: 'M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10ZM2 21c0-3 1.85-5.36 5.08-6',
+};
+const CATEGORIES = [
+  ['All', 'grid'], ['Red wine', 'wine'], ['White wine', 'wine'], ['Vermouth', 'martini'], ['Vodka', 'glass'],
+  ['Cream liqueur', 'cream'], ['Scotch whisky', 'whisky'], ['Non-alcoholic red', 'leaf'], ['Non-alcoholic white', 'leaf'],
+];
+
+class Component extends DCLogic {
+  state = { splash: true, page: 'shop', cat: 'All', query: '', featuredId: null, wish: {}, wishOnly: false, cart: {}, cartOpen: false, sent: false, step: 1, ship: 'standard', pay: 'card', form: { name: '', email: '', phone: '', city: '', address: '', adult: false, card: '', cardName: '', exp: '', cvc: '' }, order: null };
+  P() { return this.state.products || PRODUCTS; }
+  persist(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {} }
+  componentDidMount() {
+    try {
+      const u = JSON.parse(localStorage.getItem('cdv-user') || 'null'); if (u) this.setState({ user: u });
+      const pr = JSON.parse(localStorage.getItem('cdv-products') || 'null'); if (Array.isArray(pr) && pr.length) this.setState({ products: pr }, () => this.loadIngredientImages());
+      const us = JSON.parse(localStorage.getItem('cdv-users') || 'null'); if (us) this.setState({ users: us });
+      const od = JSON.parse(localStorage.getItem('cdv-orders') || 'null'); if (Array.isArray(od)) this.setState({ orders: od });
+      const st = JSON.parse(localStorage.getItem('cdv-settings') || 'null'); if (st) this.setState({ settings: st });
+      const ac = JSON.parse(localStorage.getItem('cdv-activity') || 'null'); if (Array.isArray(ac)) this.setState({ activity: ac });
+      const ra = localStorage.getItem('cdv-notif-read'); if (ra) this.setState({ notifReadAt: ra });
+    } catch (e) {}
+    this._onResize = () => this.setState({ vw: window.innerWidth });
+    window.addEventListener('resize', this._onResize);
+    this._onResize();
+    this.loadIngredientImages();
+    const secs = this.props.splashSeconds ?? 3;
+    if (this.props.showSplash === false) { this.setState({ splash: false }); return; }
+    this._t = setTimeout(() => this.setState({ splash: false }), (secs + 1.2) * 1000);
+  }
+  componentWillUnmount() { clearTimeout(this._t); window.removeEventListener('resize', this._onResize); }
+  async loadIngredientImages() {
+    const articles = [...new Set(this.P().flatMap(p => (p.list || []).map(x => x[1])))];
+    const out = {};
+    const FALLBACK = { Ristafallet: 'Waterfall', Steall_Waterfall: 'Waterfall', Orujo: 'Brandy', 'Åhus': 'Sweden' };
+    const summary = async name => { const r = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(name)); const j = await r.json(); return j.thumbnail && j.thumbnail.source; };
+    await Promise.all(articles.map(async a => {
+      try {
+        let src = null;
+        try { src = await summary(a); } catch (e) {}
+        if (!src && FALLBACK[a]) { try { src = await summary(FALLBACK[a]); } catch (e) {} }
+        if (!src) return;
+        // Wikimedia blocks hotlinking here; fetch the thumbnail URL exactly as returned (resizing it yields HTTP 400), as a blob.
+        const resp = await fetch(src, { referrerPolicy: 'no-referrer' });
+        if (!resp.ok) return;
+        const blob = await resp.blob();
+        if (!blob.type.startsWith('image/')) return;
+        const obj = URL.createObjectURL(blob);
+        const ok = await new Promise(res => { const im = new Image(); im.onload = () => res(true); im.onerror = () => res(false); im.src = obj; });
+        if (ok) out[a] = obj; else URL.revokeObjectURL(obj);
+      } catch (e) {}
+    }));
+    this.setState({ ingImgs: out });
+  }
+
+  splashEl() {
+    if (!this.state.splash) return null;
+    const secs = this.props.splashSeconds ?? 3;
+    const N = 10, tiles = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      const i = r * N + c, h = Math.sin(i * 12.9898) * 43758.5453, f = h - Math.floor(h);
+      const dx = (c - (N - 1) / 2) / N, dy = (r - (N - 1) / 2) / N;
+      tiles.push(React.createElement('div', { key: i, style: {
+        backgroundImage: 'url(assets/logo.jpg)', backgroundSize: N * 100 + '% ' + N * 100 + '%',
+        backgroundPosition: (c * 100 / (N - 1)) + '% ' + (r * 100 / (N - 1)) + '%', backfaceVisibility: 'hidden',
+        '--tx': (dx * 160 + (f - .5) * 60) + 'vmin', '--ty': (dy * 160 + 40 + f * 60) + 'vmin', '--tz': (f * 900 - 300) + 'px',
+        '--rx': ((f - .5) * 720) + 'deg', '--ry': ((dx) * 540 + f * 180) + 'deg',
+        animation: 'cdvShard 1.3s cubic-bezier(.4,0,.8,1) ' + (secs - .8 + f * .35 + Math.abs(dy) * .25).toFixed(2) + 's both',
+      } }));
+    }
+    return React.createElement('div', { style: { position: 'fixed', inset: 0, zIndex: 100, background: '#050202', display: 'grid', placeItems: 'center', perspective: '1200px', overflow: 'hidden', animation: 'cdvOut .7s ease ' + (secs + .45) + 's both' } },
+      React.createElement('div', { style: { position: 'absolute', width: '70vmin', height: '70vmin', borderRadius: '50%', background: 'radial-gradient(circle, #7c1405 0%, transparent 70%)', animation: 'cdvGlow 3s ease-in-out infinite' } }),
+      React.createElement('div', { style: { width: 'min(82vmin, 640px)', aspectRatio: '1', display: 'grid', gridTemplateColumns: 'repeat(' + N + ',1fr)', transformStyle: 'preserve-3d', animation: 'cdvFloat 4s ease-in-out infinite alternate' } }, tiles)
+    );
+  }
+
+  bgEl() {
+    if (this._bg) return this._bg;
+    const GLASS = 'M20 4h24c0 14-4 24-10 26v14h10v4H20v-4h10V30C24 28 20 18 20 4Z';
+    const BOTTLE = 'M26 2h12v14c4 2 6 6 6 12v36c0 2-2 4-4 4H24c-2 0-4-2-4-4V28c0-6 2-10 6-12Z';
+    const items = [];
+    for (let i = 0; i < 9; i++) {
+      const h = Math.sin(i * 78.233) * 43758.5453, f = h - Math.floor(h), g = (f * 7.13) % 1;
+      const bottle = i % 3 === 0, size = 90 + f * 110;
+      items.push(React.createElement('div', { key: i, style: { position: 'absolute', left: (5 + g * 88) + '%', top: (5 + f * 85) + '%', width: size, height: size * 1.6, '--dx': ((g - .5) * 180) + 'px', '--dy': ((f - .5) * 140) + 'px', animation: 'cdvDrift ' + (26 + f * 20) + 's ease-in-out ' + (-f * 30) + 's infinite', transformStyle: 'preserve-3d' } },
+        React.createElement('svg', { viewBox: '0 0 64 72', width: '100%', height: '100%', style: { display: 'block', '--tilt': ((f - .5) * 40) + 'deg', animation: 'cdvSpin ' + (14 + g * 16) + 's linear ' + (-g * 20) + 's infinite', filter: 'drop-shadow(0 0 18px rgba(194,43,69,.5))' } },
+          React.createElement('path', { d: bottle ? BOTTLE : GLASS, fill: 'rgba(120,16,34,' + (0.18 + f * .2) + ')', stroke: 'rgba(224,82,107,' + (0.35 + g * .3) + ')', strokeWidth: 1.2, strokeLinejoin: 'round' }),
+          bottle ? null : React.createElement('path', { d: 'M23 14c2 8 5 13 9 14c4-1 7-6 9-14Z', fill: 'rgba(160,20,45,.55)' })
+        )));
+    }
+    for (let i = 0; i < 4; i++) {
+      const f = ((i + 1) * .37) % 1;
+      items.push(React.createElement('div', { key: 'o' + i, style: { position: 'absolute', left: (10 + i * 25) + '%', top: (15 + f * 60) + '%', width: 320 + f * 240, height: 320 + f * 240, borderRadius: '50%', background: 'radial-gradient(circle, rgba(140,20,40,.35) 0%, transparent 65%)', animation: 'cdvPulse ' + (9 + f * 8) + 's ease-in-out ' + (-f * 10) + 's infinite', filter: 'blur(10px)' } }));
+    }
+    this._bg = React.createElement('div', { 'aria-hidden': true, style: { position: 'fixed', inset: 0, zIndex: 0, overflow: 'hidden', perspective: '900px', pointerEvents: 'none' } }, items);
+    return this._bg;
+  }
+
+  authVals() {
+    const { user, authOpen, authMode = 'signin', authForm = {}, authError = '', page } = this.state;
+    const users = this.state.users || [{ name: 'Admin', email: 'admin@casadelvino.com', password: 'admin', role: 'admin' }];
+    const setA = e => { const { name, value } = e.target; this.setState(s => ({ authForm: { ...(s.authForm || {}), [name]: value }, authError: '' })); };
+    const finish = u => { this.persist('cdv-user', u); const next = this.state.authNext; this.setState({ user: u, authOpen: false, authForm: {}, authError: '', authNext: null, ...(next === 'checkout' ? { page: 'checkout', step: 1, order: null, form: { ...this.state.form, name: u.name || '', email: u.email || '' } } : {}) }); };
+    return {
+      user, isSignedIn: !!user, isGuest: !user, isAdmin: !!user && user.role === 'admin', isCustomer: !!user && user.role !== 'admin',
+      userLabel: user ? (user.role === 'guest' ? 'Guest' : (user.name || user.email).split(' ')[0]) : 'Sign in',
+      userInitial: user ? ((user.name || user.email || 'G')[0]).toUpperCase() : '',
+      authOpen: !!authOpen, authError, hasAuthError: !!authError, authForm,
+      authIsSignin: authMode === 'signin', authIsSignup: authMode === 'signup',
+      authTitle: authMode === 'signin' ? 'Welcome back' : 'Create your account',
+      signinTabFg: authMode === 'signin' ? '#f3ece2' : 'rgba(243,236,226,.5)', signupTabFg: authMode === 'signup' ? '#f3ece2' : 'rgba(243,236,226,.5)',
+      signinTabLine: authMode === 'signin' ? '#c22b45' : 'transparent', signupTabLine: authMode === 'signup' ? '#c22b45' : 'transparent',
+      openAuth: () => this.setState({ authOpen: true, authMode: 'signin', authNext: null }), closeAuth: () => this.setState({ authOpen: false, authError: '', authNext: null }),
+      modeSignin: () => this.setState({ authMode: 'signin', authError: '' }), modeSignup: () => this.setState({ authMode: 'signup', authError: '' }),
+      setAuthField: setA,
+      submitSignin: e => { e.preventDefault(); const u = users.find(x => x.email.toLowerCase() === (authForm.email || '').trim().toLowerCase()); if (!u || u.password !== (authForm.password || '')) return this.setState({ authError: 'Email or password is incorrect.' }); finish({ name: u.name, email: u.email, role: u.role }); },
+      submitSignup: e => { e.preventDefault(); const email = (authForm.email || '').trim().toLowerCase(); if (users.some(x => x.email.toLowerCase() === email)) return this.setState({ authError: 'An account with that email already exists.' }); if ((authForm.password || '').length < 4) return this.setState({ authError: 'Password needs at least 4 characters.' }); const nu = { name: (authForm.name || '').trim() || email.split('@')[0], email, password: authForm.password, role: 'customer', createdAt: new Date().toISOString() }; const all = [...users, nu]; this.persist('cdv-users', all); this.setState({ users: all }); finish({ name: nu.name, email: nu.email, role: 'customer' }); },
+      continueGuest: () => finish({ name: 'Guest', email: '', role: 'guest' }),
+      signOut: () => { this.persist('cdv-user', null); this.setState({ user: null, page: this.state.page === 'admin' ? 'shop' : this.state.page }); },
+      goAccount: () => this.setState({ page: user && user.role === 'admin' ? 'admin' : 'account' }),
+      accountClick: () => user ? this.setState({ page: user.role === 'admin' ? 'admin' : 'account', adminEdit: null }) : this.setState({ authOpen: true, authMode: 'signin', authNext: null }),
+      onAccount: this.state.page === 'account',
+      goAdmin: () => this.setState({ page: 'admin', adminEdit: null, adminTab: 'dashboard' }),
+      adminLine: this.state.page === 'admin' ? '#c22b45' : 'transparent',
+      fillDemoAdmin: () => this.setState({ authForm: { email: 'admin@casadelvino.com', password: 'admin' }, authMode: 'signin', authError: '' }),
+      authSubtitle: authMode === 'signin' ? 'Sign in to your cellar account' : 'Join Casa del Vino in a few seconds',
+      authSwitchText: authMode === 'signin' ? "Don't have an account?" : 'Already have an account?', authSwitchCta: authMode === 'signin' ? 'Sign up' : 'Sign in',
+      toggleAuthMode: () => this.setState(s => ({ authMode: s.authMode === 'signup' ? 'signin' : 'signup', authError: '' })),
+      pwType: this.state.showPw ? 'text' : 'password', togglePw: () => this.setState(s => ({ showPw: !s.showPw })),
+      forgotPw: () => this.setState({ authError: 'Password reset is not wired up in this demo. Use "Continue as guest" or the demo admin login.' }),
+      socialGoogle: () => this.setState({ authError: 'Google sign-in needs a live backend. Continue as guest for now.' }),
+      notAdmin: !(page === 'admin' && !!user && user.role === 'admin'),
+      settings: this.settings(), mailHref: 'mailto:' + this.settings().email,
+    };
+  }
+
+  logActivity(type, title, ref) { const a = [{ type, title, ref, date: new Date().toISOString() }, ...(this.state.activity || [])].slice(0, 50); this.persist('cdv-activity', a); this.setState({ activity: a }); }
+  settings() { return { email: 'hello@casadelvino.com', phone: '+34 600 000 000', hours: 'Mon–Sat, 10:00–20:00', address: 'Calle del Vino 12, Madrid', freeShip: '60', ...(this.state.settings || {}) }; }
+  adminVals() {
+    const P = this.P(), { page, adminEdit, adminTab = 'dashboard' } = this.state;
+    const orders = this.state.orders || [];
+    const users = this.state.users || [];
+    const eurF = n => '€' + Number(n || 0).toFixed(2).replace('.', ',');
+    const tab = id => ({ on: adminTab === id, go: () => this.setState({ adminTab: id, adminEdit: null }), fg: '#f3ece2', bg: adminTab === id ? 'rgba(194,43,69,.35)' : 'transparent' });
+    const palette = ['#c22b45', '#e0526b', '#7e1424', '#d9b27a', '#f3ece2', '#8a6234', '#ff9783', '#4d170e', '#b08a5a'];
+    const cats = CATEGORIES.slice(1).map(([label], i) => ({ label, count: P.filter(p => p.category === label).length, color: palette[i % palette.length] }));
+    const live = cats.filter(c => c.count > 0);
+    const circ = 2 * Math.PI * 46; let acc = 0;
+    const ringArcs = live.map(c => { const len = circ * c.count / Math.max(1, P.length); const arc = { color: c.color, dash: len.toFixed(1) + ' ' + (circ - len).toFixed(1), offset: (-acc).toFixed(1) }; acc += len; return arc; });
+    const day = new Date().getDay();
+    const base = [42, 58, 51, 74, 88, 120, 96], last = [38, 44, 60, 52, 70, 98, 80];
+    const thisWeek = base.map((v, i) => v + orders.filter(o => { const d = new Date(o.date); const diff = (Date.now() - d) / 864e5; return diff < 7 && ((d.getDay() + 6) % 7) === i; }).reduce((a, o) => a + o.total, 0));
+    const maxV = Math.max(...thisWeek, ...last) * 1.1;
+    const pts = arr => arr.map((v, i) => [i * (280 / 6), 110 - (v / maxV) * 100]);
+    const line = arr => pts(arr).map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const peakI = thisWeek.indexOf(Math.max(...thisWeek)), peak = pts(thisWeek)[peakI];
+    const sumT = thisWeek.reduce((a, b) => a + b, 0), sumL = last.reduce((a, b) => a + b, 0);
+    const fmtDate = iso => { const d = new Date(iso); return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short' }); };
+    const setS = e => { const { name, value } = e.target; this.setState(s => ({ settings: { ...this.settings(), ...(s.settings || {}), [name]: value } })); };
+    const customerRows = users.filter(u => u.role !== 'admin').map(u => ({ name: u.name, email: u.email, role: 'Customer', initial: (u.name || u.email)[0].toUpperCase(), orders: orders.filter(o => o.email && o.email.toLowerCase() === u.email.toLowerCase()).length }))
+      .concat(orders.filter(o => !users.some(u => o.email && u.email.toLowerCase() === o.email.toLowerCase())).reduce((acc, o) => { const k = o.email || o.customer; if (!acc.some(x => x.key === k)) acc.push({ key: k, name: o.customer, email: o.email || 'guest checkout', role: 'Guest', initial: (o.customer || 'G')[0].toUpperCase(), orders: orders.filter(x => (x.email || x.customer) === k).length }); return acc; }, []));
+    const aq = (this.state.adminQuery || '').trim().toLowerCase();
+    const readAt = this.state.notifReadAt || '1970-01-01';
+    const ICONS = { order: 'M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4ZM3 6h18M16 10a4 4 0 0 1-8 0', signup: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 1 0 0-8ZM19 8v6M22 11h-6', 'product-added': 'M12 5v14M5 12h14', 'product-updated': 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z', 'product-removed': 'M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6' };
+    const notifRaw = [
+      ...orders.map(o => ({ type: 'order', date: o.date, title: 'New order ' + o.no + ' · ' + eurF(o.total), meta: (o.customer || 'Guest') + ' · ' + o.count + ' bottles', go: () => this.setState({ adminTab: 'orders', notifOpen: false }) })),
+      ...users.filter(u => u.role !== 'admin' && u.createdAt).map(u => ({ type: 'signup', date: u.createdAt, title: u.name + ' created an account', meta: u.email, go: () => this.setState({ adminTab: 'customers', notifOpen: false }) })),
+      ...(this.state.activity || []).map(a => ({ type: a.type, date: a.date, title: ({ 'product-added': 'Added ', 'product-updated': 'Updated ', 'product-removed': 'Removed ' })[a.type] + '“' + a.title + '”', meta: 'Catalog', go: () => this.setState({ adminTab: 'products', notifOpen: false }) })),
+    ].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 30);
+    const notifs = notifRaw.map(n => { const unread = n.date > readAt; return { ...n, unread, bg: unread ? 'rgba(194,43,69,.06)' : 'transparent', icon: ICONS[n.type] || ICONS.order, iconBg: n.type === 'order' ? '#c22b45' : n.type === 'signup' ? '#7e1424' : '#4d170e', meta: n.meta + ' · ' + fmtDate(n.date) }; });
+    const unreadCount = notifs.filter(n => n.unread).length;
+    const adminExtra = {
+      notifs, noNotifs: notifs.length === 0, unreadCount, hasUnread: unreadCount > 0, notifOpen: !!this.state.notifOpen,
+      toggleNotif: () => this.setState(s => ({ notifOpen: !s.notifOpen })),
+      markAllRead: () => { const t = new Date().toISOString(); this.persist('cdv-notif-read', t); localStorage.setItem('cdv-notif-read', t); this.setState({ notifReadAt: t }); },
+      tabDash: tab('dashboard'), tabProducts: tab('products'), tabOrders: tab('orders'), tabCustomers: tab('customers'), tabSettings: tab('settings'),
+      adminQuery: this.state.adminQuery || '', setAdminQuery: e => this.setState({ adminQuery: e.target.value, adminTab: 'products' }),
+      statOrders: orders.length, statRevenue: eurF(orders.reduce((a, o) => a + o.total, 0)), statBar: Math.min(100, orders.length * 10) + '%',
+      statCategories: live.length, statCustomers: customerRows.length,
+      chartThis: line(thisWeek), chartLast: line(last), chartArea: line(thisWeek) + ' L280 110 L0 110 Z', chartPeakX: peak[0].toFixed(1), chartPeakY: peak[1].toFixed(1),
+      weekDelta: (sumT >= sumL ? '+' : '') + Math.round((sumT - sumL) / sumL * 100) + '%',
+      ringLegend: live, ringArcs,
+      hasOrders: orders.length > 0, noOrders: orders.length === 0,
+      recentOrders: orders.slice(0, 5).map(o => ({ ...o, totalLabel: eurF(o.total), date: fmtDate(o.date) })),
+      allOrders: orders.map(o => ({ ...o, totalLabel: eurF(o.total), date: fmtDate(o.date), items: o.lines.map(l => l.qty + '× ' + l.name).join(', '), pay: ({ card: 'Card', transfer: 'Transfer', cod: 'On delivery' })[o.pay] || o.pay })),
+      customerRows,
+      latestProducts: P.slice(-3).reverse().map(p => ({ ...p, priceLabel: eurF(p.price), edit: () => this.setState({ adminEdit: { ...p, images: p.images && p.images.length ? p.images : (p.img ? [p.img] : []), listText: (p.list || []).map(x => x[0]).join(', ') } }) })),
+      setSetting: setS, saveSettings: e => { e.preventDefault(); this.persist('cdv-settings', this.settings()); this.setState({ adminToast: 'Website details saved' }); clearTimeout(this._toast); this._toast = setTimeout(() => this.setState({ adminToast: '' }), 1800); },
+    };
+    const user = this.state.user, isAdmin = !!user && user.role === 'admin';
+    const blank = { id: '', name: '', category: 'Red wine', country: 'Spain', origin: '', size: '', abv: '', price: '', img: '', description: '', ingredients: '', listText: '' };
+    const ed = adminEdit || null;
+    const setE = e => { const { name, value } = e.target; this.setState(s => ({ adminEdit: { ...s.adminEdit, [name]: value } })); };
+    const saveProducts = list => { this.persist('cdv-products', list); this.setState({ products: list, adminEdit: null, adminToast: 'Saved' }, () => this.loadIngredientImages()); clearTimeout(this._toast); this._toast = setTimeout(() => this.setState({ adminToast: '' }), 1800); };
+    const eur = n => '€' + Number(n || 0).toFixed(2).replace('.', ',');
+    return {
+      ...adminExtra,
+      onAdmin: page === 'admin' && isAdmin,
+      adminToast: this.state.adminToast || '', hasToast: !!this.state.adminToast,
+      adminProducts: P.filter(p => !aq || (p.name + ' ' + p.category + ' ' + p.country).toLowerCase().includes(aq)).map(p => ({ ...p, priceLabel: eur(p.price),
+        edit: () => this.setState({ adminEdit: { ...p, images: p.images && p.images.length ? p.images : (p.img ? [p.img] : []), listText: (p.list || []).map(x => x[0]).join(', ') } }),
+        remove: () => { if (window.confirm('Remove "' + p.name + '" from the cellar?')) { this.logActivity('product-removed', p.name, p.id); saveProducts(P.filter(x => x.id !== p.id)); } } })),
+      adminCount: P.length, adminStockValue: eur(P.reduce((a, p) => a + Number(p.price || 0), 0)),
+      adminCategories: cats.map(c => ({ ...c, dot: c.count ? c.color : 'rgba(243,236,226,.2)' })),
+      categoryOptions: CATEGORIES.slice(1).map(([label]) => label), countryOptions: ['Spain', 'Italy', 'Sweden', 'France'],
+      adminEditing: !!ed, adminEdit: ed || blank, adminIsNew: !!ed && ed.id === '__new', adminEditTitle: ed && ed.id === '__new' ? 'Add a bottle' : 'Edit bottle',
+      adminEditImg: (ed && (ed.images || [])[0]) || (ed && ed.img) || 'assets/syrah.jpg', adminHasImg: !!(ed && ed.img),
+      adminImages: ((ed && ed.images) || []).map((src, i, arr) => ({ src, line: i === 0 ? '#c22b45' : 'transparent',
+        makeCover: () => this.setState(s => { const im = [...(s.adminEdit.images || [])]; const [x] = im.splice(i, 1); im.unshift(x); return { adminEdit: { ...s.adminEdit, images: im, img: im[0] } }; }),
+        remove: e => { e.stopPropagation(); this.setState(s => { const im = (s.adminEdit.images || []).filter((_, k) => k !== i); return { adminEdit: { ...s.adminEdit, images: im, img: im[0] || '' } }; }); } })),
+      adminImageCount: ((ed && ed.images) || []).length + (((ed && ed.images) || []).length === 1 ? ' photo' : ' photos'),
+      addImageUrl: () => this.setState(s => { const u = (s.adminEdit.imgUrl || '').trim(); if (!u) return null; const im = [...(s.adminEdit.images || []), u]; return { adminEdit: { ...s.adminEdit, images: im, img: im[0], imgUrl: '' } }; }),
+      startAdd: () => this.setState({ adminEdit: { ...blank, id: '__new' } }),
+      cancelEdit: () => this.setState({ adminEdit: null }),
+      setEditField: setE,
+      onImageFile: e => { const files = Array.from(e.target.files || []); if (!files.length) return; files.forEach(f => { const rd = new FileReader(); rd.onload = () => this.setState(s => { const im = [...(s.adminEdit.images || []), rd.result]; return { adminEdit: { ...s.adminEdit, images: im, img: im[0] } }; }); rd.readAsDataURL(f); }); e.target.value = ''; },
+      saveEdit: e => { e.preventDefault(); if (!ed) return;
+        const list = (ed.listText || '').split(',').map(x => x.trim()).filter(Boolean).map(l => [l, l.replace(/\s+/g, '_'), 'leaf']);
+        const rec = { id: ed.id === '__new' ? (ed.name || 'bottle').toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Date.now().toString(36) : ed.id,
+          name: ed.name.trim(), category: ed.category, country: ed.country, origin: ed.origin || ed.country, size: ed.size, abv: ed.abv, price: parseFloat(String(ed.price).replace(',', '.')) || 0,
+          img: ((ed.images || [])[0]) || ed.img || 'assets/syrah.jpg', images: (ed.images || []).length ? ed.images : [ed.img || 'assets/syrah.jpg'], description: ed.description, ingredients: ed.ingredients, list };
+        this.logActivity(ed.id === '__new' ? 'product-added' : 'product-updated', rec.name, rec.id);
+        saveProducts(ed.id === '__new' ? [...P, rec] : P.map(x => x.id === ed.id ? rec : x)); },
+      resetCatalog: () => { if (window.confirm('Restore the original five bottles? Your edits will be lost.')) { localStorage.removeItem('cdv-products'); this.setState({ products: null, adminEdit: null }, () => this.loadIngredientImages()); } },
+    };
+  }
+
+  checkoutVals(cartLines, eur) {
+    const { page, step, ship, pay, form, order } = this.state;
+    const SHIP = [
+      { id: 'standard', label: 'Standard', note: '3–5 working days', cost: 6.9 },
+      { id: 'express', label: 'Express', note: 'Next working day', cost: 12.9 },
+      { id: 'pickup', label: 'Collect in store', note: 'Ready in 2 hours', cost: 0 },
+    ];
+    const PAY = [
+      { id: 'card', label: 'Card', icon: 'M2 5h20v14H2zM2 10h20M6 15h4' },
+      { id: 'transfer', label: 'Bank transfer', icon: 'M3 21h18M3 10h18M5 6l7-3 7 3M6 10v11M18 10v11M10 10v11M14 10v11' },
+      { id: 'cod', label: 'Pay on delivery', icon: 'M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2M15 18H9M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14M17 18m-2 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0M7 18m-2 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0' },
+    ];
+    const subtotalN = cartLines.reduce((a, l) => a + l.price * l.qty, 0);
+    const shipOpt = SHIP.find(o => o.id === ship) || SHIP[0];
+    const FREE = parseFloat((this.state.settings || {}).freeShip) || 60;
+    const shipCost = subtotalN >= FREE && shipOpt.id !== 'express' ? 0 : shipOpt.cost;
+    const totalN = subtotalN + shipCost;
+    const cur = step;
+    const setStep = n => () => { if (n <= cur || (n === 2 && cartLines.length) ) this.setState({ step: n }); };
+    const setF = e => { const { name, value } = e.target; this.setState(s => ({ form: { ...s.form, [name]: value } })); };
+    const digits = (form.card || '').replace(/\D/g, '').slice(0, 16);
+    const cardPreview = (digits.padEnd(16, '•').match(/.{1,4}/g) || []).join(' ');
+    const src = order || { lines: cartLines, total: totalN, count: cartLines.reduce((a, l) => a + l.qty, 0), no: '', pay, ship: shipOpt.label };
+    return {
+      onCheckout: page === 'checkout',
+      startCheckout: () => this.state.user ? this.setState({ page: 'checkout', cartOpen: false, step: 1, order: null }) : this.setState({ cartOpen: false, authOpen: true, authMode: 'signin', authNext: 'checkout' }),
+      steps: [['Bag', 1], ['Delivery', 2], ['Payment', 3], ['Done', 4]].map(([label, n]) => ({ label, n, go: setStep(n),
+        fg: n === cur ? '#f3ece2' : n < cur ? 'rgba(243,236,226,.8)' : 'rgba(243,236,226,.45)',
+        bg: n === cur ? 'rgba(194,43,69,.12)' : 'transparent',
+        dotBg: n <= cur ? '#c22b45' : '#262322', dotFg: n <= cur ? '#fff4f5' : 'rgba(243,236,226,.6)' })),
+      stepBag: cur === 1, stepDelivery: cur === 2, stepPayment: cur === 3, stepDone: cur === 4,
+      toBag: () => this.setState({ step: 1 }), toDelivery: () => this.setState({ step: 2 }), toDeliveryBtn: () => this.setState({ step: 2 }),
+      toPayment: e => { e.preventDefault(); this.setState({ step: 3 }); },
+      goShopEvt: e => { e.preventDefault(); this.setState({ page: 'shop' }); },
+      form, setField: setF, setCheck: e => this.setState(s => ({ form: { ...s.form, adult: e.target.checked } })),
+      shippingOptions: SHIP.map(o => ({ ...o, price: (subtotalN >= FREE && o.id !== 'express') || o.cost === 0 ? 'Free' : eur(o.cost), line: o.id === ship ? '#c22b45' : 'transparent', pick: () => this.setState({ ship: o.id }) })),
+      payOptions: PAY.map(o => ({ ...o, line: o.id === pay ? '#c22b45' : 'transparent', pick: () => this.setState({ pay: o.id }) })),
+      payIsCard: pay === 'card', payIsTransfer: pay === 'transfer', payIsCod: pay === 'cod',
+      payLabel: (PAY.find(o => o.id === src.pay) || PAY[0]).label,
+      cardPreview, cardNamePreview: (form.cardName || 'NAME ON CARD').toUpperCase(),
+      subtotal: eur(order ? order.subtotal : subtotalN), shippingLabel: order ? order.ship : shipOpt.label, shippingPrice: (order ? order.shipCost : shipCost) === 0 ? 'Free' : eur(order ? order.shipCost : shipCost), total: eur(order ? order.total : totalN),
+      summaryLines: order ? order.lines : cartLines,
+      placeOrder: e => { e.preventDefault(); const no = 'CDV-' + Math.floor(1000 + Math.random() * 9000); const rec = { lines: cartLines.map(l => ({ id: l.id, name: l.name, qty: l.qty, price: l.price })), total: totalN, subtotal: subtotalN, shipCost, count: cartLines.reduce((a, l) => a + l.qty, 0), no, pay, ship: shipOpt.label, customer: form.name || (this.state.user && this.state.user.name) || 'Guest', email: form.email, date: new Date().toISOString() }; const orders = [rec, ...(this.state.orders || [])]; this.persist('cdv-orders', orders); this.setState({ step: 4, order: rec, orders, cart: {} }); },
+      orderNo: src.no, orderCount: src.count, orderTotal: eur(src.total), firstName: (form.name || 'friend').split(' ')[0],
+      finishOrder: () => this.setState({ page: 'shop', step: 1, order: null }),
+    };
+  }
+
+  renderVals() {
+    const { page, cat, query, featuredId, wish, wishOnly, cart, cartOpen, sent } = this.state;
+    const q = query.trim().toLowerCase();
+    const P = this.P();
+    const list = P.filter(p => (cat === 'All' || p.category === cat) && (!wishOnly || wish[p.id]) && (!q || (p.name + ' ' + p.category + ' ' + p.country).toLowerCase().includes(q)));
+    const imgs = this.state.ingImgs || {};
+    const chipsFor = p => (p.list || []).slice(0, this.props.maxIngredients ?? 5).map(([label, article, icon], i, arr) => {
+      const n = arr.length, left = i % 2 === 0, row = Math.floor(i / 2), rows = Math.ceil(n / 2);
+      const y = rows === 1 ? 50 : 18 + row * (64 / (rows - 1));
+      const x = left ? 17 : 83;
+      const size = (52 + (i % 3) * 6) + 'px', img = imgs[article] || '';
+      const key = p.id + '-' + i;
+      return { label, x: x + '%', y: y + '%', size, slotId: 'ing-' + key, img, hasImg: !!img, noImg: !img,
+        labelOpacity: this.state.hoverChip === key ? 1 : 0,
+        show: () => this.setState({ hoverChip: key }), hide: () => this.setState({ hoverChip: null }), icon: ING_ICON[icon] || ING_ICON.leaf, dur: (9 + (i % 3) * 2) + 's', delay: (-i * 2.3) + 's' };
+    });
+    const mk = p => ({ ...p, imgSrc: p.img, hasImg: !!p.img, priceLabel: '€' + p.price.toFixed(2).replace('.', ','), sizeLabel: p.size || 'Standard', chips: chipsFor(p),
+      line: p.id === featuredId ? '#c22b45' : 'transparent',
+      wishFg: wish[p.id] ? '#c22b45' : 'rgba(243,236,226,.6)', wishFill: wish[p.id] ? '#c22b45' : 'none', wishBg: wish[p.id] ? '#c22b45' : '#262322',
+      open: () => { this.setState({ featuredId: p.id, galleryIdx: 0 }); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+      wish: () => this.setState(s => ({ wish: { ...s.wish, [p.id]: !s.wish[p.id] } })),
+      add: () => this.setState(s => ({ cart: { ...s.cart, [p.id]: (s.cart[p.id] || 0) + 1 }, cartOpen: true })),
+      buy: () => this.setState(s => ({ cart: { ...s.cart, [p.id]: (s.cart[p.id] || 0) + 1 }, cartOpen: false, page: 'checkout', step: 1, order: null })) });
+    const featuredRaw = list.find(p => p.id === featuredId) || list[0];
+    const featured = featuredRaw ? { ...mk(featuredRaw), wishFg: wish[featuredRaw.id] ? '#fff4f5' : '#f3ece2' } : { sizeLabel: '' };
+    const hc = this.state.hoverCard;
+    const rail = list.filter(p => !featuredRaw || p.id !== featuredRaw.id).map(mk).map((p, i) => { const on = hc === p.id; return { ...p,
+      riseDelay: (0.1 + i * 0.08).toFixed(2) + 's',
+      hoverOn: () => this.setState({ hoverCard: p.id }), hoverOff: () => this.setState({ hoverCard: null }),
+      cardTransform: on ? 'translateY(-8px) rotateX(6deg) rotateY(-6deg) scale(1.03)' : 'translateY(0) rotateX(0) rotateY(0) scale(1)',
+      cardShadow: on ? '0 26px 50px rgba(0,0,0,.6), 0 0 30px rgba(194,43,69,.35)' : '0 0 0 rgba(0,0,0,0)',
+      riseAnim: on ? 'cdvBottleRise 1.4s cubic-bezier(.3,.8,.3,1) both, cdvBottleSpin 4s linear 1.4s infinite' : 'none',
+      shadowAnim: on ? 'cdvShadowShrink .5s ease-out both' : 'none',
+      corkAnim: on ? 'cdvCork .9s cubic-bezier(.2,.7,.3,1) .35s both' : 'none',
+      ringAnim: on ? 'cdvRing .8s ease-out .4s both' : 'none',
+      drops: on ? Array.from({ length: 9 }, (_, k) => { const a = (-100 + k * 25) * Math.PI / 180, dist = 50 + (k % 3) * 22; return { size: (5 + (k % 3) * 3) + 'px', dx: Math.round(Math.cos(a) * dist) + 'px', dy: Math.round(Math.sin(a) * dist + 40) + 'px', rot: (k * 40) + 'deg', anim: 'cdvDrop ' + (0.7 + (k % 3) * 0.15) + 's cubic-bezier(.2,.6,.4,1) ' + (0.4 + k * 0.03).toFixed(2) + 's both' }; }) : [] }; });
+    const tilt = this.state.tilt || { x: 0, y: 0, gx: 50, gy: 50 };
+    const wishCount = P.filter(p => wish[p.id]).length;
+    const eur = n => '€' + n.toFixed(2).replace('.', ',');
+    const cartLines = Object.entries(cart).filter(([, n]) => n > 0).map(([id, qty]) => { const p = P.find(x => x.id === id); if (!p) return null; return { ...p, qty, sizeLabel: p.size || 'Standard', unitPrice: eur(p.price), lineTotal: eur(p.price * qty),
+      remove: () => this.setState(s => { const c = { ...s.cart }; delete c[id]; return { cart: c }; }),
+      inc: () => this.setState(s => ({ cart: { ...s.cart, [id]: s.cart[id] + 1 } })),
+      dec: () => this.setState(s => ({ cart: { ...s.cart, [id]: s.cart[id] - 1 } })) }; }).filter(Boolean);
+    const cartCount = cartLines.reduce((a, l) => a + l.qty, 0);
+    const vw = this.state.vw || 1200, mobile = vw < 760, tight = vw < 480;
+    return {
+      isDesktop: !mobile, isMobile: mobile,
+      pageGap: mobile ? '14px' : '20px', pagePad: tight ? '10px' : mobile ? '14px' : '20px',
+      asideFlex: mobile ? '1 1 100%' : '0 0 240px', asidePad: mobile ? '12px 14px' : '28px 20px', asideGap: mobile ? '12px' : '24px',
+      asidePos: mobile ? 'relative' : 'sticky', asideTop: mobile ? 'auto' : '20px', navDir: mobile ? 'row' : 'column',
+      mainBasis: mobile ? '100%' : '560px', radiusLg: tight ? '18px' : '28px', panelPad: tight ? '18px' : mobile ? '22px' : '32px',
+      featuredH: tight ? '300px' : mobile ? '360px' : '420px', summaryPos: mobile ? 'relative' : 'sticky', drawerPad: mobile ? '0' : '16px',
+      splash: this.splashEl(),
+      bg: this.bgEl(),
+      categories: CATEGORIES.map(([label, ic]) => ({ label, path: ICON[ic], count: label === 'All' ? P.length : P.filter(p => p.category === label).length,
+        line: cat === label && page === 'shop' ? '#c22b45' : 'transparent', bg: cat === label && page === 'shop' ? 'rgba(194,43,69,.12)' : 'transparent',
+        icon: cat === label && page === 'shop' ? '#c22b45' : 'rgba(243,236,226,.7)',
+        select: () => this.setState({ cat: label, page: 'shop', featuredId: null }) })),
+      contactLine: page === 'contact' ? '#c22b45' : 'transparent', aboutLine: page === 'about' ? '#c22b45' : 'transparent',
+      onShop: page === 'shop', onContact: page === 'contact', onAbout: page === 'about', productCount: P.length,
+      shopFg: page === 'shop' ? '#f3ece2' : 'rgba(243,236,226,.6)', contactFg: page === 'contact' ? '#f3ece2' : 'rgba(243,236,226,.6)', aboutFg: page === 'about' ? '#f3ece2' : 'rgba(243,236,226,.6)',
+      goShop: () => this.setState({ page: 'shop' }), goContact: () => this.setState({ page: 'contact' }), goAbout: () => this.setState({ page: 'about' }),
+      query, setQuery: e => this.setState({ query: e.target.value, page: 'shop', featuredId: null }),
+      wishFg: page === 'wishlist' || wishCount ? '#c22b45' : '#f3ece2', wishFill: wishCount ? '#c22b45' : 'none', wishCount, hasWish: wishCount > 0, noWish: wishCount === 0,
+      toggleWish: () => this.setState({ page: 'wishlist' }), onWishlist: page === 'wishlist',
+      wishItems: P.filter(p => wish[p.id]).map(mk),
+      clearWish: () => this.setState({ wish: {} }),
+      clearCart: () => this.setState({ cart: {} }),
+      ...this.authVals(), ...this.adminVals(),
+      tiltX: tilt.x + 'deg', tiltY: tilt.y + 'deg', tiltGlowX: tilt.gx + '%', tiltGlowY: tilt.gy + '%',
+      tiltMove: e => { const r = e.currentTarget.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height; this.setState({ tilt: { x: +((0.5 - py) * 10).toFixed(2), y: +((px - 0.5) * 12).toFixed(2), gx: Math.round(px * 100), gy: Math.round(py * 100) } }); },
+      tiltReset: () => this.setState({ tilt: { x: 0, y: 0, gx: 50, gy: 50 } }),
+      featured, featuredImg: (featuredRaw && ((featuredRaw.images || [])[Math.min(this.state.galleryIdx || 0, ((featuredRaw.images || []).length || 1) - 1)] || featuredRaw.img)) || 'assets/syrah.jpg',
+      hasGallery: !!(featuredRaw && (featuredRaw.images || []).length > 1),
+      gallery: featuredRaw ? (featuredRaw.images || []).map((src, i) => ({ src, line: i === (this.state.galleryIdx || 0) ? '#c22b45' : 'rgba(243,236,226,.3)', pick: () => this.setState({ galleryIdx: i }) })) : [],
+      rail, railTitle: rail.length ? 'You may also like' : 'That is the whole shelf',
+      hasProducts: list.length > 0, noProducts: list.length === 0,
+      emptyTitle: wishOnly ? 'Nothing saved yet' : q ? 'No match for "' + query + '"' : cat,
+      resetFilters: () => this.setState({ cat: 'All', query: '', wishOnly: false, featuredId: null }),
+      zoomOpen: !!this.state.zoomOpen,
+      openZoom: () => { this.setState({ zoomOpen: true }); const el = document.documentElement; if (el.requestFullscreen) el.requestFullscreen().catch(() => {}); },
+      closeZoom: () => { this.setState({ zoomOpen: false }); if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {}); },
+      cartOpen, cartLines, cartCount, cartEmpty: cartCount === 0, cartHasItems: cartCount > 0, checkoutOpacity: cartCount === 0 ? .45 : 1,
+      ...this.checkoutVals(cartLines, eur),
+      openCart: () => this.setState({ cartOpen: true }), closeCart: () => this.setState({ cartOpen: false }),
+      sent, notSent: !sent, submitContact: e => { e.preventDefault(); this.setState({ sent: true }); }, resetContact: () => this.setState({ sent: false }),
+      stop: e => e.stopPropagation(),
+    };
+  }
+}
+</script>
+</body>
+</html>
