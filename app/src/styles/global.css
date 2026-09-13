@@ -1,0 +1,119 @@
+/* Ported verbatim from the Casa del Vino design canvas <helmet> block. */
+
+:root {
+  --color-bg: #0b0a0a;
+  --color-surface: #161414;
+  --color-text: #f3ece2;
+  --color-divider: rgba(243, 236, 226, .12);
+}
+
+html, body {
+  margin: 0;
+  background: #0b0a0a;
+  color: #f3ece2;
+  min-height: 100%;
+}
+
+a { color: #c22b45; text-decoration: none; }
+a:hover { color: #e0526b; }
+
+input::placeholder, textarea::placeholder { color: rgba(243, 236, 226, .4); }
+
+/* The nav strips and notification list scroll without showing a bar. */
+.cdv-noscrollbar::-webkit-scrollbar { display: none; }
+.cdv-noscrollbar { scrollbar-width: none; }
+
+@keyframes cdvFloat {
+  0% { transform: rotateY(-10deg) rotateX(5deg) }
+  100% { transform: rotateY(10deg) rotateX(-5deg) }
+}
+@keyframes cdvShard {
+  0% { transform: translate3d(0, 0, 0) rotateX(0) rotateY(0); opacity: 1 }
+  100% { transform: translate3d(var(--tx), var(--ty), var(--tz)) rotateX(var(--rx)) rotateY(var(--ry)); opacity: 0 }
+}
+@keyframes cdvOut { to { opacity: 0; visibility: hidden } }
+@keyframes cdvGlow {
+  0%, 100% { opacity: .35 }
+  50% { opacity: .7 }
+}
+@keyframes cdvSpin {
+  from { transform: rotateY(0deg) rotateX(var(--tilt)) }
+  to { transform: rotateY(360deg) rotateX(var(--tilt)) }
+}
+@keyframes cdvDrift {
+  0% { transform: translate3d(0, 0, 0) }
+  33% { transform: translate3d(var(--dx), var(--dy), 120px) }
+  66% { transform: translate3d(calc(var(--dx) * -.6), calc(var(--dy) * .8), -160px) }
+  100% { transform: translate3d(0, 0, 0) }
+}
+@keyframes cdvBob {
+  from { margin-top: -3px }
+  to { margin-top: 3px }
+}
+@keyframes cdvRise {
+  from { opacity: 0; transform: translate3d(0, 28px, -40px) rotateX(6deg) }
+  to { opacity: 1; transform: translate3d(0, 0, 0) rotateX(0) }
+}
+@keyframes cdvBottleRise {
+  0% { transform: translateY(0) scale(1) rotateY(0deg) }
+  30% { transform: translateY(-14px) scale(1.06) rotateY(-10deg) }
+  100% { transform: translateY(-10px) scale(1.06) rotateY(360deg) }
+}
+@keyframes cdvBottleSpin {
+  from { transform: translateY(-10px) scale(1.06) rotateY(0deg) }
+  to { transform: translateY(-10px) scale(1.06) rotateY(360deg) }
+}
+@keyframes cdvShadowShrink {
+  from { transform: scaleX(1); opacity: 1 }
+  to { transform: scaleX(.6); opacity: .5 }
+}
+@keyframes cdvCork {
+  0% { opacity: 0; transform: translateY(0) rotate(0) }
+  10% { opacity: 1 }
+  100% { opacity: 0; transform: translateY(-140px) translateX(30px) rotate(540deg) }
+}
+@keyframes cdvDrop {
+  0% { opacity: 0; transform: translate(0, 0) rotate(var(--rot)) scale(.4) }
+  15% { opacity: 1 }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1) }
+}
+@keyframes cdvRing {
+  0% { opacity: .9; transform: scale(.3) }
+  100% { opacity: 0; transform: scale(2.2) }
+}
+@keyframes cdvPour {
+  0% { transform: scaleY(0); opacity: 0 }
+  15% { opacity: 1 }
+  100% { transform: scaleY(1); opacity: 1 }
+}
+@keyframes cdvFill {
+  from { height: 0 }
+  to { height: 46% }
+}
+@keyframes cdvWave {
+  from { transform: translateX(-25%) rotate(0deg) }
+  to { transform: translateX(-25%) rotate(360deg) }
+}
+@keyframes cdvSplash {
+  0% { transform: translate(-50%, 0) scale(.2); opacity: .9 }
+  100% { transform: translate(-50%, -40px) scale(1.4); opacity: 0 }
+}
+@keyframes cdvShine {
+  from { transform: translateX(-160%) skewX(-20deg) }
+  to { transform: translateX(260%) skewX(-20deg) }
+}
+@keyframes cdvBreathe {
+  0%, 100% { box-shadow: 0 0 22px rgba(194, 43, 69, .35) }
+  50% { box-shadow: 0 0 44px rgba(194, 43, 69, .7) }
+}
+@keyframes cdvTumble {
+  0% { transform: translate3d(0, 0, 0) rotateY(0deg) rotateX(0deg) }
+  25% { transform: translate3d(3px, -8px, 30px) rotateY(18deg) rotateX(-12deg) }
+  50% { transform: translate3d(-2px, 5px, 0) rotateY(0deg) rotateX(10deg) }
+  75% { transform: translate3d(-3px, -5px, -30px) rotateY(-18deg) rotateX(8deg) }
+  100% { transform: translate3d(0, 0, 0) rotateY(0deg) rotateX(0deg) }
+}
+@keyframes cdvPulse {
+  0%, 100% { opacity: .5; transform: scale(1) }
+  50% { opacity: .9; transform: scale(1.15) }
+}
