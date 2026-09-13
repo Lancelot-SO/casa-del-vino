@@ -1,5 +1,7 @@
-import { eur, fmtDate } from '../../lib/format';
-import { useStore } from '../../store/store';
+import { STATUS_LABEL } from '../../data/catalog';
+import { cdn } from '../../lib/cloudinary';
+import { ghs, fmtDate } from '../../lib/format';
+import { routes, useStore } from '../../store/store';
 import { Btn } from '../ui/Hoverable';
 import { Icon } from '../ui/Icon';
 import { adminCard, adminPrimary, cardHeader, cardTitle, rowDivider } from './shared';
@@ -19,8 +21,9 @@ const tile = {
 const tileNumber = { fontFamily: "'Cormorant Garamond',serif", fontSize: 30, lineHeight: 1 } as const;
 
 export function DashboardTab() {
-  const { products, set } = useStore();
+  const { products, set, go } = useStore();
   const d = useAdminData();
+  const DAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   return (
     <>
@@ -46,11 +49,7 @@ export function DashboardTab() {
         >
           <div style={cardHeader}>
             <span style={cardTitle}>Overall information</span>
-            <Icon>
-              <circle cx="12" cy="5" r="1" />
-              <circle cx="12" cy="12" r="1" />
-              <circle cx="12" cy="19" r="1" />
-            </Icon>
+            <span style={{ fontSize: 11, opacity: 0.7 }}>{d.statOpen} open</span>
           </div>
           <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -64,13 +63,13 @@ export function DashboardTab() {
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
               <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 52, lineHeight: 1 }}>{d.statRevenue}</span>
               <span style={{ fontSize: 11, opacity: 0.6, lineHeight: 1.3 }}>
-                revenue
+                ordered
                 <br />
-                all time
+                {d.statPaid} paid
               </span>
             </div>
           </div>
-          <div style={{ height: 3, background: 'rgba(243,236,226,.12)', borderRadius: 2 }}>
+          <div style={{ height: 3, background: 'rgba(243,236,226,.12)', borderRadius: 2 }} title="Share of revenue already paid">
             <div style={{ height: '100%', width: d.statBar, background: '#c22b45', borderRadius: 2, transition: 'width .6s' }} />
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
@@ -104,14 +103,12 @@ export function DashboardTab() {
         <div style={adminCard}>
           <div style={cardHeader}>
             <span style={cardTitle}>Weekly sales</span>
-            <span style={{ fontSize: 11, padding: '4px 8px', borderRadius: 999, background: '#c22b45', color: '#fff4f5' }}>
-              {d.chart.delta}
-            </span>
+            <span style={{ fontSize: 11, padding: '4px 8px', borderRadius: 999, background: '#c22b45', color: '#fff4f5' }}>{d.chart.delta}</span>
           </div>
           <div style={{ display: 'flex', gap: 14, fontSize: 11, opacity: 0.7 }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#f3ece2' }} />
-              This week
+              This week · {ghs(d.chart.sumThisWeek)}
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'rgba(243,236,226,.35)' }} />
@@ -130,27 +127,18 @@ export function DashboardTab() {
             <circle cx={d.chart.peakX} cy={d.chart.peakY} r="4" fill="#c22b45" />
           </svg>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, opacity: 0.6, padding: '0 2px' }}>
-            <span>M</span>
-            <span>T</span>
-            <span>W</span>
-            <span>T</span>
-            <span>F</span>
-            <span
-              style={{
-                background: '#c22b45',
-                color: '#fff4f5',
-                borderRadius: '50%',
-                width: 20,
-                height: 20,
-                display: 'grid',
-                placeItems: 'center',
-                opacity: 1,
-                margin: '-4px 0',
-              }}
-            >
-              S
-            </span>
-            <span>S</span>
+            {DAYS.map((day, i) =>
+              i === d.chart.todayIdx ? (
+                <span
+                  key={i}
+                  style={{ background: '#c22b45', color: '#fff4f5', borderRadius: '50%', width: 20, height: 20, display: 'grid', placeItems: 'center', opacity: 1, margin: '-4px 0' }}
+                >
+                  {day}
+                </span>
+              ) : (
+                <span key={i}>{day}</span>
+              ),
+            )}
           </div>
         </div>
 
@@ -164,29 +152,22 @@ export function DashboardTab() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, fontSize: 12, flex: '1 1 120px' }}>
               {d.live.map((r) => (
-                <span key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: r.color }} />
                   {r.label}
                   <span style={{ marginLeft: 'auto', opacity: 0.6 }}>{r.count}</span>
                 </span>
               ))}
+              {d.lowStock.length > 0 && (
+                <span style={{ marginTop: 6, fontSize: 11, color: '#e0526b' }}>
+                  Low stock: {d.lowStock.map((p) => `${p.name} (${p.stock})`).join(', ')}
+                </span>
+              )}
             </div>
             <svg viewBox="0 0 120 120" width="130" height="130" style={{ flex: 'none' }}>
               <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(243,236,226,.1)" strokeWidth="12" />
               {d.ringArcs.map((a, i) => (
-                <circle
-                  key={i}
-                  cx="60"
-                  cy="60"
-                  r="46"
-                  fill="none"
-                  stroke={a.color}
-                  strokeWidth="12"
-                  strokeDasharray={a.dash}
-                  strokeDashoffset={a.offset}
-                  transform="rotate(-90 60 60)"
-                  strokeLinecap="butt"
-                />
+                <circle key={i} cx="60" cy="60" r="46" fill="none" stroke={a.color} strokeWidth="12" strokeDasharray={a.dash} strokeDashoffset={a.offset} transform="rotate(-90 60 60)" strokeLinecap="butt" />
               ))}
               <text x="60" y="58" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontSize="26" fill="#f3ece2">
                 {products.length}
@@ -196,7 +177,7 @@ export function DashboardTab() {
               </text>
             </svg>
           </div>
-          <Btn onClick={() => set({ adminTab: 'products', adminEdit: null })} style={adminPrimary} hoverStyle={{ filter: 'brightness(1.12)' }}>
+          <Btn onClick={() => go(routes.admin('products'))} style={adminPrimary} hoverStyle={{ filter: 'brightness(1.12)' }}>
             Manage products
             <Icon size={14} strokeWidth={2}>
               <path d="M5 12h14M13 6l6 6-6 6" />
@@ -216,35 +197,24 @@ export function DashboardTab() {
         <div style={{ ...adminCard, gap: 12 }}>
           <div style={cardHeader}>
             <span style={cardTitle}>Recent orders</span>
-            <Btn onClick={() => set({ adminTab: 'orders', adminEdit: null })} style={{ fontSize: 12, opacity: 0.7 }} hoverStyle={{ color: '#c22b45', opacity: 1 }}>
+            <Btn onClick={() => go(routes.admin('orders'))} style={{ fontSize: 12, opacity: 0.7 }} hoverStyle={{ color: '#c22b45', opacity: 1 }}>
               Open all ›
             </Btn>
           </div>
           {d.recentOrders.length === 0 && (
-            <span style={{ fontSize: 13, opacity: 0.6, padding: '8px 0' }}>
-              No orders yet. They will appear here as customers check out.
-            </span>
+            <span style={{ fontSize: 13, opacity: 0.6, padding: '8px 0' }}>No orders yet. They will appear here as customers check out.</span>
           )}
           {d.recentOrders.map((o) => (
-            <div
-              key={o.no}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: 12,
-                padding: '10px 0',
-                ...rowDivider,
-                fontSize: 13,
-              }}
-            >
+            <div key={o.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '10px 0', ...rowDivider, fontSize: 13 }}>
               <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <span>{o.no}</span>
+                <span>
+                  {o.no} <span style={{ fontSize: 11, opacity: 0.6 }}>· {STATUS_LABEL[o.status]}</span>
+                </span>
                 <span style={{ fontSize: 11, opacity: 0.6 }}>
                   {o.customer} · {o.count} bottles · {fmtDate(o.date)}
                 </span>
               </span>
-              <span style={{ fontWeight: 600 }}>{eur(o.total)}</span>
+              <span style={{ fontWeight: 600 }}>{ghs(o.total)}</span>
             </div>
           ))}
         </div>
@@ -274,12 +244,12 @@ export function DashboardTab() {
                 <span style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.2 }}>{p.name}</span>
                   <span style={{ width: 34, height: 34, borderRadius: '50%', overflow: 'hidden', flex: 'none' }}>
-                    <img src={p.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={cdn(p.img, 80)} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </span>
                 </span>
                 <span style={{ fontSize: 11, opacity: 0.6, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#c22b45' }} />
-                  {p.category} · {eur(p.price)}
+                  {p.category} · {ghs(p.price)} · {p.stock} in stock
                 </span>
               </Btn>
             ))}

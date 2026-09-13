@@ -1,16 +1,14 @@
 /**
- * The shop runs entirely on-device: accounts, catalog edits, orders and
- * settings live in localStorage under the `cdv-*` keys the design used.
+ * The only things still kept in the browser: a guest's bag and wishlist
+ * (signed-in customers have theirs in the database), the guest flag and the
+ * age-gate answer.
  */
 
 export const KEYS = {
-  user: 'cdv-user',
-  users: 'cdv-users',
-  products: 'cdv-products',
-  orders: 'cdv-orders',
-  settings: 'cdv-settings',
-  activity: 'cdv-activity',
-  notifRead: 'cdv-notif-read',
+  cart: 'cdv-cart',
+  wish: 'cdv-wish',
+  guest: 'cdv-guest',
+  adult: 'cdv-adult',
 } as const;
 
 export function read<T>(key: string, fallback: T): T {
@@ -24,27 +22,11 @@ export function read<T>(key: string, fallback: T): T {
   }
 }
 
-export function readRaw(key: string): string | null {
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-}
-
 export function persist(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    /* private mode, quota, blocked storage — the session just stops surviving reloads */
-  }
-}
-
-export function persistRaw(key: string, value: string): void {
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    /* see persist */
+    /* private mode or quota — the value just does not survive a reload */
   }
 }
 

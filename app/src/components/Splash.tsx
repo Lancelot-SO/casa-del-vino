@@ -25,7 +25,7 @@ export function Splash() {
         out.push({
           key: i,
           style: {
-            backgroundImage: 'url(assets/logo.jpg)',
+            backgroundImage: 'url(/assets/logo.jpg)',
             backgroundSize: `${N * 100}% ${N * 100}%`,
             backgroundPosition: `${(c * 100) / (N - 1)}% ${(r * 100) / (N - 1)}%`,
             backfaceVisibility: 'hidden',

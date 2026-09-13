@@ -1,29 +1,27 @@
+import { useEffect } from 'react';
+import { cdn } from '../lib/cloudinary';
 import type { CSSProperties, FormEvent } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { PAY_LABEL, SHIP_LABEL, SHIP_OPTIONS } from '../data/catalog';
 import { useCart } from '../store/selectors';
-import { useLayout, useStore } from '../store/store';
-import { eur } from '../lib/format';
+import { routes, useLayout, useStore } from '../store/store';
+import { ghs } from '../lib/format';
+import { cardPaymentsEnabled } from '../lib/supabase';
 import { Box, Btn, Input } from '../components/ui/Hoverable';
+import { PayInstructions } from '../components/PayInstructions';
 import { Icon, PathIcon } from '../components/ui/Icon';
-import type { PayId, ShipId } from '../types';
+import type { PayId } from '../types';
 
-const SHIP: { id: ShipId; label: string; note: string; cost: number }[] = [
-  { id: 'standard', label: 'Standard', note: '3–5 working days', cost: 6.9 },
-  { id: 'express', label: 'Express', note: 'Next working day', cost: 12.9 },
-  { id: 'pickup', label: 'Collect in store', note: 'Ready in 2 hours', cost: 0 },
-];
-
-const PAY: { id: PayId; label: string; icon: string }[] = [
-  { id: 'card', label: 'Card', icon: 'M2 5h20v14H2zM2 10h20M6 15h4' },
+const PAY: { id: PayId; icon: string }[] = [
   {
-    id: 'transfer',
-    label: 'Bank transfer',
-    icon: 'M3 21h18M3 10h18M5 6l7-3 7 3M6 10v11M18 10v11M10 10v11M14 10v11',
+    id: 'momo',
+    icon: 'M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM12 18h.01M9 6h6',
   },
   {
-    id: 'cod',
-    label: 'Pay on delivery',
-    icon: 'M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2M15 18H9M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14M17 18m-2 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0M7 18m-2 0a2 2 0 1 0 4 0 2 2 0 1 0-4 0',
+    id: 'call',
+    icon: 'M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.81.37 1.6.72 2.34a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.74-1.29a2 2 0 0 1 2.11-.45c.74.35 1.53.6 2.34.72A2 2 0 0 1 22 16.92z',
   },
+  { id: 'card', icon: 'M2 5h20v14H2zM2 10h20M6 15h4' },
 ];
 
 const field: CSSProperties = {
@@ -69,27 +67,44 @@ const panelTitle: CSSProperties = {
   margin: 0,
   lineHeight: 1.05,
 };
+const note: CSSProperties = {
+  margin: 0,
+  fontSize: 13,
+  lineHeight: 1.7,
+  opacity: 0.75,
+  background: '#262322',
+  borderRadius: 14,
+  padding: '14px 16px',
+};
 
 /** Bag → delivery → payment → confirmation, with a live summary alongside. */
 export function CheckoutPage() {
-  const { state, set, settings, saveOrder } = useStore();
+  const { state, set, go, settings, placeOrder, startCardPayment } = useStore();
   const L = useLayout();
-  const { cartLines, cartCount, subtotalN, cartEmpty, inc, dec } = useCart();
-  const { step, ship, pay, form, order } = state;
+  const [params] = useSearchParams();
+  const { cartLines, cartCount, subtotalN, cartEmpty, overStock, inc, dec } = useCart();
+  const { step, ship, pay, form, order, user, authReady, checkoutError, placing } = state;
 
-  const shipOpt = SHIP.find((o) => o.id === ship) || SHIP[0];
-  const free = parseFloat(settings.freeShip) || 60;
-  const shipCost = subtotalN >= free && shipOpt.id !== 'express' ? 0 : shipOpt.cost;
+  // Checkout asks you to sign in or continue as guest first.
+  useEffect(() => {
+    if (authReady && !user && !state.authOpen) {
+      set({ authOpen: true, authMode: 'signin', authNext: 'checkout', authError: '', authNotice: '' });
+    }
+  }, [authReady, user, state.authOpen, set]);
+
+  // Card is only offered once the payment provider is live; the rest is manual.
+  useEffect(() => {
+    if (!PAY.some((o) => o.id === pay) || (pay === 'card' && !cardPaymentsEnabled)) set({ pay: 'momo' });
+  }, [pay, set]);
+
+  const cancelledNo = params.get('cancelled');
+
+  const shipCostOf = (id: typeof ship) =>
+    id === 'pickup' ? 0 : id === 'express' ? settings.expressShip : subtotalN >= settings.freeShip ? 0 : settings.standardShip;
+  const shipCost = shipCostOf(ship);
   const totalN = subtotalN + shipCost;
 
-  const src = order ?? {
-    lines: cartLines,
-    total: totalN,
-    count: cartCount,
-    no: '',
-    pay,
-    ship: shipOpt.label,
-  };
+  const src = order ?? { lines: cartLines, total: totalN, count: cartCount, no: '', pay, ship };
 
   const panelStyle: CSSProperties = {
     background: '#1a1817',
@@ -103,29 +118,18 @@ export function CheckoutPage() {
 
   const setField = (name: string, value: string) => set((s) => ({ form: { ...s.form, [name]: value } }));
 
-  const digits = (form.card || '').replace(/\D/g, '').slice(0, 16);
-  const cardPreview = (digits.padEnd(16, '•').match(/.{1,4}/g) || []).join(' ');
-
-  const placeOrder = (e: FormEvent) => {
+  const submitPayment = (e: FormEvent) => {
     e.preventDefault();
-    saveOrder({
-      no: 'CDV-' + Math.floor(1000 + Math.random() * 9000),
-      lines: cartLines.map((l) => ({ id: l.id, name: l.name, qty: l.qty, price: l.price })),
-      total: totalN,
-      subtotal: subtotalN,
-      shipCost,
-      count: cartCount,
-      pay,
-      ship: shipOpt.label,
-      customer: form.name || state.user?.name || 'Guest',
-      email: form.email,
-      date: new Date().toISOString(),
-    });
+    if (pay === 'card') void startCardPayment();
+    else void placeOrder();
   };
 
   const goStep = (n: 1 | 2 | 3 | 4) => () => {
+    if (step === 4) return;
     if (n <= step || (n === 2 && cartLines.length)) set({ step: n });
   };
+
+  const payOptions = PAY.filter((o) => o.id !== 'card' || cardPaymentsEnabled);
 
   return (
     <>
@@ -178,6 +182,13 @@ export function CheckoutPage() {
         ))}
       </section>
 
+      {cancelledNo && step !== 4 && (
+        <p style={{ ...note, borderLeft: '3px solid #c22b45' }}>
+          The card payment for order {cancelledNo} was cancelled. Nothing was charged; the bottles are held for 30 minutes
+          and then released. You can try again below.
+        </p>
+      )}
+
       <section
         style={{
           display: 'grid',
@@ -193,15 +204,9 @@ export function CheckoutPage() {
               {cartEmpty && (
                 <p style={{ margin: 0, opacity: 0.7 }}>
                   Your bag is empty.{' '}
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      set({ page: 'shop' });
-                    }}
-                  >
+                  <Btn onClick={() => go(routes.shop())} style={{ color: '#c22b45' }} hoverStyle={{ color: '#e0526b' }}>
                     Back to the cellar
-                  </a>
+                  </Btn>
                   .
                 </p>
               )}
@@ -218,7 +223,7 @@ export function CheckoutPage() {
                   }}
                 >
                   <div style={{ width: 72, height: 84, borderRadius: 14, overflow: 'hidden', background: '#0f0d0c' }}>
-                    <img src={l.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <img src={cdn(l.img, 200)} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: '1 1 160px', minWidth: 0 }}>
                     <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20, lineHeight: 1.1 }}>{l.name}</span>
@@ -226,6 +231,7 @@ export function CheckoutPage() {
                       {l.category} · {l.country} · {l.abv} · {l.sizeLabel}
                     </span>
                     <span style={{ fontSize: 12, color: '#c22b45' }}>{l.unitPrice} each</span>
+                    {l.qty > l.stock && <span style={{ fontSize: 12, color: '#e0526b' }}>Only {l.stock} left on the shelf.</span>}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', background: '#262322', borderRadius: 999, padding: 2 }}>
                     <Btn
@@ -238,7 +244,7 @@ export function CheckoutPage() {
                     <span style={{ minWidth: 24, textAlign: 'center', fontSize: 13 }}>{l.qty}</span>
                     <Btn
                       onClick={() => inc(l.id)}
-                      style={{ width: 30, height: 30, borderRadius: '50%', display: 'grid', placeItems: 'center' }}
+                      style={{ width: 30, height: 30, borderRadius: '50%', display: 'grid', placeItems: 'center', opacity: l.qty >= l.stock ? 0.35 : 1 }}
                       hoverStyle={{ background: 'rgba(243,236,226,.08)' }}
                     >
                       +
@@ -257,13 +263,13 @@ export function CheckoutPage() {
                   marginTop: 6,
                 }}
               >
-                <Btn onClick={() => set({ page: 'shop' })} style={backLink} hoverStyle={{ color: '#c22b45' }}>
+                <Btn onClick={() => go(routes.shop())} style={backLink} hoverStyle={{ color: '#c22b45' }}>
                   ← Continue shopping
                 </Btn>
                 <Btn
                   onClick={() => set({ step: 2 })}
-                  disabled={cartEmpty}
-                  style={{ ...primary, opacity: cartEmpty ? 0.45 : 1 }}
+                  disabled={cartEmpty || overStock.length > 0}
+                  style={{ ...primary, opacity: cartEmpty || overStock.length ? 0.45 : 1 }}
                   hoverStyle={{ filter: 'brightness(1.06)' }}
                 >
                   Continue to delivery
@@ -276,7 +282,7 @@ export function CheckoutPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                set({ step: 3 });
+                set({ step: 3, checkoutError: '' });
               }}
               style={panelStyle}
             >
@@ -284,71 +290,29 @@ export function CheckoutPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12 }}>
                 <label style={label}>
                   Full name
-                  <Input
-                    required
-                    name="name"
-                    value={form.name}
-                    onChange={(e) => setField('name', e.target.value)}
-                    placeholder="Your name"
-                    style={field}
-                    focusStyle={focusRed}
-                  />
+                  <Input required name="name" autoComplete="name" value={form.name} onChange={(e) => setField('name', e.target.value)} placeholder="Your name" style={field} focusStyle={focusRed} />
                 </label>
                 <label style={label}>
                   Email
-                  <Input
-                    required
-                    type="email"
-                    name="email"
-                    value={form.email}
-                    onChange={(e) => setField('email', e.target.value)}
-                    placeholder="you@example.com"
-                    style={field}
-                    focusStyle={focusRed}
-                  />
+                  <Input required type="email" name="email" autoComplete="email" value={form.email} onChange={(e) => setField('email', e.target.value)} placeholder="you@example.com" style={field} focusStyle={focusRed} />
                 </label>
                 <label style={label}>
                   Phone
-                  <Input
-                    required
-                    type="tel"
-                    name="phone"
-                    value={form.phone}
-                    onChange={(e) => setField('phone', e.target.value)}
-                    placeholder="+34 …"
-                    style={field}
-                    focusStyle={focusRed}
-                  />
+                  <Input required type="tel" name="phone" autoComplete="tel" value={form.phone} onChange={(e) => setField('phone', e.target.value)} placeholder="+34 …" style={field} focusStyle={focusRed} />
                 </label>
                 <label style={label}>
                   City
-                  <Input
-                    required
-                    name="city"
-                    value={form.city}
-                    onChange={(e) => setField('city', e.target.value)}
-                    placeholder="City"
-                    style={field}
-                    focusStyle={focusRed}
-                  />
+                  <Input required={ship !== 'pickup'} name="city" autoComplete="address-level2" value={form.city} onChange={(e) => setField('city', e.target.value)} placeholder="City" style={field} focusStyle={focusRed} />
                 </label>
               </div>
               <label style={label}>
                 Street address
-                <Input
-                  required
-                  name="address"
-                  value={form.address}
-                  onChange={(e) => setField('address', e.target.value)}
-                  placeholder="Street, number, floor"
-                  style={field}
-                  focusStyle={focusRed}
-                />
+                <Input required={ship !== 'pickup'} name="address" autoComplete="street-address" value={form.address} onChange={(e) => setField('address', e.target.value)} placeholder="Street, number, floor" style={field} focusStyle={focusRed} />
               </label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <span style={{ fontSize: 11, opacity: 0.85 }}>Delivery</span>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 10 }}>
-                  {SHIP.map((o) => (
+                  {SHIP_OPTIONS.map((o) => (
                     <Btn
                       key={o.id}
                       onClick={() => set({ ship: o.id })}
@@ -368,9 +332,7 @@ export function CheckoutPage() {
                     >
                       <span style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                         <span>{o.label}</span>
-                        <span style={{ color: '#c22b45' }}>
-                          {(subtotalN >= free && o.id !== 'express') || o.cost === 0 ? 'Free' : eur(o.cost)}
-                        </span>
+                        <span style={{ color: '#c22b45' }}>{shipCostOf(o.id) === 0 ? 'Free' : ghs(shipCostOf(o.id))}</span>
                       </span>
                       <span style={{ fontSize: 11, opacity: 0.55 }}>{o.note}</span>
                     </Btn>
@@ -388,16 +350,7 @@ export function CheckoutPage() {
                 />
                 I confirm I am of legal drinking age and someone 18+ will receive the order.
               </label>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 12,
-                  flexWrap: 'wrap',
-                  marginTop: 6,
-                }}
-              >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 6 }}>
                 <Btn onClick={() => set({ step: 1 })} style={backLink} hoverStyle={{ color: '#c22b45' }}>
                   ← Back to bag
                 </Btn>
@@ -409,13 +362,17 @@ export function CheckoutPage() {
           )}
 
           {step === 3 && (
-            <form onSubmit={placeOrder} style={panelStyle}>
+            <form onSubmit={submitPayment} style={panelStyle}>
               <h1 style={panelTitle}>Payment</h1>
+              <p style={{ margin: '-6px 0 0', fontSize: 13, opacity: 0.7, lineHeight: 1.6 }}>
+                Card payments are coming soon. For now, pay by mobile money or give us a call — your delivery details are
+                already saved with the order.
+              </p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 10 }}>
-                {PAY.map((o) => (
+                {payOptions.map((o) => (
                   <Btn
                     key={o.id}
-                    onClick={() => set({ pay: o.id })}
+                    onClick={() => set({ pay: o.id, checkoutError: '' })}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -432,23 +389,15 @@ export function CheckoutPage() {
                     hoverStyle={{ transform: 'translateY(-2px)' }}
                   >
                     <PathIcon d={o.icon} size={18} stroke="#c22b45" />
-                    {o.label}
+                    {PAY_LABEL[o.id]}
                   </Btn>
                 ))}
               </div>
 
               {pay === 'card' && (
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))',
-                    gap: 12,
-                    perspective: '900px',
-                  }}
-                >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, perspective: '900px' }}>
                   <Box
                     style={{
-                      gridColumn: '1/-1',
                       borderRadius: 18,
                       padding: 22,
                       background: 'linear-gradient(135deg,#6e0f20,#2a0a10 60%,#1a1817)',
@@ -463,126 +412,43 @@ export function CheckoutPage() {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 20 }}>Casa del Vino</span>
-                      <span
-                        style={{ width: 36, height: 26, borderRadius: 6, background: 'linear-gradient(135deg,#e0c27a,#a67c2e)' }}
-                      />
+                      <span style={{ width: 36, height: 26, borderRadius: 6, background: 'linear-gradient(135deg,#e0c27a,#a67c2e)' }} />
                     </div>
-                    <span style={{ fontSize: 20, letterSpacing: '.18em', fontVariantNumeric: 'tabular-nums' }}>
-                      {cardPreview}
-                    </span>
+                    <span style={{ fontSize: 20, letterSpacing: '.18em' }}>•••• •••• •••• ••••</span>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, opacity: 0.8 }}>
-                      <span>{(form.cardName || 'NAME ON CARD').toUpperCase()}</span>
-                      <span>{form.exp}</span>
+                      <span>{(form.name || 'NAME ON CARD').toUpperCase()}</span>
+                      <span>{ghs(totalN)}</span>
                     </div>
                   </Box>
-                  <label style={{ ...label, gridColumn: '1/-1' }}>
-                    Card number
-                    <Input
-                      required
-                      name="card"
-                      value={form.card}
-                      onChange={(e) => setField('card', e.target.value)}
-                      inputMode="numeric"
-                      maxLength={19}
-                      placeholder="1234 5678 9012 3456"
-                      style={field}
-                      focusStyle={focusRed}
-                    />
-                  </label>
-                  <label style={label}>
-                    Name on card
-                    <Input
-                      required
-                      name="cardName"
-                      value={form.cardName}
-                      onChange={(e) => setField('cardName', e.target.value)}
-                      placeholder="As printed"
-                      style={field}
-                      focusStyle={focusRed}
-                    />
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 12, minWidth: 0 }}>
-                    <label style={label}>
-                      Expiry
-                      <Input
-                        required
-                        name="exp"
-                        value={form.exp}
-                        onChange={(e) => setField('exp', e.target.value)}
-                        placeholder="MM/YY"
-                        maxLength={5}
-                        style={field}
-                        focusStyle={focusRed}
-                      />
-                    </label>
-                    <label style={label}>
-                      CVC
-                      <Input
-                        required
-                        name="cvc"
-                        value={form.cvc}
-                        onChange={(e) => setField('cvc', e.target.value)}
-                        inputMode="numeric"
-                        maxLength={4}
-                        placeholder="•••"
-                        style={field}
-                        focusStyle={focusRed}
-                      />
-                    </label>
-                  </div>
+                  <p style={note}>
+                    You will be taken to Stripe's secure page to enter your card. Your bottles are held while you pay.
+                  </p>
                 </div>
               )}
-
-              {pay === 'transfer' && (
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 13,
-                    lineHeight: 1.7,
-                    opacity: 0.75,
-                    background: '#262322',
-                    borderRadius: 14,
-                    padding: '14px 16px',
-                  }}
-                >
-                  Bank details are sent with your order confirmation. We ship once the transfer arrives, usually within 1–2
-                  working days.
-                </p>
-              )}
-              {pay === 'cod' && (
-                <p
-                  style={{
-                    margin: 0,
-                    fontSize: 13,
-                    lineHeight: 1.7,
-                    opacity: 0.75,
-                    background: '#262322',
-                    borderRadius: 14,
-                    padding: '14px 16px',
-                  }}
-                >
-                  Pay the courier in cash or by card when the order arrives. ID will be checked at the door.
-                </p>
+              {(pay === 'momo' || pay === 'call') && (
+                <PayInstructions pay={pay} settings={settings} total={totalN} lines={cartLines} />
               )}
 
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  gap: 12,
-                  flexWrap: 'wrap',
-                  marginTop: 6,
-                }}
-              >
+              {checkoutError && (
+                <span style={{ fontSize: 13, color: '#e0526b', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <Icon size={14} strokeWidth={2}>
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v4M12 16h.01" />
+                  </Icon>
+                  {checkoutError}
+                </span>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 6 }}>
                 <Btn onClick={() => set({ step: 2 })} style={backLink} hoverStyle={{ color: '#c22b45' }}>
                   ← Back to delivery
                 </Btn>
                 <button
                   type="submit"
+                  disabled={placing || cartEmpty}
                   style={{
                     all: 'unset',
-                    cursor: 'pointer',
+                    cursor: placing ? 'wait' : 'pointer',
                     ...primary,
                     height: 56,
                     padding: '0 32px',
@@ -591,6 +457,7 @@ export function CheckoutPage() {
                     boxShadow: '0 10px 30px rgba(194,43,69,.3)',
                     position: 'relative',
                     overflow: 'hidden',
+                    opacity: placing || cartEmpty ? 0.6 : 1,
                   }}
                 >
                   <span
@@ -609,13 +476,13 @@ export function CheckoutPage() {
                     <rect width="18" height="11" x="3" y="11" rx="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </Icon>
-                  Pay {eur(totalN)}
+                  {placing ? 'Placing order…' : pay === 'card' ? `Pay ${ghs(totalN)}` : `Place order · ${ghs(totalN)}`}
                 </button>
               </div>
             </form>
           )}
 
-          {step === 4 && (
+          {step === 4 && order && (
             <section
               style={{
                 background: 'linear-gradient(135deg,#1c1917 0%,#141211 60%,#200a0f 100%)',
@@ -646,62 +513,66 @@ export function CheckoutPage() {
                 </Icon>
               </span>
               <span style={{ fontSize: 12, color: '#c22b45', letterSpacing: '.12em', textTransform: 'uppercase' }}>
-                Order {src.no}
+                Order {order.no}
               </span>
-              <h1
-                style={{
-                  fontFamily: "'Cormorant Garamond',serif",
-                  fontWeight: 500,
-                  fontSize: 'clamp(34px,4vw,50px)',
-                  margin: 0,
-                  lineHeight: 1.02,
-                }}
-              >
-                Thank you, {(form.name || 'friend').split(' ')[0]}.
+              <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontWeight: 500, fontSize: 'clamp(34px,4vw,50px)', margin: 0, lineHeight: 1.02 }}>
+                Thank you, {(order.customer || 'friend').split(' ')[0]}.
                 <br />
-                Your bottles are on their way.
+                {order.pay === 'momo' || order.pay === 'transfer'
+                  ? 'Your bottles are reserved.'
+                  : order.pay === 'call'
+                    ? 'We are waiting for your call.'
+                    : 'Your bottles are on their way.'}
               </h1>
               <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, opacity: 0.75, maxWidth: '52ch', textWrap: 'pretty' }}>
-                A confirmation has been sent to {form.email}. {order ? order.ship : shipOpt.label} to {form.address},{' '}
-                {form.city}. Someone over 18 must sign for the delivery.
+                {order.ship === 'pickup'
+                  ? `We will email ${order.email} when the order is ready to collect at ${settings.address}.`
+                  : `${SHIP_LABEL[order.ship]} delivery to ${order.address}, ${order.city}. Someone over 18 must sign for it.`}
               </p>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))',
-                  gap: 10,
-                  width: '100%',
-                  marginTop: 6,
-                }}
-              >
+              {(order.pay === 'momo' || order.pay === 'call') && (
+                <PayInstructions pay={order.pay} settings={settings} total={order.total} lines={order.lines} orderNo={order.no} />
+              )}
+              {order.pay === 'transfer' && (
+                <p style={note}>
+                  Please transfer {ghs(order.total)} quoting <b>{order.no}</b>. Contact {settings.email} for the bank details.
+                </p>
+              )}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(140px,1fr))', gap: 10, width: '100%', marginTop: 6 }}>
                 {[
-                  ['Bottles', String(src.count)],
-                  ['Paid', eur(src.total)],
-                  ['Method', (PAY.find((o) => o.id === src.pay) || PAY[0]).label],
+                  ['Bottles', String(order.count)],
+                  ['Total', ghs(order.total)],
+                  ['Method', PAY_LABEL[order.pay]],
                 ].map(([k, v]) => (
-                  <div
-                    key={k}
-                    style={{
-                      background: '#1a1817',
-                      borderRadius: 14,
-                      padding: '14px 16px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 4,
-                    }}
-                  >
+                  <div key={k} style={{ background: '#1a1817', borderRadius: 14, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <span style={{ fontSize: 11, opacity: 0.55 }}>{k}</span>
                     <span style={{ fontSize: 16 }}>{v}</span>
                   </div>
                 ))}
               </div>
-              <Btn
-                onClick={() => set({ page: 'shop', step: 1, order: null })}
-                style={{ ...primary, marginTop: 10 }}
-                hoverStyle={{ filter: 'brightness(1.06)' }}
-              >
-                Back to the cellar
-              </Btn>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 10 }}>
+                <Btn
+                  onClick={() => {
+                    set({ step: 1, order: null });
+                    go(routes.shop());
+                  }}
+                  style={primary}
+                  hoverStyle={{ filter: 'brightness(1.06)' }}
+                >
+                  Back to the cellar
+                </Btn>
+                {user && user.role !== 'guest' && (
+                  <Btn
+                    onClick={() => {
+                      set({ step: 1, order: null });
+                      go(routes.account);
+                    }}
+                    style={{ ...primary, background: '#1a1817', border: '1px solid rgba(243,236,226,.15)', boxSizing: 'border-box' }}
+                    hoverStyle={{ borderColor: '#c22b45' }}
+                  >
+                    My orders
+                  </Btn>
+                )}
+              </div>
             </section>
           )}
         </div>
@@ -720,35 +591,35 @@ export function CheckoutPage() {
           }}
         >
           <h3 style={{ margin: 0, fontFamily: "'Cormorant Garamond',serif", fontWeight: 500, fontSize: 24 }}>Summary</h3>
-          {(order ? order.lines : cartLines).map((l) => (
-            <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13 }}>
+          {src.lines.map((l, i) => (
+            <div key={(l.id || '') + i} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontSize: 13 }}>
               <span style={{ opacity: 0.8, minWidth: 0 }}>
                 {l.qty} × {l.name}
               </span>
-              <span>{eur(l.price * l.qty)}</span>
+              <span>{ghs(l.price * l.qty)}</span>
             </div>
           ))}
           <div style={{ height: 1, background: 'rgba(243,236,226,.1)' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, opacity: 0.75 }}>
             <span>Subtotal</span>
-            <span>{eur(order ? order.subtotal : subtotalN)}</span>
+            <span>{ghs(order ? order.subtotal : subtotalN)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, opacity: 0.75 }}>
-            <span>{order ? order.ship : shipOpt.label}</span>
-            <span>{(order ? order.shipCost : shipCost) === 0 ? 'Free' : eur(order ? order.shipCost : shipCost)}</span>
+            <span>{SHIP_LABEL[order ? order.ship : ship]}</span>
+            <span>{(order ? order.shipCost : shipCost) === 0 ? 'Free' : ghs(order ? order.shipCost : shipCost)}</span>
           </div>
           <div style={{ height: 1, background: 'rgba(243,236,226,.1)' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontSize: 13 }}>Total</span>
             <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 30, color: '#c22b45' }}>
-              {eur(order ? order.total : totalN)}
+              {ghs(order ? order.total : totalN)}
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, opacity: 0.55 }}>
             <Icon size={14}>
               <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
             </Icon>
-            Secure checkout · 18+ only
+            Secure checkout · 18+ only · prices in Ghana cedis
           </div>
         </aside>
       </section>

@@ -1,21 +1,23 @@
 import { useCart } from '../store/selectors';
-import { useLayout, useStore } from '../store/store';
-import { eur } from '../lib/format';
+import { cdn } from '../lib/cloudinary';
+import { routes, useLayout, useStore } from '../store/store';
+import { ghs } from '../lib/format';
 import { Btn } from './ui/Hoverable';
 import { Icon } from './ui/Icon';
 
 /** The bag, sliding in from the right over the page. */
 export function CartDrawer() {
-  const { state, set } = useStore();
+  const { state, set, go } = useStore();
   const L = useLayout();
-  const { cartLines, cartCount, subtotalN, cartEmpty, inc, dec, removeLine, clearCart } = useCart();
+  const { cartLines, cartCount, subtotalN, cartEmpty, overStock, inc, dec, removeLine, clearCart } = useCart();
 
   if (!state.cartOpen) return null;
 
-  const startCheckout = () =>
-    state.user
-      ? set({ page: 'checkout', cartOpen: false, step: 1, order: null })
-      : set({ cartOpen: false, authOpen: true, authMode: 'signin', authNext: 'checkout' });
+  const startCheckout = () => {
+    set({ cartOpen: false, step: 1, order: null, checkoutError: '' });
+    if (state.user) go(routes.checkout);
+    else set({ authOpen: true, authMode: 'signin', authNext: 'checkout', authError: '', authNotice: '' });
+  };
 
   return (
     <div
@@ -101,20 +103,29 @@ export function CartDrawer() {
               }}
             >
               <div style={{ width: 56, height: 64, overflow: 'hidden', background: '#0f0d0c', borderRadius: 12 }}>
-                <img src={l.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={cdn(l.img, 160)} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
                 <span style={{ fontSize: 13, lineHeight: 1.3 }}>{l.name}</span>
                 <span style={{ fontSize: 12, color: '#c22b45' }}>
                   {l.abv} · {l.sizeLabel} · {l.lineTotal}
                 </span>
+                {l.qty > l.stock && (
+                  <span style={{ fontSize: 11, color: '#e0526b' }}>
+                    Only {l.stock} left — lower the quantity to continue.
+                  </span>
+                )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', background: '#262322', borderRadius: 999, padding: 2 }}>
-                <Btn onClick={() => dec(l.id)} style={{ width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center' }}>
+                <Btn onClick={() => dec(l.id)} aria-label="Fewer" style={{ width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center' }}>
                   −
                 </Btn>
                 <span style={{ minWidth: 22, textAlign: 'center', fontSize: 13 }}>{l.qty}</span>
-                <Btn onClick={() => inc(l.id)} style={{ width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center' }}>
+                <Btn
+                  onClick={() => inc(l.id)}
+                  aria-label="More"
+                  style={{ width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center', opacity: l.qty >= l.stock ? 0.35 : 1 }}
+                >
                   +
                 </Btn>
               </div>
@@ -142,11 +153,11 @@ export function CartDrawer() {
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, opacity: 0.7 }}>
             <span>{cartCount} bottles</span>
             <span>
-              Subtotal <b style={{ color: '#f3ece2' }}>{eur(subtotalN)}</b>
+              Subtotal <b style={{ color: '#f3ece2' }}>{ghs(subtotalN)}</b>
             </span>
           </div>
           <Btn
-            disabled={cartEmpty}
+            disabled={cartEmpty || overStock.length > 0}
             onClick={startCheckout}
             style={{
               height: 52,
@@ -161,7 +172,7 @@ export function CartDrawer() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              opacity: cartEmpty ? 0.45 : 1,
+              opacity: cartEmpty || overStock.length ? 0.45 : 1,
             }}
           >
             Checkout

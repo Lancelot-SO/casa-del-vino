@@ -1,10 +1,11 @@
 import { useShopView, useWishlist } from '../store/selectors';
-import { useLayout, useStore } from '../store/store';
+import { cdn } from '../lib/cloudinary';
+import { routes, useLayout, useStore } from '../store/store';
 import { Btn } from '../components/ui/Hoverable';
 import { Icon } from '../components/ui/Icon';
 
 export function WishlistPage() {
-  const { set } = useStore();
+  const { go, clearWishlist } = useStore();
   const L = useLayout();
   const { items, count } = useWishlist();
   const { openProduct, toggleWish, addToCart } = useShopView();
@@ -30,7 +31,7 @@ export function WishlistPage() {
         </div>
         {count > 0 && (
           <Btn
-            onClick={() => set({ wish: {} })}
+            onClick={clearWishlist}
             style={{
               fontSize: 11,
               letterSpacing: '.08em',
@@ -49,11 +50,9 @@ export function WishlistPage() {
 
       {count === 0 && (
         <>
-          <p style={{ margin: 0, opacity: 0.7, fontSize: 14 }}>
-            Nothing saved yet. Tap the heart on any bottle to keep it here.
-          </p>
+          <p style={{ margin: 0, opacity: 0.7, fontSize: 14 }}>Nothing saved yet. Tap the heart on any bottle to keep it here.</p>
           <Btn
-            onClick={() => set({ page: 'shop' })}
+            onClick={() => go(routes.shop())}
             style={{
               alignSelf: 'flex-start',
               height: 50,
@@ -81,8 +80,13 @@ export function WishlistPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,220px),1fr))', gap: 14 }}>
         {items.map((w) => (
           <div key={w.id} style={{ background: '#262322', borderRadius: 20, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div onClick={() => openProduct(w.id)} style={{ aspectRatio: '1/1', overflow: 'hidden', cursor: 'pointer' }}>
-              <img src={w.img} alt={w.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div onClick={() => openProduct(w.id)} style={{ aspectRatio: '1/1', overflow: 'hidden', cursor: 'pointer', position: 'relative' }}>
+              <img src={cdn(w.img, 480)} alt={w.name} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {w.soldOut && (
+                <span style={{ position: 'absolute', left: 10, top: 10, fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', padding: '4px 8px', borderRadius: 999, background: 'rgba(0,0,0,.7)' }}>
+                  Sold out
+                </span>
+              )}
             </div>
             <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -95,12 +99,13 @@ export function WishlistPage() {
               <div style={{ display: 'flex', gap: 8 }}>
                 <Btn
                   onClick={() => addToCart(w.id)}
+                  disabled={w.soldOut}
                   style={{
                     flex: 1,
                     height: 40,
                     borderRadius: 12,
-                    background: 'linear-gradient(180deg,#b8233d,#6e0f20)',
-                    color: '#fff4f5',
+                    background: w.soldOut ? '#1a1817' : 'linear-gradient(180deg,#b8233d,#6e0f20)',
+                    color: w.soldOut ? 'rgba(243,236,226,.5)' : '#fff4f5',
                     fontFamily: 'inherit',
                     fontSize: 11,
                     fontWeight: 600,
@@ -110,22 +115,14 @@ export function WishlistPage() {
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}
-                  hoverStyle={{ filter: 'brightness(1.06)' }}
+                  hoverStyle={w.soldOut ? undefined : { filter: 'brightness(1.06)' }}
                 >
-                  Add to bag
+                  {w.soldOut ? 'Sold out' : 'Add to bag'}
                 </Btn>
                 <Btn
                   onClick={() => toggleWish(w.id)}
                   aria-label="Remove from wishlist"
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 12,
-                    background: '#1a1817',
-                    display: 'grid',
-                    placeItems: 'center',
-                    color: '#c22b45',
-                  }}
+                  style={{ width: 40, height: 40, borderRadius: 12, background: '#1a1817', display: 'grid', placeItems: 'center', color: '#c22b45' }}
                   hoverStyle={{ background: '#2a0a10' }}
                 >
                   <Icon size={16} fill="#c22b45">

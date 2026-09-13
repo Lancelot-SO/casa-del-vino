@@ -1,20 +1,70 @@
-import type { ChangeEvent, FormEvent } from 'react';
+import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
+import { errorMessage } from '../../lib/format';
 import { useLayout, useStore } from '../../store/store';
 import { Input } from '../ui/Hoverable';
 import { adminField, adminLabel, adminPrimary, focusRed } from './shared';
-import type { Settings } from '../../types';
 
-/** The contact details and free-shipping threshold the shop reads. */
+/** The contact details and delivery prices the shop reads. */
 export function SettingsTab() {
-  const { settings, set, saveSettings } = useStore();
+  const { settings, saveSettings, toast } = useStore();
   const L = useLayout();
+  const [form, setForm] = useState({
+    email: settings.email,
+    phone: settings.phone,
+    hours: settings.hours,
+    address: settings.address,
+    freeShip: String(settings.freeShip),
+    standardShip: String(settings.standardShip),
+    expressShip: String(settings.expressShip),
+    momoNumber: settings.momoNumber,
+    momoName: settings.momoName,
+  });
+  const [busy, setBusy] = useState(false);
 
-  const setSetting = (name: keyof Settings) => (e: ChangeEvent<HTMLInputElement>) =>
-    set((s) => ({ settings: { ...s.settings, [name]: e.target.value } }));
+  useEffect(() => {
+    setForm({
+      email: settings.email,
+      phone: settings.phone,
+      hours: settings.hours,
+      address: settings.address,
+      freeShip: String(settings.freeShip),
+      standardShip: String(settings.standardShip),
+      expressShip: String(settings.expressShip),
+    momoNumber: settings.momoNumber,
+    momoName: settings.momoName,
+    });
+  }, [settings]);
 
-  const submit = (e: FormEvent) => {
+  const num = (s: string) => parseFloat(s.replace(',', '.')) || 0;
+  const field = (name: keyof typeof form) => ({
+    name,
+    value: form[name],
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [name]: e.target.value }),
+    style: adminField,
+    focusStyle: focusRed,
+  });
+
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    saveSettings();
+    setBusy(true);
+    try {
+      await saveSettings({
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        hours: form.hours.trim(),
+        address: form.address.trim(),
+        freeShip: num(form.freeShip),
+        standardShip: num(form.standardShip),
+        expressShip: num(form.expressShip),
+        momoNumber: form.momoNumber.trim(),
+        momoName: form.momoName.trim(),
+      });
+    } catch (err) {
+      toast(errorMessage(err, 'Could not save'));
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -34,37 +84,55 @@ export function SettingsTab() {
       }}
     >
       <span style={{ fontSize: 18, fontWeight: 600 }}>Website details</span>
-      <span style={{ fontSize: 12, opacity: 0.65 }}>Shown on the Contact page and in order confirmations.</span>
+      <span style={{ fontSize: 12, opacity: 0.65 }}>Shown on the Contact page, the legal page and at checkout.</span>
 
       <label style={adminLabel}>
         Contact email
-        <Input name="email" value={settings.email} onChange={setSetting('email')} style={adminField} focusStyle={focusRed} />
+        <Input type="email" {...field('email')} />
       </label>
       <label style={adminLabel}>
         Phone / WhatsApp
-        <Input name="phone" value={settings.phone} onChange={setSetting('phone')} style={adminField} focusStyle={focusRed} />
+        <Input {...field('phone')} />
       </label>
       <label style={adminLabel}>
         Opening hours
-        <Input name="hours" value={settings.hours} onChange={setSetting('hours')} style={adminField} focusStyle={focusRed} />
+        <Input {...field('hours')} />
       </label>
       <label style={adminLabel}>
         Address
-        <Input name="address" value={settings.address} onChange={setSetting('address')} style={adminField} focusStyle={focusRed} />
+        <Input {...field('address')} />
       </label>
-      <label style={adminLabel}>
-        Free-shipping threshold (€)
-        <Input
-          name="freeShip"
-          value={settings.freeShip}
-          onChange={setSetting('freeShip')}
-          inputMode="decimal"
-          style={adminField}
-          focusStyle={focusRed}
-        />
-      </label>
-      <button type="submit" style={{ all: 'unset', cursor: 'pointer', ...adminPrimary }}>
-        Save details
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 12 }}>
+        <label style={adminLabel}>
+          Free shipping from (GH₵)
+          <Input inputMode="decimal" {...field('freeShip')} />
+        </label>
+        <label style={adminLabel}>
+          Standard delivery (GH₵)
+          <Input inputMode="decimal" {...field('standardShip')} />
+        </label>
+        <label style={adminLabel}>
+          Express delivery (GH₵)
+          <Input inputMode="decimal" {...field('expressShip')} />
+        </label>
+      </div>
+      <span style={{ fontSize: 16, fontWeight: 600, marginTop: 10 }}>Mobile money</span>
+      <span style={{ fontSize: 12, opacity: 0.65 }}>
+        Shown at checkout. Customers send MTN Mobile Money or Telecel Cash to this number and check the name before
+        sending; the product name is their payment reference.
+      </span>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 12 }}>
+        <label style={adminLabel}>
+          MoMo number
+          <Input inputMode="tel" placeholder="024 000 0000" {...field('momoNumber')} />
+        </label>
+        <label style={adminLabel}>
+          Account name
+          <Input placeholder="Felix Sowah" {...field('momoName')} />
+        </label>
+      </div>
+      <button type="submit" disabled={busy} style={{ all: 'unset', cursor: 'pointer', ...adminPrimary, opacity: busy ? 0.6 : 1 }}>
+        {busy ? 'Saving…' : 'Save details'}
       </button>
     </form>
   );

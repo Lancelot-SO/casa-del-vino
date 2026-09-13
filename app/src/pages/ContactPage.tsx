@@ -1,6 +1,9 @@
-import type { CSSProperties, ReactNode } from 'react';
+import { useState } from 'react';
+import type { CSSProperties, FormEvent, ReactNode } from 'react';
+import * as api from '../lib/api';
+import { errorMessage } from '../lib/format';
 import { useLayout, useStore } from '../store/store';
-import { Btn, Input, Textarea } from '../components/ui/Hoverable';
+import { Btn, Input, Select, Textarea } from '../components/ui/Hoverable';
 import { Icon } from '../components/ui/Icon';
 
 const fieldStyle: CSSProperties = {
@@ -32,6 +35,8 @@ const bubble: CSSProperties = {
   flex: 'none',
 };
 
+const SUBJECTS = ['Order enquiry', 'Trade / wholesale', 'Tasting or event', 'Request a bottle', 'Other'];
+
 function Row({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
@@ -47,6 +52,31 @@ function Row({ icon, label, value }: { icon: ReactNode; label: string; value: st
 export function ContactPage() {
   const { state, set, settings } = useStore();
   const L = useLayout();
+  const [form, setForm] = useState({
+    name: state.user?.name && state.user.role !== 'guest' ? state.user.name : '',
+    email: state.user?.email || '',
+    subject: SUBJECTS[0],
+    message: '',
+  });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const waNumber = settings.phone.replace(/[^\d]/g, '');
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      await api.sendContactMessage(form);
+      set({ sent: true });
+      setForm((f) => ({ ...f, message: '' }));
+    } catch (err) {
+      setError(errorMessage(err, 'Could not send the message'));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <section
@@ -63,16 +93,7 @@ export function ContactPage() {
     >
       <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <span style={{ fontSize: 12, color: '#c22b45' }}>Contact us</span>
-        <h1
-          style={{
-            fontFamily: "'Cormorant Garamond',serif",
-            fontWeight: 500,
-            fontSize: 'clamp(36px,4vw,54px)',
-            lineHeight: 1.02,
-            margin: 0,
-            textWrap: 'pretty',
-          }}
-        >
+        <h1 style={{ fontFamily: "'Cormorant Garamond',serif", fontWeight: 500, fontSize: 'clamp(36px,4vw,54px)', lineHeight: 1.02, margin: 0, textWrap: 'pretty' }}>
           Let's talk
           <br />
           about wine.
@@ -93,7 +114,12 @@ export function ContactPage() {
               <span style={{ fontSize: 14 }}>{settings.email}</span>
             </span>
           </a>
-          <a href="https://wa.me/" style={{ display: 'flex', alignItems: 'center', gap: 14, color: '#f3ece2' }}>
+          <a
+            href={waNumber ? 'https://wa.me/' + waNumber : 'tel:' + settings.phone}
+            target="_blank"
+            rel="noreferrer"
+            style={{ display: 'flex', alignItems: 'center', gap: 14, color: '#f3ece2' }}
+          >
             <span style={bubble}>
               <Icon>
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -128,28 +154,8 @@ export function ContactPage() {
       </div>
 
       {state.sent ? (
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            gap: 12,
-            background: '#1a1817',
-            borderRadius: 20,
-            padding: 32,
-          }}
-        >
-          <span
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: '50%',
-              background: '#c22b45',
-              color: '#fff4f5',
-              display: 'grid',
-              placeItems: 'center',
-            }}
-          >
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 12, background: '#1a1817', borderRadius: 20, padding: 32 }}>
+          <span style={{ width: 48, height: 48, borderRadius: '50%', background: '#c22b45', color: '#fff4f5', display: 'grid', placeItems: 'center' }}>
             <Icon size={22} strokeWidth={2.2}>
               <path d="M20 6 9 17l-5-5" />
             </Icon>
@@ -158,43 +164,28 @@ export function ContactPage() {
           <p style={{ margin: 0, opacity: 0.7, fontSize: 14 }}>Thank you. We'll be in touch within one working day.</p>
           <Btn
             onClick={() => set({ sent: false })}
-            style={{
-              alignSelf: 'flex-start',
-              marginTop: 6,
-              fontSize: 12,
-              color: '#c22b45',
-              letterSpacing: '.08em',
-              textTransform: 'uppercase',
-            }}
+            style={{ alignSelf: 'flex-start', marginTop: 6, fontSize: 12, color: '#c22b45', letterSpacing: '.08em', textTransform: 'uppercase' }}
           >
             Send another
           </Btn>
         </div>
       ) : (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            set({ sent: true });
-          }}
-          style={{ display: 'flex', flexDirection: 'column', gap: 12, background: '#1a1817', borderRadius: 20, padding: 22 }}
-        >
+        <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 12, background: '#1a1817', borderRadius: 20, padding: 22 }}>
           <label style={labelStyle}>
             Name
-            <Input required placeholder="Your name" style={fieldStyle} focusStyle={focusRed} />
+            <Input required placeholder="Your name" autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} style={fieldStyle} focusStyle={focusRed} />
           </label>
           <label style={labelStyle}>
             Email
-            <Input required type="email" placeholder="you@example.com" style={fieldStyle} focusStyle={focusRed} />
+            <Input required type="email" placeholder="you@example.com" autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} style={fieldStyle} focusStyle={focusRed} />
           </label>
           <label style={labelStyle}>
             Subject
-            <select style={fieldStyle} defaultValue="Order enquiry">
-              <option>Order enquiry</option>
-              <option>Trade / wholesale</option>
-              <option>Tasting or event</option>
-              <option>Request a bottle</option>
-              <option>Other</option>
-            </select>
+            <Select value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} style={fieldStyle} focusStyle={focusRed}>
+              {SUBJECTS.map((s) => (
+                <option key={s}>{s}</option>
+              ))}
+            </Select>
           </label>
           <label style={labelStyle}>
             Message
@@ -202,15 +193,19 @@ export function ContactPage() {
               required
               rows={5}
               placeholder="How can we help?"
+              value={form.message}
+              onChange={(e) => setForm({ ...form, message: e.target.value })}
               style={{ ...fieldStyle, height: 'auto', padding: '12px 14px', resize: 'vertical' }}
               focusStyle={focusRed}
             />
           </label>
+          {error && <span style={{ fontSize: 12, color: '#e0526b' }}>{error}</span>}
           <button
             type="submit"
+            disabled={busy}
             style={{
               all: 'unset',
-              cursor: 'pointer',
+              cursor: busy ? 'wait' : 'pointer',
               marginTop: 6,
               height: 52,
               borderRadius: 14,
@@ -225,9 +220,10 @@ export function ContactPage() {
               alignItems: 'center',
               justifyContent: 'center',
               boxShadow: '0 10px 30px rgba(194,43,69,.3)',
+              opacity: busy ? 0.6 : 1,
             }}
           >
-            Send message
+            {busy ? 'Sending…' : 'Send message'}
           </button>
         </form>
       )}

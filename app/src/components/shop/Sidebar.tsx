@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
-import { CATEGORIES, ICON } from '../../data/catalog';
-import { useLayout, useStore } from '../../store/store';
+import { ICON } from '../../data/catalog';
+import { routes, useLayout, useStore } from '../../store/store';
 import { Box, Btn } from '../ui/Hoverable';
 import { Icon, PathIcon } from '../ui/Icon';
 
@@ -28,10 +28,13 @@ const bullet: CSSProperties = {
 
 /** The cellar rail: brand, category shelves, the secondary pages and the promo card. */
 export function Sidebar() {
-  const { state, products, set } = useStore();
+  const { state, products, go, set } = useStore();
   const L = useLayout();
-  const { page, cat, user } = state;
+  const { page, cat, user, categories } = state;
   const isAdmin = !!user && user.role === 'admin';
+  const live = products.filter((p) => p.active);
+
+  const shelves = [{ id: 'all', name: 'All', icon: 'grid' }, ...categories];
 
   return (
     <aside
@@ -53,16 +56,16 @@ export function Sidebar() {
         zIndex: 5,
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 6px' }}>
+      <Btn onClick={() => go(routes.shop())} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0 6px' }}>
         <img
-          src="assets/logo.jpg"
+          src="/assets/logo.jpg"
           alt=""
           style={{ width: 40, height: 40, objectFit: 'cover', objectPosition: 'center 58%', borderRadius: '50%' }}
         />
         <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 22, fontWeight: 600, lineHeight: 1 }}>
           Casa del Vino
         </span>
-      </div>
+      </Btn>
 
       {L.isDesktop && (
         <div style={{ padding: '0 6px', display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -86,13 +89,17 @@ export function Sidebar() {
           padding: '0 4px',
         }}
       >
-        {CATEGORIES.map(([label, ic]) => {
-          const on = cat === label && page === 'shop';
-          const count = label === 'All' ? products.length : products.filter((p) => p.category === label).length;
+        {shelves.map((c) => {
+          const on = cat === c.name && page === 'shop';
+          const count = c.id === 'all' ? live.length : live.filter((p) => p.categoryId === c.id).length;
           return (
             <Btn
-              key={label}
-              onClick={() => set({ cat: label, page: 'shop', featuredId: null })}
+              key={c.id}
+              onClick={() => {
+                // Choosing a shelf ends a search; the shelf shows all its bottles.
+                if (state.query) set({ query: '' });
+                go(routes.shop(c.id));
+              }}
               style={{
                 ...navBtn,
                 border: `1px solid ${on ? '#c22b45' : 'transparent'}`,
@@ -104,9 +111,9 @@ export function Sidebar() {
               hoverStyle={{ background: 'rgba(243,236,226,.06)', transform: 'translateX(6px)' }}
             >
               <span style={{ ...bullet, color: on ? '#c22b45' : 'rgba(243,236,226,.7)' }}>
-                <PathIcon d={ICON[ic]} />
+                <PathIcon d={ICON[c.icon] || ICON.wine} />
               </span>
-              <span style={{ flex: 1 }}>{label}</span>
+              <span style={{ flex: 1 }}>{c.name}</span>
               <span style={{ fontSize: 11, opacity: 0.5 }}>{count}</span>
             </Btn>
           );
@@ -117,7 +124,7 @@ export function Sidebar() {
         <>
           {isAdmin && (
             <Btn
-              onClick={() => set({ page: 'admin', adminEdit: null, adminTab: 'dashboard' })}
+              onClick={() => go(routes.admin())}
               style={{ ...navBtn, border: `1px solid ${page === 'admin' ? '#c22b45' : 'transparent'}` }}
               hoverStyle={{ background: 'rgba(243,236,226,.06)' }}
             >
@@ -132,7 +139,7 @@ export function Sidebar() {
           )}
 
           <Btn
-            onClick={() => set({ page: 'about' })}
+            onClick={() => go(routes.about)}
             style={{ ...navBtn, border: `1px solid ${page === 'about' ? '#c22b45' : 'transparent'}` }}
             hoverStyle={{ background: 'rgba(243,236,226,.06)' }}
           >
@@ -146,7 +153,7 @@ export function Sidebar() {
           </Btn>
 
           <Btn
-            onClick={() => set({ page: 'contact' })}
+            onClick={() => go(routes.contact)}
             style={{ ...navBtn, border: `1px solid ${page === 'contact' ? '#c22b45' : 'transparent'}` }}
             hoverStyle={{ background: 'rgba(243,236,226,.06)' }}
           >
@@ -160,7 +167,7 @@ export function Sidebar() {
           </Btn>
 
           <Box
-            onClick={() => set({ page: 'shop' })}
+            onClick={() => go(routes.shop())}
             style={{
               marginTop: 'auto',
               position: 'relative',
@@ -176,7 +183,7 @@ export function Sidebar() {
             }}
           >
             <img
-              src="assets/logo.jpg"
+              src="/assets/logo.jpg"
               alt=""
               style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 40%' }}
             />

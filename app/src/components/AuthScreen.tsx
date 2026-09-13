@@ -72,11 +72,11 @@ function Field({ label, icon, children }: { label: string; icon: ReactNode; chil
 
 /**
  * The full-screen sign-in: a blurred bottle with the tagline on one side,
- * a glass card with the form on the other.
+ * a glass card with the form on the other. Backed by Supabase Auth.
  */
 export function AuthScreen() {
-  const { state, set, signIn, saveAccounts } = useStore();
-  const { authOpen, authMode, authForm, authError, users, showPw } = state;
+  const { state, set, signInWithPassword, signUp, signInWithGoogle, requestPasswordReset, continueAsGuest } = useStore();
+  const { authOpen, authMode, authForm, authError, authNotice, authBusy, showPw } = state;
 
   if (!authOpen) return null;
 
@@ -86,34 +86,16 @@ export function AuthScreen() {
 
   const submitSignin = (e: FormEvent) => {
     e.preventDefault();
-    const u = users.find((x) => x.email.toLowerCase() === (authForm.email || '').trim().toLowerCase());
-    if (!u || u.password !== (authForm.password || '')) {
-      set({ authError: 'Email or password is incorrect.' });
-      return;
-    }
-    signIn({ name: u.name, email: u.email, role: u.role });
+    void signInWithPassword(authForm.email || '', authForm.password || '');
   };
 
   const submitSignup = (e: FormEvent) => {
     e.preventDefault();
-    const email = (authForm.email || '').trim().toLowerCase();
-    if (users.some((x) => x.email.toLowerCase() === email)) {
-      set({ authError: 'An account with that email already exists.' });
+    if ((authForm.password || '').length < 6) {
+      set({ authError: 'Password needs at least 6 characters.' });
       return;
     }
-    if ((authForm.password || '').length < 4) {
-      set({ authError: 'Password needs at least 4 characters.' });
-      return;
-    }
-    const account = {
-      name: (authForm.name || '').trim() || email.split('@')[0],
-      email,
-      password: authForm.password || '',
-      role: 'customer' as const,
-      createdAt: new Date().toISOString(),
-    };
-    saveAccounts([...users, account]);
-    signIn({ name: account.name, email: account.email, role: 'customer' });
+    void signUp(authForm.name || '', authForm.email || '', authForm.password || '');
   };
 
   const pwType = showPw ? 'text' : 'password';
@@ -132,7 +114,7 @@ export function AuthScreen() {
     >
       <div style={{ position: 'relative', minHeight: 220, overflow: 'hidden' }}>
         <img
-          src="assets/syrah.jpg"
+          src="/assets/syrah.jpg"
           alt=""
           style={{
             position: 'absolute',
@@ -163,7 +145,7 @@ export function AuthScreen() {
           }}
         >
           <img
-            src="assets/logo.jpg"
+            src="/assets/logo.jpg"
             alt=""
             style={{
               width: 56,
@@ -213,7 +195,7 @@ export function AuthScreen() {
             }}
           />
           <Btn
-            onClick={() => set({ authOpen: false, authError: '', authNext: null })}
+            onClick={() => set({ authOpen: false, authError: '', authNotice: '', authNext: null })}
             aria-label="Close"
             style={{
               position: 'absolute',
@@ -263,6 +245,7 @@ export function AuthScreen() {
                 <Input
                   required
                   name="name"
+                  autoComplete="name"
                   value={authForm.name || ''}
                   onChange={(e) => setAuth('name', e.target.value)}
                   placeholder="Your name"
@@ -285,6 +268,7 @@ export function AuthScreen() {
                 required
                 type="email"
                 name="email"
+                autoComplete="email"
                 value={authForm.email || ''}
                 onChange={(e) => setAuth('email', e.target.value)}
                 placeholder="you@example.com"
@@ -307,9 +291,10 @@ export function AuthScreen() {
                   required
                   type={pwType}
                   name="password"
+                  autoComplete={isSignin ? 'current-password' : 'new-password'}
                   value={authForm.password || ''}
                   onChange={(e) => setAuth('password', e.target.value)}
-                  placeholder={isSignin ? 'Enter your password' : 'At least 4 characters'}
+                  placeholder={isSignin ? 'Enter your password' : 'At least 6 characters'}
                   style={authField}
                   focusStyle={authFocus}
                 />
@@ -337,12 +322,7 @@ export function AuthScreen() {
             {isSignin && (
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: -6 }}>
                 <Btn
-                  onClick={() =>
-                    set({
-                      authError:
-                        'Password reset is not wired up in this demo. Use "Continue as guest" or the demo admin login.',
-                    })
-                  }
+                  onClick={() => void requestPasswordReset(authForm.email || '')}
                   style={{ fontSize: 12, color: '#e0526b' }}
                   hoverStyle={{ color: '#f3ece2' }}
                 >
@@ -360,9 +340,17 @@ export function AuthScreen() {
                 {authError}
               </span>
             )}
+            {authNotice && (
+              <span style={{ fontSize: 12, color: '#f3ece2', opacity: 0.85, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Icon size={14} strokeWidth={2}>
+                  <path d="M20 6 9 17l-5-5" />
+                </Icon>
+                {authNotice}
+              </span>
+            )}
 
-            <button type="submit" style={{ all: 'unset', cursor: 'pointer', ...submit }}>
-              {isSignin ? 'Login' : 'Create account'}
+            <button type="submit" disabled={authBusy} style={{ all: 'unset', cursor: 'pointer', ...submit, opacity: authBusy ? 0.6 : 1 }}>
+              {authBusy ? 'One moment…' : isSignin ? 'Login' : 'Create account'}
               <Icon strokeWidth={2} style={{ position: 'absolute', right: 18 }}>
                 <path d="M5 12h14M13 6l6 6-6 6" />
               </Icon>
@@ -376,11 +364,7 @@ export function AuthScreen() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <Btn
-              onClick={() => set({ authError: 'Google sign-in needs a live backend. Continue as guest for now.' })}
-              style={social}
-              hoverStyle={{ borderColor: 'rgba(243,236,226,.35)' }}
-            >
+            <Btn onClick={() => void signInWithGoogle()} style={social} hoverStyle={{ borderColor: 'rgba(243,236,226,.35)' }}>
               <svg width="16" height="16" viewBox="0 0 24 24">
                 <path
                   fill="#EA4335"
@@ -395,11 +379,7 @@ export function AuthScreen() {
               </svg>
               Google
             </Btn>
-            <Btn
-              onClick={() => signIn({ name: 'Guest', email: '', role: 'guest' })}
-              style={social}
-              hoverStyle={{ borderColor: 'rgba(243,236,226,.35)' }}
-            >
+            <Btn onClick={continueAsGuest} style={social} hoverStyle={{ borderColor: 'rgba(243,236,226,.35)' }}>
               <Icon>
                 <circle cx="12" cy="8" r="4" />
                 <path d="M20 21a8 8 0 0 0-16 0" />
@@ -411,25 +391,13 @@ export function AuthScreen() {
           <span style={{ fontSize: 13, opacity: 0.7, textAlign: 'center' }}>
             {isSignin ? "Don't have an account?" : 'Already have an account?'}{' '}
             <Btn
-              onClick={() => set((s) => ({ authMode: s.authMode === 'signup' ? 'signin' : 'signup', authError: '' }))}
+              onClick={() => set((s) => ({ authMode: s.authMode === 'signup' ? 'signin' : 'signup', authError: '', authNotice: '' }))}
               style={{ color: '#e0526b' }}
               hoverStyle={{ color: '#f3ece2' }}
             >
               {isSignin ? 'Sign up' : 'Sign in'}
             </Btn>
           </span>
-
-          {isSignin && (
-            <Btn
-              onClick={() =>
-                set({ authForm: { email: 'admin@casadelvino.com', password: 'admin' }, authMode: 'signin', authError: '' })
-              }
-              style={{ fontSize: 11, color: 'rgba(243,236,226,.4)', textAlign: 'center' }}
-              hoverStyle={{ color: '#c22b45' }}
-            >
-              Demo admin · admin@casadelvino.com / admin
-            </Btn>
-          )}
         </div>
       </div>
     </div>

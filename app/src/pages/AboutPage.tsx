@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useStore } from '../store/store';
+import { routes, useStore } from '../store/store';
 import { Box, Btn } from '../components/ui/Hoverable';
 import { Icon } from '../components/ui/Icon';
 
@@ -57,7 +57,9 @@ function ValueCard({ icon, title, body }: { icon: ReactNode; title: string; body
 }
 
 export function AboutPage() {
-  const { products, set } = useStore();
+  const { state, products, go } = useStore();
+  const countries = [...new Set(products.filter((p) => p.active).map((p) => p.country).filter(Boolean))];
+  const liveCount = products.filter((p) => p.active).length;
 
   return (
     <>
@@ -74,7 +76,7 @@ export function AboutPage() {
       >
         <div style={{ position: 'relative', minHeight: 360 }}>
           <img
-            src="assets/logo.jpg"
+            src="/assets/logo.jpg"
             alt="Casa del Vino"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 35%' }}
           />
@@ -123,9 +125,9 @@ export function AboutPage() {
           animation: 'cdvRise .8s cubic-bezier(.2,.8,.2,1) .15s both',
         }}
       >
-        <Figure value="4" label="Countries of origin" note="Spain · Italy · Sweden · France" />
-        <Figure value={products.length} label="Bottles in the cellar" note="Each with origin, strength and ingredients" />
-        <Figure value="9" label="Shelves" note="From red wine to non-alcoholic white" />
+        <Figure value={countries.length || 4} label="Countries of origin" note={countries.length ? countries.join(' · ') : 'Spain · Italy · Sweden · France'} />
+        <Figure value={liveCount} label="Bottles in the cellar" note="Each with origin, strength and ingredients" />
+        <Figure value={state.categories.length || 8} label="Shelves" note="From red wine to non-alcoholic white" />
       </section>
 
       <section
@@ -169,7 +171,7 @@ export function AboutPage() {
 
       <section style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
         <Btn
-          onClick={() => set({ page: 'shop' })}
+          onClick={() => go(routes.shop())}
           style={{
             flex: '1 1 240px',
             height: 56,
@@ -191,7 +193,7 @@ export function AboutPage() {
           Explore the cellar
         </Btn>
         <Btn
-          onClick={() => set({ page: 'contact' })}
+          onClick={() => go(routes.contact)}
           style={{
             flex: '1 1 200px',
             height: 56,

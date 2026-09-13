@@ -1,4 +1,5 @@
 import type { CSSProperties, MouseEvent } from 'react';
+import { cdn } from '../../lib/cloudinary';
 import { useChips, useShopView } from '../../store/selectors';
 import { useLayout, useStore } from '../../store/store';
 import { Btn } from '../ui/Hoverable';
@@ -34,11 +35,7 @@ export function FeaturedPanel() {
     });
   };
 
-  const openZoom = () => {
-    set({ zoomOpen: true });
-    const el = document.documentElement;
-    if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
-  };
+  const openZoom = () => set({ zoomOpen: true });
 
   return (
     <section
@@ -93,6 +90,13 @@ export function FeaturedPanel() {
             {featured.priceLabel}
           </span>
           <span style={{ fontSize: 14, opacity: 0.8 }}>{featured.abv} alc./vol</span>
+          {featured.soldOut ? (
+            <span style={{ fontSize: 11, letterSpacing: '.1em', textTransform: 'uppercase', padding: '4px 10px', borderRadius: 999, background: '#262322', opacity: 0.8 }}>
+              Sold out
+            </span>
+          ) : featured.stock <= 5 ? (
+            <span style={{ fontSize: 12, color: '#e0526b' }}>Only {featured.stock} left</span>
+          ) : null}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           <span style={{ fontSize: 11, letterSpacing: '.06em', opacity: 0.6 }}>Details</span>
@@ -134,10 +138,10 @@ export function FeaturedPanel() {
         }}
       >
         <img
-          src={featuredImg}
+          src={cdn(featuredImg, 1200)}
           alt={featured.name}
           onClick={openZoom}
-          title="View full screen"
+          title="Enlarge"
           style={{
             cursor: 'zoom-in',
             width: '100%',
@@ -197,7 +201,7 @@ export function FeaturedPanel() {
             >
               {ch.hasImg ? (
                 <img
-                  src={ch.img}
+                  src={cdn(ch.img, 160)}
                   alt={ch.label}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
@@ -227,7 +231,7 @@ export function FeaturedPanel() {
                 }}
                 hoverStyle={{ transform: 'translateY(-2px)' }}
               >
-                <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <img src={cdn(src, 120)} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </Btn>
             ))}
           </div>

@@ -1,0 +1,9 @@
+# Minimal Supabase CLI config, for `supabase link` / `supabase db push` /
+# `supabase functions deploy`. The SQL editor works just as well for migrations.
+project_id = "iasnybhmcaoaffyubdag"
+
+[functions.create-checkout-session]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false

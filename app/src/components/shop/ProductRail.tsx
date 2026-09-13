@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { cdn } from '../../lib/cloudinary';
 import { useShopView } from '../../store/selectors';
 import type { ProductView } from '../../store/selectors';
 import { Icon } from '../ui/Icon';
@@ -25,7 +26,7 @@ const DROPS: Drop[] = Array.from({ length: 9 }, (_, k) => {
   };
 });
 
-function ProductCard({ p, index, onOpen }: { p: ProductView; index: number; onOpen: (id: string) => void }) {
+export function ProductCard({ p, index, onOpen }: { p: ProductView; index: number; onOpen: (id: string) => void }) {
   const [on, setOn] = useState(false);
   const riseDelay = useMemo(() => (0.1 + index * 0.08).toFixed(2) + 's', [index]);
 
@@ -59,7 +60,8 @@ function ProductCard({ p, index, onOpen }: { p: ProductView; index: number; onOp
           <div style={{ position: 'absolute', inset: 0, perspective: '700px', transformStyle: 'preserve-3d' }}>
             {/* The bottle lifts off its shadow and keeps turning while hovered. */}
             <img
-              src={p.img}
+              src={cdn(p.img, 480)}
+              loading="lazy"
               alt={p.name}
               style={{
                 width: '100%',
@@ -124,6 +126,24 @@ function ProductCard({ p, index, onOpen }: { p: ProductView; index: number; onOp
                 }
               />
             ))}
+          {p.soldOut && (
+            <span
+              style={{
+                position: 'absolute',
+                left: 10,
+                top: 10,
+                fontSize: 10,
+                letterSpacing: '.1em',
+                textTransform: 'uppercase',
+                padding: '4px 8px',
+                borderRadius: 999,
+                background: 'rgba(0,0,0,.7)',
+                color: '#f3ece2',
+              }}
+            >
+              Sold out
+            </span>
+          )}
           <div
             style={{
               position: 'absolute',

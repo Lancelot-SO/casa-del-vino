@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
-import { useCart } from '../../store/selectors';
-import { useStore } from '../../store/store';
+import { useCart, useWishlist } from '../../store/selectors';
+import { routes, useStore } from '../../store/store';
 import { Btn } from '../ui/Hoverable';
 import { Icon } from '../ui/Icon';
 import type { Page } from '../../types';
@@ -17,14 +17,14 @@ const pill: CSSProperties = {
 
 /** Search, the page links, the account chip, wishlist and the bag. */
 export function TopBar() {
-  const { state, products, set } = useStore();
+  const { state, set, go, catSlug } = useStore();
   const { cartCount } = useCart();
-  const { page, user, query } = state;
+  const { count: wishCount } = useWishlist();
+  const { page, user, query, featuredId, cat } = state;
 
-  const wishCount = products.filter((p) => state.wish[p.id]).length;
-  const link = (target: Page, label: string) => (
+  const link = (target: Page, path: string, label: string) => (
     <Btn
-      onClick={() => set({ page: target })}
+      onClick={() => go(path)}
       style={{
         fontFamily: 'inherit',
         fontSize: 13,
@@ -37,10 +37,25 @@ export function TopBar() {
     </Btn>
   );
 
-  const onAccount = () =>
-    user
-      ? set({ page: user.role === 'admin' ? 'admin' : 'account', adminEdit: null })
-      : set({ authOpen: true, authMode: 'signin', authNext: null });
+  // A search looks through the whole cellar, so it always lands on the full shop.
+  const onSearch = (value: string) => {
+    set({ query: value });
+    if (value.trim()) {
+      if (page !== 'shop' || featuredId || cat !== 'All') go(routes.shop());
+    } else if (page !== 'shop' || featuredId) {
+      go(routes.shop(catSlug));
+    }
+  };
+
+  const clearSearch = () => {
+    set({ query: '' });
+    if (page === 'shop' && !featuredId) go(routes.shop());
+  };
+
+  const onAccount = () => {
+    if (user) go(user.role === 'admin' ? routes.admin() : routes.account);
+    else set({ authOpen: true, authMode: 'signin', authNext: null, authError: '', authNotice: '' });
+  };
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
@@ -58,9 +73,15 @@ export function TopBar() {
         }}
       >
         <input
+          type="search"
           value={query}
-          onChange={(e) => set({ query: e.target.value, page: 'shop', featuredId: null })}
+          onChange={(e) => onSearch(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') clearSearch();
+          }}
           placeholder="Search for bottles…"
+          aria-label="Search"
+          autoComplete="off"
           style={{
             flex: 1,
             background: 'transparent',
@@ -70,17 +91,31 @@ export function TopBar() {
             font: 'inherit',
             fontSize: 14,
             minWidth: 0,
+            WebkitAppearance: 'none',
           }}
         />
-        <Icon>
-          <circle cx="11" cy="11" r="7" />
-          <path d="m21 21-4.3-4.3" />
-        </Icon>
+        {query ? (
+          <Btn
+            onClick={clearSearch}
+            aria-label="Clear search"
+            style={{ width: 26, height: 26, borderRadius: '50%', display: 'grid', placeItems: 'center', color: 'rgba(243,236,226,.6)', transition: 'background .2s, color .2s' }}
+            hoverStyle={{ background: 'rgba(243,236,226,.1)', color: '#f3ece2' }}
+          >
+            <Icon size={14} strokeWidth={2}>
+              <path d="M18 6 6 18M6 6l12 12" />
+            </Icon>
+          </Btn>
+        ) : (
+          <Icon>
+            <circle cx="11" cy="11" r="7" />
+            <path d="m21 21-4.3-4.3" />
+          </Icon>
+        )}
       </div>
 
-      {link('shop', 'Shop')}
-      {link('about', 'About')}
-      {link('contact', 'Contact')}
+      {link('shop', routes.shop(), 'Shop')}
+      {link('about', routes.about, 'About')}
+      {link('contact', routes.contact, 'Contact')}
 
       <Btn
         onClick={onAccount}
@@ -129,7 +164,7 @@ export function TopBar() {
       </Btn>
 
       <Btn
-        onClick={() => set({ page: 'wishlist' })}
+        onClick={() => go(routes.wishlist)}
         aria-label="Wishlist"
         style={{
           ...pill,
