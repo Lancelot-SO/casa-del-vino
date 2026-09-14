@@ -96,6 +96,8 @@ export interface AppState {
   adminLoaded: boolean;
   adminEdit: ProductDraft | null;
   adminQuery: string;
+  /** Category id chosen from the sidebar shelves; narrows the products tab. */
+  adminShelf: string | null;
   adminToast: string;
   adminBusy: boolean;
   notifOpen: boolean;
@@ -160,6 +162,7 @@ const initialState: AppState = {
   adminLoaded: false,
   adminEdit: null,
   adminQuery: '',
+  adminShelf: null,
   adminToast: '',
   adminBusy: false,
   notifOpen: false,

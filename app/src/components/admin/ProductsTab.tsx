@@ -11,7 +11,9 @@ export function ProductsTab() {
   const { state, set, products, reloadCatalog, logActivity, toast } = useStore();
   const L = useLayout();
   const q = state.adminQuery.trim();
-  const rows = products.filter((p) => matchesQuery(p, q));
+  const shelf = state.adminShelf;
+  const rows = products.filter((p) => (!shelf || p.categoryId === shelf) && matchesQuery(p, q));
+  const shelfName = shelf ? state.categories.find((c) => c.id === shelf)?.name : null;
 
   const remove = async (id: string, name: string) => {
     if (!window.confirm(`Remove "${name}" from the cellar? Past orders keep their record.`)) return;
@@ -40,7 +42,34 @@ export function ProductsTab() {
       }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 18, fontWeight: 600 }}>Products · {products.length}</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 18, fontWeight: 600 }}>Products · {shelf ? rows.length : products.length}</span>
+          {shelf && (
+            <Btn
+              onClick={() => set({ adminShelf: null })}
+              aria-label="Show every shelf"
+              title="Show every shelf"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                height: 28,
+                padding: '0 6px 0 12px',
+                borderRadius: 999,
+                background: 'rgba(194,43,69,.25)',
+                border: '1px solid rgba(194,43,69,.45)',
+                color: '#f3ece2',
+                fontFamily: 'inherit',
+                fontSize: 12,
+                boxSizing: 'border-box',
+              }}
+              hoverStyle={{ background: 'rgba(194,43,69,.4)' }}
+            >
+              {shelfName || 'Shelf'}
+              <span style={{ width: 18, height: 18, borderRadius: '50%', display: 'grid', placeItems: 'center', background: 'rgba(243,236,226,.12)', fontSize: 11, lineHeight: 1 }}>×</span>
+            </Btn>
+          )}
+        </span>
         <Btn onClick={() => set({ adminEdit: draftFrom(null) })} style={adminPrimary} hoverStyle={{ filter: 'brightness(1.12)' }}>
           + Add bottle
         </Btn>

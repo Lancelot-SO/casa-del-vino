@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { routes, useLayout, useStore } from '../store/store';
 import { Box, Btn, Input } from '../components/ui/Hoverable';
@@ -185,10 +185,131 @@ function Notifications() {
   );
 }
 
+/** The "Shelves" row in the rail; opens and closes the category list beneath it. */
+function ShelvesToggle({ open, count, onClick }: { open: boolean; count: number; onClick: () => void }) {
+  return (
+    <Btn
+      onClick={onClick}
+      aria-expanded={open}
+      aria-controls="cdv-admin-shelves"
+      style={{ ...navItem, background: open ? 'rgba(243,236,226,.06)' : 'transparent' }}
+      hoverStyle={{ background: 'rgba(243,236,226,.08)' }}
+    >
+      <PathIcon d="M3 6h18M3 12h18M3 18h18" />
+      Shelves
+      <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, opacity: 0.6, fontSize: 11 }}>
+        {count}
+        <Icon size={14} strokeWidth={2} style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .25s' }}>
+          <path d="m6 9 6 6 6-6" />
+        </Icon>
+      </span>
+    </Btn>
+  );
+}
+
+/** The initial badge in the header; opens a small menu with the shop link and sign-out. */
+function ProfileMenu() {
+  const { state, set, go, signOut } = useStore();
+  const [open, setOpen] = useState(false);
+  const { user } = state;
+  const initial = ((user?.name || user?.email || 'A')[0] || 'A').toUpperCase();
+
+  const item: CSSProperties = { ...navItem, borderRadius: 12, padding: '10px 14px', width: '100%', textAlign: 'left', boxSizing: 'border-box' };
+
+  return (
+    <div style={{ position: 'relative' }}>
+      <Btn
+        onClick={() => {
+          setOpen((o) => !o);
+          set({ notifOpen: false });
+        }}
+        aria-label="Account menu"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        style={{
+          width: 42,
+          height: 42,
+          borderRadius: '50%',
+          background: 'linear-gradient(180deg,#c22b45,#6e0f20)',
+          color: '#f3ece2',
+          display: 'grid',
+          placeItems: 'center',
+          fontSize: 14,
+          fontWeight: 600,
+          fontFamily: 'inherit',
+          border: `2px solid ${open ? 'rgba(243,236,226,.5)' : 'transparent'}`,
+          boxSizing: 'border-box',
+          transition: 'border-color .2s',
+        }}
+        hoverStyle={{ borderColor: 'rgba(243,236,226,.5)' }}
+      >
+        {initial}
+      </Btn>
+
+      {open && (
+        <div
+          role="menu"
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 52,
+            width: 'min(240px,calc(100vw - 40px))',
+            zIndex: 30,
+            background: 'linear-gradient(160deg,#241012,#160a0c)',
+            border: '1px solid rgba(243,236,226,.1)',
+            borderRadius: 18,
+            boxShadow: '0 30px 70px rgba(0,0,0,.7)',
+            padding: 6,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            animation: 'cdvRise .3s cubic-bezier(.2,.8,.2,1) both',
+          }}
+        >
+          <div style={{ padding: '10px 14px 12px', borderBottom: '1px solid rgba(243,236,226,.08)', marginBottom: 4, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
+            <span style={{ fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.name || 'Admin'}</span>
+            {user?.email && <span style={{ fontSize: 11, opacity: 0.6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</span>}
+          </div>
+          <Btn
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              go(routes.shop());
+            }}
+            style={item}
+            hoverStyle={{ background: 'rgba(243,236,226,.08)' }}
+          >
+            <Icon>
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </Icon>
+            View the shop
+          </Btn>
+          <Btn
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              void signOut();
+            }}
+            style={{ ...item, opacity: 0.8 }}
+            hoverStyle={{ background: 'rgba(194,43,69,.2)', opacity: 1 }}
+          >
+            <Icon>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+            </Icon>
+            Sign out
+          </Btn>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** The admin: its own frosted frame, burgundy sidebar and tabbed main panel. */
 export function AdminPage() {
-  const { state, set, go, signOut, loadAdminData } = useStore();
+  const { state, set, go, loadAdminData } = useStore();
   const L = useLayout();
+  // Shelves start folded on every width; the admin opens them when they want a category.
+  const [shelvesOpen, setShelvesOpen] = useState(false);
   const { shelves, unreadMessages } = useAdminData();
   const { adminTab, user } = state;
 
@@ -235,7 +356,8 @@ export function AdminPage() {
             <span style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 22, fontWeight: 600, lineHeight: 1 }}>Casa del Vino</span>
           </div>
 
-          <nav className="cdv-noscrollbar" style={{ display: 'flex', flexDirection: L.navDir, gap: 4, overflowX: 'auto' }}>
+          {/* Tabs; when the rail sits on top, the shelves toggle rides at the end of the same row. */}
+          <nav className="cdv-noscrollbar" style={{ display: 'flex', flexDirection: L.navDir, gap: 4, overflowX: 'auto', alignItems: L.isDesktop ? 'stretch' : 'center' }}>
             {TABS.map((t) => (
               <Btn
                 key={t.id}
@@ -255,35 +377,73 @@ export function AdminPage() {
                 )}
               </Btn>
             ))}
+            {!L.isDesktop && (
+              <>
+                <span aria-hidden style={{ flex: '0 0 1px', height: 22, marginInline: 6, background: 'rgba(243,236,226,.15)' }} />
+                <ShelvesToggle open={shelvesOpen} count={shelves.length} onClick={() => setShelvesOpen((o) => !o)} />
+              </>
+            )}
           </nav>
 
           {L.isDesktop && (
-            <>
-              <span style={{ fontSize: 10, letterSpacing: '.12em', textTransform: 'uppercase', opacity: 0.5, padding: '18px 14px 6px' }}>Shelves</span>
-              {shelves.map((c) => (
-                <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 14px', fontSize: 12, opacity: 0.8 }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 8, height: 8, borderRadius: '50%', background: c.count ? c.color : 'rgba(243,236,226,.2)' }} />
-                    {c.label}
-                  </span>
-                  <span>{c.count}</span>
-                </div>
-              ))}
-              <div style={{ marginTop: 'auto', paddingTop: 16, display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <Btn onClick={() => go(routes.shop())} style={navItem} hoverStyle={{ background: 'rgba(243,236,226,.06)' }}>
-                  <Icon>
-                    <path d="M19 12H5M12 19l-7-7 7-7" />
-                  </Icon>
-                  View the shop
-                </Btn>
-                <Btn onClick={() => void signOut()} style={{ ...navItem, opacity: 0.7 }} hoverStyle={{ background: 'rgba(243,236,226,.06)' }}>
-                  <Icon>
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
-                  </Icon>
-                  Sign out
-                </Btn>
-              </div>
-            </>
+            <div style={{ marginTop: 14 }}>
+              <ShelvesToggle open={shelvesOpen} count={shelves.length} onClick={() => setShelvesOpen((o) => !o)} />
+            </div>
+          )}
+
+          {shelvesOpen && (
+            <div
+              id="cdv-admin-shelves"
+              style={{
+                display: 'flex',
+                flexDirection: L.isDesktop ? 'column' : 'row',
+                flexWrap: L.isDesktop ? 'nowrap' : 'wrap',
+                gap: L.isDesktop ? 2 : 6,
+                padding: L.isDesktop ? '4px 0' : '8px 0 2px',
+                animation: 'cdvRise .3s cubic-bezier(.2,.8,.2,1) both',
+              }}
+            >
+              {shelves.length === 0 && <span style={{ fontSize: 12, opacity: 0.55, padding: '6px 14px' }}>No shelves yet.</span>}
+              {shelves.map((c) => {
+                const active = state.adminShelf === c.id;
+                return (
+                  <Btn
+                    key={c.id}
+                    onClick={() => {
+                      set({ adminShelf: active ? null : c.id, adminEdit: null });
+                      if (!L.isDesktop) setShelvesOpen(false);
+                      go(routes.admin('products'));
+                    }}
+                    aria-pressed={active}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 10,
+                      padding: L.isDesktop ? '7px 14px' : '7px 12px',
+                      borderRadius: L.isDesktop ? 12 : 999,
+                      border: L.isDesktop ? '1px solid transparent' : `1px solid ${active ? 'rgba(194,43,69,.55)' : 'rgba(243,236,226,.12)'}`,
+                      background: active ? 'rgba(194,43,69,.3)' : 'transparent',
+                      color: '#f3ece2',
+                      fontFamily: 'inherit',
+                      fontSize: 12,
+                      opacity: active ? 1 : 0.85,
+                      textAlign: 'left',
+                      whiteSpace: 'nowrap',
+                      transition: 'background .2s, border-color .2s',
+                      boxSizing: 'border-box',
+                    }}
+                    hoverStyle={{ background: active ? 'rgba(194,43,69,.38)' : 'rgba(243,236,226,.08)' }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', flex: 'none', background: c.count ? c.color : 'rgba(243,236,226,.2)' }} />
+                      {c.label}
+                    </span>
+                    <span style={{ opacity: 0.7 }}>{c.count}</span>
+                  </Btn>
+                );
+              })}
+            </div>
           )}
         </aside>
 
@@ -348,21 +508,7 @@ export function AdminPage() {
               </div>
 
               <Notifications />
-
-              <span
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: '50%',
-                  background: 'linear-gradient(180deg,#c22b45,#6e0f20)',
-                  display: 'grid',
-                  placeItems: 'center',
-                  fontSize: 14,
-                  fontWeight: 600,
-                }}
-              >
-                {((user?.name || user?.email || 'A')[0] || 'A').toUpperCase()}
-              </span>
+              <ProfileMenu />
             </div>
           </div>
 
