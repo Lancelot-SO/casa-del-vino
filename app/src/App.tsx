@@ -35,7 +35,7 @@ function ShopShell() {
         zIndex: 1,
         minHeight: '100vh',
         display: 'flex',
-        flexWrap: 'wrap',
+        flexDirection: L.shellDir,
         gap: L.pageGap,
         padding: L.pagePad,
         fontFamily: 'var(--font-body)',

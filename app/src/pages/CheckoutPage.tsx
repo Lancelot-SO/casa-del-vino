@@ -150,7 +150,7 @@ export function CheckoutPage() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 10,
-                padding: '8px 14px 8px 8px',
+                padding: L.mobile ? '8px 10px 8px 8px' : '8px 14px 8px 8px',
                 borderRadius: 999,
                 fontFamily: 'inherit',
                 fontSize: 12,
@@ -175,9 +175,10 @@ export function CheckoutPage() {
               >
                 {n}
               </span>
-              <span>{stepLabel}</span>
+              {/* Phones only label the current step so all four fit on one line. */}
+              {(!L.mobile || n === step) && <span>{stepLabel}</span>}
             </Btn>
-            <span style={{ width: 28, height: 1, background: 'rgba(243,236,226,.15)', flex: 'none' }} />
+            <span style={{ width: L.mobile ? 10 : 28, height: 1, background: 'rgba(243,236,226,.15)', flex: 'none' }} />
           </span>
         ))}
       </section>
@@ -298,7 +299,7 @@ export function CheckoutPage() {
                 </label>
                 <label style={label}>
                   Phone
-                  <Input required type="tel" name="phone" autoComplete="tel" value={form.phone} onChange={(e) => setField('phone', e.target.value)} placeholder="+34 …" style={field} focusStyle={focusRed} />
+                  <Input required type="tel" name="phone" autoComplete="tel" value={form.phone} onChange={(e) => setField('phone', e.target.value)} placeholder="024 000 0000" style={field} focusStyle={focusRed} />
                 </label>
                 <label style={label}>
                   City

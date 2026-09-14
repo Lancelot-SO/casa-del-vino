@@ -310,7 +310,7 @@ export function ProductForm() {
           Origin (region)
           <Input name="origin" value={ed.origin} onChange={setField('origin')} placeholder="e.g. Rioja, Spain" style={adminField} focusStyle={focusRed} />
         </label>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,minmax(0,1fr))', gap: 12 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(130px,1fr))', gap: 12 }}>
           <label style={adminLabel}>
             Alcohol
             <Input required name="abv" value={ed.abv} onChange={setField('abv')} placeholder="13.5%" style={adminField} focusStyle={focusRed} />

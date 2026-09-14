@@ -72,7 +72,7 @@ export function DashboardTab() {
           <div style={{ height: 3, background: 'rgba(243,236,226,.12)', borderRadius: 2 }} title="Share of revenue already paid">
             <div style={{ height: '100%', width: d.statBar, background: '#c22b45', borderRadius: 2, transition: 'width .6s' }} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(150px,1fr))', gap: 10 }}>
             <div
               style={{
                 background: 'linear-gradient(160deg,#241012,#160a0c)',

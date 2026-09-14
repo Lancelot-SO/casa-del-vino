@@ -50,7 +50,7 @@ export function Sidebar() {
         flexDirection: 'column',
         gap: L.asideGap,
         boxShadow: '0 20px 60px rgba(0,0,0,.6)',
-        alignSelf: 'flex-start',
+        alignSelf: L.asideSelf,
         position: L.asidePos,
         top: L.asideTop,
         zIndex: 5,
@@ -87,6 +87,10 @@ export function Sidebar() {
           WebkitOverflowScrolling: 'touch',
           margin: '0 -4px',
           padding: '0 4px',
+          // On the top rail, fade the last shelf so it reads as scrollable.
+          ...(L.stacked
+            ? { maskImage: 'linear-gradient(90deg,#000 calc(100% - 36px),transparent)', WebkitMaskImage: 'linear-gradient(90deg,#000 calc(100% - 36px),transparent)' }
+            : {}),
         }}
       >
         {shelves.map((c) => {

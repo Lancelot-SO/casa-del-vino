@@ -202,7 +202,7 @@ export function AdminPage() {
       <div
         style={{
           display: 'flex',
-          flexWrap: 'wrap',
+          flexDirection: L.shellDir,
           gap: 16,
           minHeight: 'calc(100vh - 40px)',
           borderRadius: 32,

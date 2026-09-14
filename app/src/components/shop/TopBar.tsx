@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { useCart, useWishlist } from '../../store/selectors';
-import { routes, useStore } from '../../store/store';
+import { routes, useLayout, useStore } from '../../store/store';
 import { Btn } from '../ui/Hoverable';
 import { Icon } from '../ui/Icon';
 import type { Page } from '../../types';
@@ -18,6 +18,7 @@ const pill: CSSProperties = {
 /** Search, the page links, the account chip, wishlist and the bag. */
 export function TopBar() {
   const { state, set, go, catSlug } = useStore();
+  const L = useLayout();
   const { cartCount } = useCart();
   const { count: wishCount } = useWishlist();
   const { page, user, query, featuredId, cat } = state;
@@ -57,8 +58,7 @@ export function TopBar() {
     else set({ authOpen: true, authMode: 'signin', authNext: null, authError: '', authNotice: '' });
   };
 
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+  const search = (
       <div
         style={{
           flex: '1 1 180px',
@@ -112,11 +112,17 @@ export function TopBar() {
           </Icon>
         )}
       </div>
+  );
 
+  const links = (
+    <>
       {link('shop', routes.shop(), 'Shop')}
       {link('about', routes.about, 'About')}
       {link('contact', routes.contact, 'Contact')}
+    </>
+  );
 
+  const account = (
       <Btn
         onClick={onAccount}
         style={{
@@ -162,7 +168,9 @@ export function TopBar() {
         )}
         <span>{user ? (user.role === 'guest' ? 'Guest' : (user.name || user.email).split(' ')[0]) : 'Sign in'}</span>
       </Btn>
+  );
 
+  const wish = (
       <Btn
         onClick={() => go(routes.wishlist)}
         aria-label="Wishlist"
@@ -176,7 +184,9 @@ export function TopBar() {
           <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
         </Icon>
       </Btn>
+  );
 
+  const cart = (
       <Btn
         onClick={() => set({ cartOpen: true })}
         aria-label="Cart"
@@ -208,6 +218,34 @@ export function TopBar() {
           {cartCount}
         </span>
       </Btn>
+  );
+
+  // Phones: the search shares a row with the bag and wishlist, the page links sit
+  // under it with the account chip. Wider screens keep everything on one line.
+  if (L.mobile) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {search}
+          {wish}
+          {cart}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+          {links}
+          <span style={{ marginLeft: 'auto' }} />
+          {account}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+      {search}
+      {links}
+      {account}
+      {wish}
+      {cart}
     </div>
   );
 }

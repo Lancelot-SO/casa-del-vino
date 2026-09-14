@@ -102,7 +102,7 @@ export function SettingsTab() {
         Address
         <Input {...field('address')} />
       </label>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
         <label style={adminLabel}>
           Free shipping from (GH₵)
           <Input inputMode="decimal" {...field('freeShip')} />
@@ -121,7 +121,7 @@ export function SettingsTab() {
         Shown at checkout. Customers send MTN Mobile Money or Telecel Cash to this number and check the name before
         sending; the product name is their payment reference.
       </span>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12 }}>
         <label style={adminLabel}>
           MoMo number
           <Input inputMode="tel" placeholder="024 000 0000" {...field('momoNumber')} />

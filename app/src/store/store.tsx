@@ -902,25 +902,36 @@ export function useStore(): Store {
 export function useLayout() {
   const { state } = useStore();
   const vw = state.vw;
-  const mobile = vw < 760;
+  // Three tiers: phones stack everything, tablets (iPad Mini, iPad, Galaxy Tab)
+  // keep the shelf rail on top with roomier spacing, and only from 1024px up
+  // does the cellar sidebar sit beside the page.
   const tight = vw < 480;
+  const mobile = vw < 760;
+  const tablet = vw >= 760 && vw < 1024;
+  const stacked = vw < 1024;
   return {
     mobile,
     tight,
-    isDesktop: !mobile,
-    pageGap: mobile ? '14px' : '20px',
-    pagePad: tight ? '10px' : mobile ? '14px' : '20px',
-    asideFlex: mobile ? '1 1 100%' : '0 0 240px',
-    asidePad: mobile ? '12px 14px' : '28px 20px',
-    asideGap: mobile ? '12px' : '24px',
-    asidePos: (mobile ? 'relative' : 'sticky') as 'relative' | 'sticky',
-    asideTop: mobile ? 'auto' : '20px',
-    navDir: (mobile ? 'row' : 'column') as 'row' | 'column',
-    mainBasis: mobile ? '100%' : '560px',
-    radiusLg: tight ? '18px' : '28px',
-    panelPad: tight ? '18px' : mobile ? '22px' : '32px',
-    featuredH: tight ? '300px' : mobile ? '360px' : '420px',
-    summaryPos: (mobile ? 'relative' : 'sticky') as 'relative' | 'sticky',
+    tablet,
+    stacked,
+    isDesktop: !stacked,
+    pageGap: mobile ? '14px' : tablet ? '16px' : '20px',
+    pagePad: tight ? '10px' : mobile ? '14px' : tablet ? '18px' : '20px',
+    // Stacked: the shell is a column, so the rail sizes to its content and the page fills the rest.
+    shellDir: (stacked ? 'column' : 'row') as 'column' | 'row',
+    asideFlex: stacked ? '0 0 auto' : '0 0 240px',
+    asideSelf: (stacked ? 'stretch' : 'flex-start') as 'stretch' | 'flex-start',
+    asidePad: stacked ? (tablet ? '14px 18px' : '12px 14px') : '28px 20px',
+    asideGap: stacked ? '12px' : '24px',
+    asidePos: (stacked ? 'relative' : 'sticky') as 'relative' | 'sticky',
+    asideTop: stacked ? 'auto' : '20px',
+    navDir: (stacked ? 'row' : 'column') as 'row' | 'column',
+    // Beside the sidebar the page simply takes what is left; never wrap under it.
+    mainBasis: stacked ? 'auto' : '0px',
+    radiusLg: tight ? '18px' : mobile ? '24px' : '28px',
+    panelPad: tight ? '18px' : mobile ? '22px' : tablet ? '26px' : '32px',
+    featuredH: tight ? '300px' : mobile ? '360px' : tablet ? '400px' : '420px',
+    summaryPos: (stacked ? 'relative' : 'sticky') as 'relative' | 'sticky',
     drawerPad: mobile ? '0' : '16px',
   };
 }
