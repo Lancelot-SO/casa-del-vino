@@ -59,6 +59,7 @@ export const PAY_LABEL: Record<PayId, string> = {
   card: 'Card',
   transfer: 'Bank transfer',
   cod: 'Pay on delivery',
+  cash: 'Cash at the counter',
 };
 
 export const STATUS_LABEL = {

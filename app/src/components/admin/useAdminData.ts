@@ -12,6 +12,7 @@ const NOTIF_ICON: Record<string, string> = {
   'product-added': 'M12 5v14M5 12h14',
   'product-updated': 'M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z',
   'product-removed': 'M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6',
+  cash: 'M2 7h20v10H2zM12 9a3 3 0 1 0 0 6 3 3 0 1 0 0-6ZM5 12h.01M19 12h.01',
 };
 
 const ACTIVITY_VERB: Record<ActivityType, string> = {
@@ -125,8 +126,9 @@ export function useAdminData() {
         place: [u.city].filter(Boolean).join(''),
       }));
     const known = new Set(profiles.map((u) => u.email.toLowerCase()));
+    // Cash sales have no customer on record, so they never make a "guest" row.
     const guests = orders
-      .filter((o) => !o.userId && !known.has(o.email.toLowerCase()))
+      .filter((o) => !o.userId && o.pay !== 'cash' && !known.has(o.email.toLowerCase()))
       .reduce<typeof registered>((acc, o) => {
         const k = o.email || o.customer;
         if (!acc.some((x) => x.key === k)) {
@@ -150,14 +152,25 @@ export function useAdminData() {
 
   const notifications = useMemo<Notification[]>(() => {
     const raw = [
-      ...orders.map((o) => ({
-        id: 'o-' + o.id,
-        type: 'order',
-        date: o.date,
-        title: 'New order ' + o.no + ' · ' + ghs(o.total),
-        meta: (o.customer || 'Guest') + ' · ' + o.count + ' bottles',
-        tab: 'orders' as AdminTab,
-      })),
+      ...orders.map((o) =>
+        o.pay === 'cash'
+          ? {
+              id: 'o-' + o.id,
+              type: 'cash',
+              date: o.date,
+              title: 'Cash sale ' + o.no + ' · ' + ghs(o.total),
+              meta: o.lines.map((l) => l.qty + ' × ' + l.name).join(', '),
+              tab: 'orders' as AdminTab,
+            }
+          : {
+              id: 'o-' + o.id,
+              type: 'order',
+              date: o.date,
+              title: 'New order ' + o.no + ' · ' + ghs(o.total),
+              meta: (o.customer || 'Guest') + ' · ' + o.count + ' bottles',
+              tab: 'orders' as AdminTab,
+            },
+      ),
       ...profiles
         .filter((u) => u.role !== 'admin')
         .map((u) => ({
@@ -197,7 +210,7 @@ export function useAdminData() {
         unread,
         bg: unread ? 'rgba(194,43,69,.06)' : 'transparent',
         icon: NOTIF_ICON[n.type] || NOTIF_ICON.order,
-        iconBg: n.type === 'order' ? '#c22b45' : n.type === 'signup' ? '#7e1424' : n.type === 'message' ? '#8a6234' : '#4d170e',
+        iconBg: n.type === 'order' ? '#c22b45' : n.type === 'cash' ? '#8a6234' : n.type === 'signup' ? '#7e1424' : n.type === 'message' ? '#8a6234' : '#4d170e',
         meta: n.meta + ' · ' + fmtDate(n.date),
       };
     });
@@ -207,6 +220,8 @@ export function useAdminData() {
   const unreadMessages = messages.filter((m) => !m.read).length;
   const revenue = liveOrders.reduce((a, o) => a + o.total, 0);
   const paidRevenue = orders.filter((o) => o.paymentStatus === 'paid').reduce((a, o) => a + o.total, 0);
+  const cashOrders = liveOrders.filter((o) => o.pay === 'cash');
+  const cashRevenue = cashOrders.reduce((a, o) => a + o.total, 0);
 
   return {
     shelves,
@@ -221,6 +236,9 @@ export function useAdminData() {
     statRevenue: ghs(revenue),
     statPaid: ghs(paidRevenue),
     statBar: revenue > 0 ? Math.min(100, Math.round((paidRevenue / revenue) * 100)) + '%' : '0%',
+    /** Counter sales entered through Admin → Products → Cash, included in the figures above. */
+    statCash: ghs(cashRevenue),
+    statCashCount: cashOrders.length,
     statCategories: live.length,
     statCustomers: customerRows.filter((c) => c.status === 'active').length,
     statOpen: orders.filter((o) => o.status === 'pending' || o.status === 'confirmed').length,

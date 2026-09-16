@@ -237,6 +237,31 @@ export async function deleteProduct(id: string): Promise<void> {
   fail((await supabase.from('products').delete().eq('id', id)).error);
 }
 
+export interface CashSaleResult {
+  orderNo: string;
+  /** Cedis. */
+  total: number;
+  soldAt: string;
+  /** Bottles left after the sale. */
+  stock: number;
+}
+
+/**
+ * A sale paid in cash at the counter: takes `qty` bottles out of stock and
+ * records a paid order tagged "cash", dated `soldAt` (now when omitted), in
+ * one atomic step. The database refuses if fewer bottles are left.
+ */
+export async function recordCashSale(productId: string, qty: number, soldAt?: string): Promise<CashSaleResult> {
+  const { data, error } = await supabase.rpc('record_cash_sale', {
+    p_product_id: productId,
+    p_qty: qty,
+    p_sold_at: soldAt ?? null,
+  });
+  fail(error);
+  const r = data as { order_no: string; total_cents: number; sold_at: string; stock: number };
+  return { orderNo: r.order_no, total: fromCents(r.total_cents), soldAt: r.sold_at, stock: r.stock };
+}
+
 export async function productIdExists(id: string): Promise<boolean> {
   const { data, error } = await supabase.from('products').select('id').eq('id', id).maybeSingle();
   fail(error);

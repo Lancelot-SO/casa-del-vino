@@ -88,5 +88,12 @@ The design canvas prototype expressed hover and focus as extra inline style decl
   checkout tells customers to call the shop. Mark the order paid in Admin → Orders once the money lands.
 - **Order emails** (customer confirmation + admin alert) are sent from Postgres via Resend;
   `supabase/migrations/0005_order_emails.sql` explains the two Vault secrets to set.
+- **Cash sales** at the counter: press "Cash" beside the bottle in Admin → Products, enter how
+  many were sold and the day the cash was taken (defaults to today), and confirm. The stock
+  drops by that many and a paid, delivered order tagged CASH is recorded at the bottle's
+  current price, dated that day, so it counts in revenue and the weekly chart and shows in
+  Admin → Orders (there is a "cash" filter). No emails are sent for it. Cancelling the order
+  puts the bottles back. Needs `0006_cash_sales.sql` (the `cash` pay method and the
+  `record_cash_sale` function).
 - The Modernist design system is linked from `index.html` because the design reads
   `var(--font-body)` from it; the palette is the design's own wine-red on near-black.

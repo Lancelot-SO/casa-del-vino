@@ -1,15 +1,22 @@
+import { useCallback, useState } from 'react';
 import * as api from '../../lib/api';
 import { cdn } from '../../lib/cloudinary';
 import { errorMessage, ghs } from '../../lib/format';
 import { matchesQuery } from '../../store/selectors';
 import { useLayout, useStore } from '../../store/store';
 import { Btn } from '../ui/Hoverable';
+import { Icon } from '../ui/Icon';
 import { adminPrimary, rowDivider } from './shared';
+import { CashSaleDialog } from './CashSaleDialog';
 import { draftFrom } from './ProductForm';
 
 export function ProductsTab() {
   const { state, set, products, reloadCatalog, logActivity, toast } = useStore();
   const L = useLayout();
+  /** The bottle whose cash sale is being entered, by id, so the row stays live while the dialog is open. */
+  const [cashFor, setCashFor] = useState<string | null>(null);
+  const cashProduct = cashFor ? products.find((p) => p.id === cashFor) || null : null;
+  const closeCash = useCallback(() => setCashFor(null), []);
   const q = state.adminQuery.trim();
   const shelf = state.adminShelf;
   const rows = products.filter((p) => (!shelf || p.categoryId === shelf) && matchesQuery(p, q));
@@ -97,6 +104,34 @@ export function ProductsTab() {
             <span style={{ fontSize: 14, fontWeight: 600, minWidth: 64 }}>{ghs(p.price)}</span>
             <div style={{ display: 'flex', gap: 6, marginLeft: 'auto' }}>
               <Btn
+                onClick={() => setCashFor(p.id)}
+                disabled={p.stock <= 0}
+                title={p.stock <= 0 ? 'Nothing left to sell' : 'Paid in cash: take bottles out of stock'}
+                style={{
+                  height: 34,
+                  padding: '0 14px',
+                  borderRadius: 10,
+                  background: 'rgba(217,178,122,.16)',
+                  border: '1px solid rgba(217,178,122,.45)',
+                  color: '#d9b27a',
+                  fontFamily: 'inherit',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  boxSizing: 'border-box',
+                  opacity: p.stock <= 0 ? 0.4 : 1,
+                  cursor: p.stock <= 0 ? 'default' : 'pointer',
+                }}
+                hoverStyle={p.stock <= 0 ? undefined : { background: 'rgba(217,178,122,.3)' }}
+              >
+                <Icon size={13} strokeWidth={2}>
+                  <path d="M2 7h20v10H2zM12 9a3 3 0 1 0 0 6 3 3 0 1 0 0-6ZM5 12h.01M19 12h.01" />
+                </Icon>
+                Cash
+              </Btn>
+              <Btn
                 onClick={() => set({ adminEdit: draftFrom(p) })}
                 style={{ height: 34, padding: '0 14px', borderRadius: 10, background: '#c22b45', color: '#fff4f5', fontFamily: 'inherit', fontSize: 12, display: 'flex', alignItems: 'center' }}
                 hoverStyle={{ filter: 'brightness(1.12)' }}
@@ -114,6 +149,8 @@ export function ProductsTab() {
           </div>
         ))}
       </div>
+
+      {cashProduct && <CashSaleDialog product={cashProduct} onClose={closeCash} />}
     </section>
   );
 }

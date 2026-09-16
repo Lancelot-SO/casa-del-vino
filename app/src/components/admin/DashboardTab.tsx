@@ -66,6 +66,12 @@ export function DashboardTab() {
                 ordered
                 <br />
                 {d.statPaid} paid
+                {d.statCashCount > 0 && (
+                  <>
+                    <br />
+                    <span style={{ color: '#d9b27a' }}>{d.statCash} in cash</span>
+                  </>
+                )}
               </span>
             </div>
           </div>
@@ -209,9 +215,12 @@ export function DashboardTab() {
               <span style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <span>
                   {o.no} <span style={{ fontSize: 11, opacity: 0.6 }}>· {STATUS_LABEL[o.status]}</span>
+                  {o.pay === 'cash' && (
+                    <span style={{ fontSize: 10, marginLeft: 8, padding: '2px 7px', borderRadius: 999, background: 'rgba(217,178,122,.16)', color: '#d9b27a', fontWeight: 600 }}>CASH</span>
+                  )}
                 </span>
                 <span style={{ fontSize: 11, opacity: 0.6 }}>
-                  {o.customer} · {o.count} bottles · {fmtDate(o.date)}
+                  {o.pay === 'cash' ? o.lines.map((l) => l.qty + ' × ' + l.name).join(', ') : o.customer + ' · ' + o.count + ' bottles'} · {fmtDate(o.date)}
                 </span>
               </span>
               <span style={{ fontWeight: 600 }}>{ghs(o.total)}</span>

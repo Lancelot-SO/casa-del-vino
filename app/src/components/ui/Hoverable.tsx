@@ -68,10 +68,11 @@ export const Btn = forwardRef<HTMLButtonElement, BtnProps>(function Btn(
 type FieldProps = InputHTMLAttributes<HTMLInputElement> & { focusStyle?: CSSProperties };
 
 /** An input that takes on its focus declarations while focused. */
-export function Input({ focusStyle, style, ...rest }: FieldProps) {
+export const Input = forwardRef<HTMLInputElement, FieldProps>(function Input({ focusStyle, style, ...rest }, ref) {
   const { focused, focusProps } = useFocus();
   return (
     <input
+      ref={ref}
       {...rest}
       onFocus={(e) => {
         focusProps.onFocus();
@@ -84,7 +85,7 @@ export function Input({ focusStyle, style, ...rest }: FieldProps) {
       style={merge(style || {}, focusStyle && focused ? focusStyle : null)}
     />
   );
-}
+});
 
 type AreaProps = TextareaHTMLAttributes<HTMLTextAreaElement> & { focusStyle?: CSSProperties };
 

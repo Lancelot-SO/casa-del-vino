@@ -73,7 +73,8 @@ export interface Profile {
 }
 
 export type ShipId = 'standard' | 'express' | 'pickup';
-export type PayId = 'momo' | 'call' | 'card' | 'transfer' | 'cod';
+/** `cash`: paid at the counter and entered by the admin (Admin → Products → Cash); never offered at checkout. */
+export type PayId = 'momo' | 'call' | 'card' | 'transfer' | 'cod' | 'cash';
 export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
 export type PaymentStatus = 'unpaid' | 'paid' | 'refunded';
 

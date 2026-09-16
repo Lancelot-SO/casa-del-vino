@@ -28,7 +28,19 @@ const STATUS_COLOR: Record<OrderStatus, string> = {
   cancelled: 'rgba(243,236,226,.4)',
 };
 
-type Filter = 'all' | 'open' | OrderStatus;
+/** `cash`: counter sales entered through Admin → Products → Cash. */
+type Filter = 'all' | 'open' | 'cash' | OrderStatus;
+
+const cashTag: CSSProperties = {
+  fontSize: 10,
+  padding: '2px 8px',
+  borderRadius: 999,
+  background: 'rgba(217,178,122,.16)',
+  border: '1px solid rgba(217,178,122,.4)',
+  color: '#d9b27a',
+  fontWeight: 600,
+  letterSpacing: '.06em',
+};
 
 export function OrdersTab() {
   const { state, loadAdminData, toast } = useStore();
@@ -38,7 +50,13 @@ export function OrdersTab() {
   const [busy, setBusy] = useState<string | null>(null);
 
   const orders = state.orders.filter((o) =>
-    filter === 'all' ? true : filter === 'open' ? o.status === 'pending' || o.status === 'confirmed' : o.status === filter,
+    filter === 'all'
+      ? true
+      : filter === 'open'
+        ? o.status === 'pending' || o.status === 'confirmed'
+        : filter === 'cash'
+          ? o.pay === 'cash'
+          : o.status === filter,
   );
 
   const update = async (id: string, patch: { status?: OrderStatus; payment_status?: PaymentStatus }) => {
@@ -71,7 +89,7 @@ export function OrdersTab() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 18, fontWeight: 600 }}>Orders · {orders.length}</span>
         <div className="cdv-noscrollbar" style={{ display: 'flex', gap: 6, overflowX: 'auto' }}>
-          {(['all', 'open', 'pending', 'confirmed', 'shipped', 'delivered', 'cancelled'] as Filter[]).map((f) => (
+          {(['all', 'open', 'cash', 'pending', 'confirmed', 'shipped', 'delivered', 'cancelled'] as Filter[]).map((f) => (
             <Btn
               key={f}
               onClick={() => setFilter(f)}
@@ -96,6 +114,7 @@ export function OrdersTab() {
                 <span style={{ display: 'inline-block', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform .2s', fontSize: 10 }}>▶</span>
                 {o.no}
               </Btn>
+              {o.pay === 'cash' && <span style={cashTag}>CASH</span>}
               <span style={{ flex: '1 1 160px', opacity: 0.75, minWidth: 0 }}>
                 {o.customer} · {o.lines.map((l) => l.qty + '× ' + l.name).join(', ')}
               </span>
@@ -114,9 +133,13 @@ export function OrdersTab() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <span style={{ opacity: 0.5, fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase' }}>Customer</span>
                   <span>{o.customer}</span>
-                  <span style={{ opacity: 0.7 }}>{o.email}</span>
+                  {o.email && <span style={{ opacity: 0.7 }}>{o.email}</span>}
                   {o.phone && <span style={{ opacity: 0.7 }}>{o.phone}</span>}
-                  {!o.userId && <span style={{ opacity: 0.5 }}>Guest checkout</span>}
+                  {o.pay === 'cash' ? (
+                    <span style={{ opacity: 0.5 }}>Cash taken {fmtDateTime(o.date)} · entered by the admin</span>
+                  ) : (
+                    !o.userId && <span style={{ opacity: 0.5 }}>Guest checkout</span>
+                  )}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <span style={{ opacity: 0.5, fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase' }}>Delivery</span>
