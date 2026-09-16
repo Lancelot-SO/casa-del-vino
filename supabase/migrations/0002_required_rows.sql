@@ -17,5 +17,5 @@ on conflict (id) do nothing;
 -- The single settings row read by checkout and the Contact page.
 -- Placeholders — change them in Admin → Settings.
 insert into public.settings (id, email, phone, hours, address, free_ship_cents, standard_ship_cents, express_ship_cents) values
-  (1, 'hello@casadelvino.com', '+34 600 000 000', 'Mon–Sat, 10:00–20:00', 'Calle del Vino 12, Madrid', 6000, 690, 1290)
+  (1, 'info@casadelvino.shop', '+34 600 000 000', 'Mon–Sat, 10:00–20:00', 'Calle del Vino 12, Madrid', 6000, 690, 1290)
 on conflict (id) do nothing;

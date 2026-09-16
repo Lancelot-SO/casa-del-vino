@@ -66,7 +66,9 @@ export function LegalPage() {
       <h2 style={h2}>Cookies</h2>
       <p style={p}>
         The shop uses only strictly necessary storage: your sign-in session, your bag and wishlist as a guest, and your
-        answer to the age check. No advertising or tracking cookies are set.
+        answer to the age check. We also count visits with an anonymous random id kept in your browser, so we know how
+        many people open the shop and which pages they look at; it is not linked to your name, account or address, and
+        we do not record IP addresses. No advertising cookies are set.
       </p>
 
       <h2 style={h2}>Responsible drinking</h2>

@@ -42,7 +42,7 @@ password reset by email, or continue as guest. A guest's bag and wishlist merge 
 account on sign-in.
 
 **Admin** — its own frosted frame: dashboard (real weekly sales, revenue paid vs ordered,
-low-stock warnings, cellar-by-shelf ring, recent orders, latest bottles), products (add / edit /
+low-stock warnings, cellar-by-shelf ring, visits, recent orders, latest bottles), products (add / edit /
 remove, stock, visibility, multiple photos uploaded to Cloudinary, ingredient medallion photos
 cached there automatically), orders (filter, expand, set status and payment; cancelling restocks),
 customers (deactivate / restore — an account is never deleted, it is marked inactive and can
@@ -86,8 +86,13 @@ The design canvas prototype expressed hover and focus as extra inline style decl
 - **Prices** are Ghana cedis (GH₵), stored as pesewas.
 - **Mobile money** details (number and account name) are set in Admin → Settings; until then
   checkout tells customers to call the shop. Mark the order paid in Admin → Orders once the money lands.
-- **Order emails** (customer confirmation + admin alert) are sent from Postgres via Resend;
-  `supabase/migrations/0005_order_emails.sql` explains the two Vault secrets to set.
+- **Email** is sent from Postgres via Resend as `Casa del Vino <info@casadelvino.shop>` (the
+  GoDaddy mailbox; the domain is verified in Resend). Customers get an order confirmation;
+  the shop address gets a "new order" alert and every Contact-page message, with Reply-To set
+  to the customer so answering is one click. Admin mail goes to the address in Admin →
+  Settings (only if that is empty, to every admin account). `0005_order_emails.sql` sets it
+  up and `0008_contact_emails.sql` adds the contact emails and the address; the Resend API
+  key lives in the Supabase Vault as `resend_api_key`.
 - **Cash sales** at the counter: press "Cash" beside the bottle in Admin → Products, enter how
   many were sold and the day the cash was taken (defaults to today), and confirm. The stock
   drops by that many and a paid, delivered order tagged CASH is recorded at the bottle's
@@ -95,5 +100,26 @@ The design canvas prototype expressed hover and focus as extra inline style decl
   Admin → Orders (there is a "cash" filter). No emails are sent for it. Cancelling the order
   puts the bottles back. Needs `0006_cash_sales.sql` (the `cash` pay method and the
   `record_cash_sale` function).
+- **Visits** (Admin → Dashboard → Visits): every storefront page a visitor opens writes one
+  row to `page_views` (`src/lib/visits.ts`), with a random visitor id kept in the browser, a
+  random id per tab session, the path, the site the session arrived from (or a `utm_source`)
+  and phone/desktop. No IP address, name or account id. Crawlers and link-preview bots are
+  skipped, and so is the admin's own browsing. The card shows visitors and views for today,
+  7 days and the chosen range (7 / 30 / 90 days), a per-day chart, the most visited pages and
+  where sessions came from ("Direct, typed or WhatsApp" covers anything that hides its
+  referrer). Needs `0007_visits.sql` (the table, its policies and `visit_stats()`). Set
+  `VITE_GA_ID` to a Google Analytics 4 measurement id to send the same page views there too.
+- **SEO**: `src/components/Seo.tsx` keeps the document head in step with the route — title,
+  description, canonical link, Open Graph / Twitter cards, `noindex` on account, checkout,
+  wishlist, reset and admin pages, and JSON-LD (`LiquorStore` with the contact details from
+  Admin → Settings on every page; `Product` + breadcrumbs on a bottle; `CollectionPage` on a
+  shelf). `vite-seo.ts` fills `__SITE_URL__` in `index.html` from `VITE_SITE_URL` (so the
+  share image and canonical are absolute), writes `robots.txt`, and writes `sitemap.xml` with
+  every page, shelf and active bottle read from Supabase at build time — redeploy after adding
+  bottles to refresh it. Both files are served by `npm run dev` as well. Without
+  `VITE_SITE_URL` the build warns and writes no sitemap. WhatsApp and Facebook do not run
+  JavaScript, so a shared bottle link previews with the site logo and tagline from
+  `index.html`, not the bottle's own photo; Google does render the app and sees the per-bottle
+  tags.
 - The Modernist design system is linked from `index.html` because the design reads
   `var(--font-body)` from it; the palette is the design's own wine-red on near-black.

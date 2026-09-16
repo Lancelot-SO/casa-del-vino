@@ -4,7 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Casa del Vino — Good wine. Better company.</title>
+  <meta name="description" content="Premium wines and spirits, each listed honestly with its origin, strength, size and ingredients. Order online, pay by mobile money and have it delivered, or collect from the shop.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#141211">
+  <!-- __SITE_URL__ is filled in from VITE_SITE_URL at build time (vite-seo.ts). -->
+  <link rel="canonical" href="__SITE_URL__/">
   <link rel="icon" href="/assets/logo.jpg">
+  <link rel="apple-touch-icon" href="/assets/logo.jpg">
+
+  <!-- Link previews (WhatsApp, Facebook, X, iMessage…). The app refines these per bottle once it runs. -->
+  <meta property="og:site_name" content="Casa del Vino">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_GB">
+  <meta property="og:title" content="Casa del Vino — Good wine. Better company.">
+  <meta property="og:description" content="Premium wines and spirits, each listed honestly with its origin, strength, size and ingredients. Order online, pay by mobile money and have it delivered, or collect from the shop.">
+  <meta property="og:url" content="__SITE_URL__/">
+  <meta property="og:image" content="__SITE_URL__/assets/logo.jpg">
+  <meta property="og:image:width" content="1254">
+  <meta property="og:image:height" content="1254">
+  <meta property="og:image:alt" content="Casa del Vino">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Casa del Vino — Good wine. Better company.">
+  <meta name="twitter:description" content="Premium wines and spirits, each listed honestly with its origin, strength, size and ingredients. Order online, pay by mobile money and have it delivered, or collect from the shop.">
+  <meta name="twitter:image" content="__SITE_URL__/assets/logo.jpg">
+
+  <script type="application/ld+json" id="ld-site">
+  {"@context":"https://schema.org","@type":"LiquorStore","@id":"__SITE_URL__/#store","name":"Casa del Vino","alternateName":"The house of wine","slogan":"Good wine. Better company.","url":"__SITE_URL__/","logo":"__SITE_URL__/assets/logo.jpg","image":"__SITE_URL__/assets/logo.jpg","currenciesAccepted":"GHS","paymentAccepted":"Mobile money, Cash"}
+  </script>
+
   <!-- Modernist design system: the design reads var(--font-body) from this sheet. -->
   <link rel="stylesheet" href="/_ds/modernist-6abd48fb-5e3c-426e-bb15-6b411ce24ea2/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,6 +40,14 @@
 </head>
 <body>
   <div id="root"></div>
+  <noscript>
+    <main style="font-family:Georgia,serif;max-width:60ch;margin:48px auto;padding:0 16px;color:#f3ece2;background:#141211">
+      <h1>Casa del Vino</h1>
+      <p>Good wine. Better company. Premium wines and spirits, each listed honestly with its origin, strength, size and ingredients. Order online, pay by mobile money and have it delivered, or collect from the shop.</p>
+      <p>The shop needs JavaScript to open the cellar. <a href="/about">About us</a> · <a href="/contact">Contact</a> · <a href="/legal">Terms, privacy &amp; returns</a></p>
+      <p>Drink responsibly. 18+ only.</p>
+    </main>
+  </noscript>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>

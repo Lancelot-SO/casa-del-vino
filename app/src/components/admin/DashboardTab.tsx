@@ -6,6 +6,7 @@ import { Btn } from '../ui/Hoverable';
 import { Icon } from '../ui/Icon';
 import { adminCard, adminPrimary, cardHeader, cardTitle, rowDivider } from './shared';
 import { useAdminData } from './useAdminData';
+import { VisitsCard } from './VisitsCard';
 import { draftFrom } from './ProductForm';
 
 const tile = {
@@ -190,6 +191,10 @@ export function DashboardTab() {
             </Icon>
           </Btn>
         </div>
+      </section>
+
+      <section style={{ animation: 'cdvRise .5s cubic-bezier(.2,.8,.2,1) .05s both' }}>
+        <VisitsCard />
       </section>
 
       <section

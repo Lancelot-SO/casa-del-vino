@@ -6,6 +6,8 @@ import { AgeGate } from './components/AgeGate';
 import { AuthScreen } from './components/AuthScreen';
 import { CartDrawer } from './components/CartDrawer';
 import { ZoomOverlay } from './components/ZoomOverlay';
+import { Seo } from './components/Seo';
+import { VisitTracker } from './components/VisitTracker';
 import { Sidebar } from './components/shop/Sidebar';
 import { TopBar } from './components/shop/TopBar';
 import { ShopPage } from './pages/ShopPage';
@@ -116,6 +118,8 @@ export function App() {
 
   return (
     <>
+      <Seo />
+      <VisitTracker />
       <Splash />
       <Background />
       <Routes>

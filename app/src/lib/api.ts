@@ -636,3 +636,54 @@ export async function loadActivity(): Promise<Activity[]> {
   fail(error);
   return ((data || []) as ActivityRow[]).map((r) => ({ id: r.id, type: r.type, title: r.title, ref: r.ref, date: r.created_at }));
 }
+
+// ---------------------------------------------------------------------------
+// Visits (Admin → Dashboard → Visits; see supabase/migrations/0007_visits.sql)
+// ---------------------------------------------------------------------------
+export interface VisitDay {
+  /** YYYY-MM-DD */
+  day: string;
+  views: number;
+  visitors: number;
+}
+export interface VisitStats {
+  days: VisitDay[];
+  today: { views: number; visitors: number };
+  week: { views: number; visitors: number };
+  range: { views: number; visitors: number; sessions: number };
+  allTimeViews: number;
+  topPages: { path: string; views: number }[];
+  /** Arrivals by referring site (one per session); direct/typed arrivals are `directSessions`. */
+  sources: { referrer: string; sessions: number }[];
+  directSessions: number;
+  mobileViews: number;
+}
+interface VisitStatsRow {
+  days: VisitDay[] | null;
+  today: { views: number; visitors: number };
+  week: { views: number; visitors: number };
+  range: { views: number; visitors: number; sessions: number };
+  all_time_views: number;
+  top_pages: { path: string; views: number }[] | null;
+  sources: { referrer: string; sessions: number }[] | null;
+  direct_sessions: number;
+  mobile_views: number;
+}
+
+/** Visit figures for the last `days` days (7–365). Admin only. */
+export async function loadVisitStats(days: number): Promise<VisitStats> {
+  const { data, error } = await supabase.rpc('visit_stats', { p_days: days });
+  fail(error);
+  const r = data as VisitStatsRow;
+  return {
+    days: r.days ?? [],
+    today: r.today,
+    week: r.week,
+    range: r.range,
+    allTimeViews: Number(r.all_time_views || 0),
+    topPages: r.top_pages ?? [],
+    sources: r.sources ?? [],
+    directSessions: Number(r.direct_sessions || 0),
+    mobileViews: Number(r.mobile_views || 0),
+  };
+}

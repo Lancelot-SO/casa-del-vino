@@ -1,12 +1,20 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
-import { matchPath, useLocation, useNavigate } from 'react-router-dom';
-import type { Session } from '@supabase/supabase-js';
-import * as api from '../lib/api';
-import { errorMessage } from '../lib/format';
-import { KEYS, persist, read, remove } from '../lib/storage';
-import { supabase, supabaseConfigured } from '../lib/supabase';
-import { CONFIG } from '../data/catalog';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import type { ReactNode } from "react";
+import { matchPath, useLocation, useNavigate } from "react-router-dom";
+import type { Session } from "@supabase/supabase-js";
+import * as api from "../lib/api";
+import { errorMessage } from "../lib/format";
+import { KEYS, persist, read, remove } from "../lib/storage";
+import { supabase, supabaseConfigured } from "../lib/supabase";
+import { CONFIG } from "../data/catalog";
 import type {
   Activity,
   ActivityType,
@@ -25,24 +33,38 @@ import type {
   Settings,
   ShipId,
   User,
-} from '../types';
+} from "../types";
 
 /** Shown until the `settings` row loads; the seed writes the same values. */
 const DEFAULT_SETTINGS: Settings = {
-  email: 'hello@casadelvino.com',
-  phone: '+34 600 000 000',
-  hours: 'Mon–Sat, 10:00–20:00',
-  address: 'Calle del Vino 12, Madrid',
+  email: "info@casadelvino.shop",
+  phone: "+34 600 000 000",
+  hours: "Mon–Sat, 10:00–20:00",
+  address: "Calle del Vino 12, Madrid",
   freeShip: 60,
   standardShip: 6.9,
   expressShip: 12.9,
-  momoNumber: '',
-  momoName: 'Felix Sowah',
+  momoNumber: "",
+  momoName: "Felix Sowah",
 };
 
-const EMPTY_FORM: CheckoutForm = { name: '', email: '', phone: '', city: '', address: '', adult: false };
+const EMPTY_FORM: CheckoutForm = {
+  name: "",
+  email: "",
+  phone: "",
+  city: "",
+  address: "",
+  adult: false,
+};
 
-const ADMIN_TABS: AdminTab[] = ['dashboard', 'products', 'orders', 'customers', 'messages', 'settings'];
+const ADMIN_TABS: AdminTab[] = [
+  "dashboard",
+  "products",
+  "orders",
+  "customers",
+  "messages",
+  "settings",
+];
 
 export interface AppState {
   // catalog
@@ -83,7 +105,7 @@ export interface AppState {
   authError: string;
   authNotice: string;
   authBusy: boolean;
-  authNext: 'checkout' | null;
+  authNext: "checkout" | null;
   showPw: boolean;
   myOrders: Order[];
   myOrdersLoaded: boolean;
@@ -125,11 +147,11 @@ const initialState: AppState = {
   products: [],
   categories: [],
   catalogLoaded: false,
-  catalogError: '',
+  catalogError: "",
   settings: DEFAULT_SETTINGS,
   splash: CONFIG.showSplash,
   adult: read<boolean>(KEYS.adult, false),
-  query: '',
+  query: "",
   galleryIdx: 0,
   zoomOpen: false,
   sent: false,
@@ -137,19 +159,19 @@ const initialState: AppState = {
   cart: read<Record<string, number>>(KEYS.cart, {}),
   cartOpen: false,
   step: 1,
-  ship: 'standard',
-  pay: 'momo',
+  ship: "standard",
+  pay: "momo",
   form: EMPTY_FORM,
   order: null,
-  checkoutError: '',
+  checkoutError: "",
   placing: false,
   user: null,
   authReady: false,
   authOpen: false,
-  authMode: 'signin',
+  authMode: "signin",
   authForm: {},
-  authError: '',
-  authNotice: '',
+  authError: "",
+  authNotice: "",
   authBusy: false,
   authNext: null,
   showPw: false,
@@ -161,56 +183,71 @@ const initialState: AppState = {
   messages: [],
   adminLoaded: false,
   adminEdit: null,
-  adminQuery: '',
+  adminQuery: "",
   adminShelf: null,
-  adminToast: '',
+  adminToast: "",
   adminBusy: false,
   notifOpen: false,
   dismissedNotifs: [],
   ingImgs: {},
   hoverChip: null,
   tilt: { x: 0, y: 0, gx: 50, gy: 50 },
-  vw: typeof window === 'undefined' ? 1200 : window.innerWidth,
+  vw: typeof window === "undefined" ? 1200 : window.innerWidth,
 };
 
 type Patch = Partial<AppState> | ((s: AppState) => Partial<AppState> | null);
 
 /** URL builders, so no component spells a path by hand. */
 export const routes = {
-  shop: (catSlug?: string) => (catSlug && catSlug !== 'all' ? `/shop/${catSlug}` : '/'),
+  shop: (catSlug?: string) =>
+    catSlug && catSlug !== "all" ? `/shop/${catSlug}` : "/",
   product: (id: string) => `/product/${id}`,
-  admin: (tab: AdminTab = 'dashboard') => (tab === 'dashboard' ? '/admin' : `/admin/${tab}`),
-  about: '/about',
-  contact: '/contact',
-  wishlist: '/wishlist',
-  account: '/account',
-  checkout: '/checkout',
-  success: '/checkout/success',
-  legal: '/legal',
-  reset: '/reset-password',
+  admin: (tab: AdminTab = "dashboard") =>
+    tab === "dashboard" ? "/admin" : `/admin/${tab}`,
+  about: "/about",
+  contact: "/contact",
+  wishlist: "/wishlist",
+  account: "/account",
+  checkout: "/checkout",
+  success: "/checkout/success",
+  legal: "/legal",
+  reset: "/reset-password",
 };
 
 function readRoute(pathname: string, categories: Category[]): RouteState {
-  const out: RouteState = { page: 'shop', cat: 'All', featuredId: null, adminTab: 'dashboard' };
+  const out: RouteState = {
+    page: "shop",
+    cat: "All",
+    featuredId: null,
+    adminTab: "dashboard",
+  };
   let m;
-  if (pathname === '/') return out;
-  if ((m = matchPath('/shop/:cat', pathname))) {
+  if (pathname === "/") return out;
+  if ((m = matchPath("/shop/:cat", pathname))) {
     const c = categories.find((x) => x.id === m!.params.cat);
-    out.cat = c ? c.name : 'All';
+    out.cat = c ? c.name : "All";
     return out;
   }
-  if ((m = matchPath('/product/:id', pathname))) {
+  if ((m = matchPath("/product/:id", pathname))) {
     out.featuredId = m.params.id ?? null;
     return out;
   }
-  if (pathname === '/checkout/success') return { ...out, page: 'success' };
-  if ((m = matchPath('/admin/:tab?', pathname))) {
+  if (pathname === "/checkout/success") return { ...out, page: "success" };
+  if ((m = matchPath("/admin/:tab?", pathname))) {
     const tab = m.params.tab as AdminTab | undefined;
-    return { ...out, page: 'admin', adminTab: tab && ADMIN_TABS.includes(tab) ? tab : 'dashboard' };
+    return {
+      ...out,
+      page: "admin",
+      adminTab: tab && ADMIN_TABS.includes(tab) ? tab : "dashboard",
+    };
   }
-  if (pathname === '/reset-password') return { ...out, page: 'reset' };
-  const simple = pathname.replace(/^\//, '').replace(/\/$/, '') as Page;
-  if ((['about', 'contact', 'wishlist', 'account', 'checkout', 'legal'] as Page[]).includes(simple)) {
+  if (pathname === "/reset-password") return { ...out, page: "reset" };
+  const simple = pathname.replace(/^\//, "").replace(/\/$/, "") as Page;
+  if (
+    (
+      ["about", "contact", "wishlist", "account", "checkout", "legal"] as Page[]
+    ).includes(simple)
+  ) {
     return { ...out, page: simple };
   }
   return out;
@@ -243,7 +280,12 @@ export interface Store {
   updatePassword: (password: string) => Promise<void>;
   continueAsGuest: () => void;
   signOut: () => Promise<void>;
-  saveMyDetails: (patch: { name: string; phone: string; address: string; city: string }) => Promise<void>;
+  saveMyDetails: (patch: {
+    name: string;
+    phone: string;
+    address: string;
+    city: string;
+  }) => Promise<void>;
   loadMyOrders: () => Promise<void>;
 
   // checkout
@@ -253,7 +295,11 @@ export interface Store {
   // admin
   loadAdminData: () => Promise<void>;
   saveSettings: (s: Settings) => Promise<void>;
-  logActivity: (type: ActivityType, title: string, ref: string) => Promise<void>;
+  logActivity: (
+    type: ActivityType,
+    title: string,
+    ref: string,
+  ) => Promise<void>;
   markNotificationsRead: () => Promise<void>;
   /** Empty the bell: everything up to now is hidden and counted as read. */
   clearNotifications: () => Promise<void>;
@@ -271,13 +317,14 @@ export interface Store {
 const StoreContext = createContext<Store | null>(null);
 
 const FALLBACK_ARTICLE: Record<string, string> = {
-  Ristafallet: 'Waterfall',
-  Steall_Waterfall: 'Waterfall',
-  Orujo: 'Brandy',
-  'Åhus': 'Sweden',
+  Ristafallet: "Waterfall",
+  Steall_Waterfall: "Waterfall",
+  Orujo: "Brandy",
+  Åhus: "Sweden",
 };
 
-const isDbUser = (u: User | null): u is User & { id: string } => !!u && !!u.id && u.role !== 'guest';
+const isDbUser = (u: User | null): u is User & { id: string } =>
+  !!u && !!u.id && u.role !== "guest";
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AppState>(initialState);
@@ -290,7 +337,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const set = useCallback((patch: Patch) => {
     setState((s) => {
-      const next = typeof patch === 'function' ? patch(s) : patch;
+      const next = typeof patch === "function" ? patch(s) : patch;
       return next ? { ...s, ...next } : s;
     });
   }, []);
@@ -302,9 +349,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [navigate],
   );
 
-  const route = useMemo(() => readRoute(location.pathname, state.categories), [location.pathname, state.categories]);
+  const route = useMemo(
+    () => readRoute(location.pathname, state.categories),
+    [location.pathname, state.categories],
+  );
   const catSlug = useMemo(
-    () => state.categories.find((c) => c.name === route.cat)?.id ?? 'all',
+    () => state.categories.find((c) => c.name === route.cat)?.id ?? "all",
     [state.categories, route.cat],
   );
 
@@ -316,7 +366,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const toast = useCallback((message: string) => {
     setState((s) => ({ ...s, adminToast: message }));
     clearTimeout(toastTimer.current);
-    toastTimer.current = window.setTimeout(() => setState((s) => ({ ...s, adminToast: '' })), 2200);
+    toastTimer.current = window.setTimeout(
+      () => setState((s) => ({ ...s, adminToast: "" })),
+      2200,
+    );
   }, []);
 
   // ---------------------------------------------------------------------------
@@ -324,7 +377,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // ---------------------------------------------------------------------------
   const loadIngredientImages = useCallback(async (list: Product[]) => {
     const articles = [
-      ...new Set(list.flatMap((p) => (p.list || []).filter((x) => !x.imageUrl && x.article).map((x) => x.article))),
+      ...new Set(
+        list.flatMap((p) =>
+          (p.list || [])
+            .filter((x) => !x.imageUrl && x.article)
+            .map((x) => x.article),
+        ),
+      ),
     ].filter((a) => !stateRef.current.ingImgs[a]);
     if (!articles.length) return;
     const out: Record<string, string> = {};
@@ -332,7 +391,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       articles.map(async (a) => {
         try {
           let blob = await api.fetchWikipediaThumbnail(a);
-          if (!blob && FALLBACK_ARTICLE[a]) blob = await api.fetchWikipediaThumbnail(FALLBACK_ARTICLE[a]);
+          if (!blob && FALLBACK_ARTICLE[a])
+            blob = await api.fetchWikipediaThumbnail(FALLBACK_ARTICLE[a]);
           if (!blob) return;
           const obj = URL.createObjectURL(blob);
           const ok = await new Promise<boolean>((res) => {
@@ -352,7 +412,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
       }),
     );
-    if (Object.keys(out).length) setState((s) => ({ ...s, ingImgs: { ...s.ingImgs, ...out } }));
+    if (Object.keys(out).length)
+      setState((s) => ({ ...s, ingImgs: { ...s.ingImgs, ...out } }));
   }, []);
 
   const reloadIngredientImages = useCallback(() => {
@@ -364,22 +425,34 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   // ---------------------------------------------------------------------------
   const reloadCatalog = useCallback(async () => {
     if (!supabaseConfigured) {
-      setState((s) => ({ ...s, catalogLoaded: true, catalogError: 'Supabase is not configured. Copy .env.example to .env.local.' }));
+      setState((s) => ({
+        ...s,
+        catalogLoaded: true,
+        catalogError:
+          "Supabase is not configured. Copy .env.example to .env.local.",
+      }));
       return;
     }
     try {
-      const [{ products, categories }, settings] = await Promise.all([api.loadCatalog(), api.loadSettings()]);
+      const [{ products, categories }, settings] = await Promise.all([
+        api.loadCatalog(),
+        api.loadSettings(),
+      ]);
       setState((s) => ({
         ...s,
         products,
         categories,
         settings: settings ?? s.settings,
         catalogLoaded: true,
-        catalogError: '',
+        catalogError: "",
       }));
       void loadIngredientImages(products);
     } catch (e) {
-      setState((s) => ({ ...s, catalogLoaded: true, catalogError: errorMessage(e, 'Could not load the cellar') }));
+      setState((s) => ({
+        ...s,
+        catalogLoaded: true,
+        catalogError: errorMessage(e, "Could not load the cellar"),
+      }));
     }
   }, [loadIngredientImages]);
 
@@ -435,7 +508,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setState((s) => ({
           ...s,
           authReady: true,
-          user: guest ? { id: null, name: 'Guest', email: '', role: 'guest', phone: '', address: '', city: '', status: 'active', notifReadAt: '', notifClearedAt: '' } : null,
+          user: guest
+            ? {
+                id: null,
+                name: "Guest",
+                email: "",
+                role: "guest",
+                phone: "",
+                address: "",
+                city: "",
+                status: "active",
+                notifReadAt: "",
+                notifClearedAt: "",
+              }
+            : null,
           cart: read<Record<string, number>>(KEYS.cart, {}),
           wish: read<Record<string, boolean>>(KEYS.wish, {}),
           myOrders: [],
@@ -449,18 +535,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           // The trigger normally creates it; if not, fall back to the auth record.
           profile = {
             id: session.user.id,
-            name: (session.user.user_metadata?.name as string) || session.user.email?.split('@')[0] || '',
-            email: session.user.email || '',
-            role: 'customer',
-            phone: '',
-            address: '',
-            city: '',
-            status: 'active',
-            notifReadAt: '',
-            notifClearedAt: '',
+            name:
+              (session.user.user_metadata?.name as string) ||
+              session.user.email?.split("@")[0] ||
+              "",
+            email: session.user.email || "",
+            role: "customer",
+            phone: "",
+            address: "",
+            city: "",
+            status: "active",
+            notifReadAt: "",
+            notifClearedAt: "",
           };
         }
-        if (profile.status === 'inactive') {
+        if (profile.status === "inactive") {
           // Deactivated by the admin: the account stays on file but cannot be used.
           await supabase.auth.signOut();
           setState((s) => ({
@@ -468,9 +557,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
             authReady: true,
             authBusy: false,
             authOpen: true,
-            authMode: 'signin',
+            authMode: "signin",
             authNext: null,
-            authError: 'This account has been deactivated. Please contact us if you think this is a mistake.',
+            authError:
+              "This account has been deactivated. Please contact us if you think this is a mistake.",
           }));
           return;
         }
@@ -478,7 +568,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         const localCart = read<Record<string, number>>(KEYS.cart, {});
         const localWish = read<Record<string, boolean>>(KEYS.wish, {});
         const uid = session.user.id;
-        await Promise.all([api.mergeCart(uid, localCart), api.mergeWishlist(uid, localWish)]).catch(() => {});
+        await Promise.all([
+          api.mergeCart(uid, localCart),
+          api.mergeWishlist(uid, localWish),
+        ]).catch(() => {});
         remove(KEYS.cart);
         remove(KEYS.wish);
         remove(KEYS.guest);
@@ -495,72 +588,117 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           wish,
           authOpen: false,
           authForm: {},
-          authError: '',
-          authNotice: '',
+          authError: "",
+          authNotice: "",
           authBusy: false,
           authNext: null,
-          form: { ...s.form, name: s.form.name || profile!.name, email: s.form.email || profile!.email, phone: s.form.phone || profile!.phone, address: s.form.address || profile!.address, city: s.form.city || profile!.city },
+          form: {
+            ...s.form,
+            name: s.form.name || profile!.name,
+            email: s.form.email || profile!.email,
+            phone: s.form.phone || profile!.phone,
+            address: s.form.address || profile!.address,
+            city: s.form.city || profile!.city,
+          },
         }));
-        if (next === 'checkout') go(routes.checkout);
+        if (next === "checkout") go(routes.checkout);
       } catch (e) {
-        setState((s) => ({ ...s, authReady: true, authBusy: false, authError: errorMessage(e, 'Could not load your account') }));
+        setState((s) => ({
+          ...s,
+          authReady: true,
+          authBusy: false,
+          authError: errorMessage(e, "Could not load your account"),
+        }));
       }
     },
     [go],
   );
 
-  const signInWithPassword = useCallback(async (email: string, password: string) => {
-    setState((s) => ({ ...s, authBusy: true, authError: '', authNotice: '' }));
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
-    if (error) setState((s) => ({ ...s, authBusy: false, authError: error.message }));
-    // success: onAuthStateChange → applySession
-  }, []);
-
-  const signUp = useCallback(async (name: string, email: string, password: string) => {
-    setState((s) => ({ ...s, authBusy: true, authError: '', authNotice: '' }));
-    const { data, error } = await supabase.auth.signUp({
-      email: email.trim().toLowerCase(),
-      password,
-      options: { data: { name: name.trim() }, emailRedirectTo: window.location.origin },
-    });
-    if (error) {
-      setState((s) => ({ ...s, authBusy: false, authError: error.message }));
-      return;
-    }
-    if (!data.session) {
-      // Email confirmation is on in the project: tell them to check their inbox.
+  const signInWithPassword = useCallback(
+    async (email: string, password: string) => {
       setState((s) => ({
         ...s,
-        authBusy: false,
-        authMode: 'signin',
-        authNotice: 'Check your inbox and confirm your email, then sign in.',
+        authBusy: true,
+        authError: "",
+        authNotice: "",
       }));
-    }
-  }, []);
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      if (error)
+        setState((s) => ({ ...s, authBusy: false, authError: error.message }));
+      // success: onAuthStateChange → applySession
+    },
+    [],
+  );
+
+  const signUp = useCallback(
+    async (name: string, email: string, password: string) => {
+      setState((s) => ({
+        ...s,
+        authBusy: true,
+        authError: "",
+        authNotice: "",
+      }));
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password,
+        options: {
+          data: { name: name.trim() },
+          emailRedirectTo: window.location.origin,
+        },
+      });
+      if (error) {
+        setState((s) => ({ ...s, authBusy: false, authError: error.message }));
+        return;
+      }
+      if (!data.session) {
+        // Email confirmation is on in the project: tell them to check their inbox.
+        setState((s) => ({
+          ...s,
+          authBusy: false,
+          authMode: "signin",
+          authNotice: "Check your inbox and confirm your email, then sign in.",
+        }));
+      }
+    },
+    [],
+  );
 
   const signInWithGoogle = useCallback(async () => {
-    setState((s) => ({ ...s, authBusy: true, authError: '', authNotice: '' }));
+    setState((s) => ({ ...s, authBusy: true, authError: "", authNotice: "" }));
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.origin + (stateRef.current.authNext === 'checkout' ? routes.checkout : '/') },
+      provider: "google",
+      options: {
+        redirectTo:
+          window.location.origin +
+          (stateRef.current.authNext === "checkout" ? routes.checkout : "/"),
+      },
     });
-    if (error) setState((s) => ({ ...s, authBusy: false, authError: error.message }));
+    if (error)
+      setState((s) => ({ ...s, authBusy: false, authError: error.message }));
   }, []);
 
   const requestPasswordReset = useCallback(async (email: string) => {
     if (!email.trim()) {
-      setState((s) => ({ ...s, authError: 'Enter your email address first.' }));
+      setState((s) => ({ ...s, authError: "Enter your email address first." }));
       return;
     }
-    setState((s) => ({ ...s, authBusy: true, authError: '', authNotice: '' }));
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
-      redirectTo: window.location.origin + routes.reset,
-    });
+    setState((s) => ({ ...s, authBusy: true, authError: "", authNotice: "" }));
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      email.trim().toLowerCase(),
+      {
+        redirectTo: window.location.origin + routes.reset,
+      },
+    );
     setState((s) => ({
       ...s,
       authBusy: false,
-      authError: error ? error.message : '',
-      authNotice: error ? '' : 'If that address has an account, a reset link is on its way.',
+      authError: error ? error.message : "",
+      authNotice: error
+        ? ""
+        : "If that address has an account, a reset link is on its way.",
     }));
   }, []);
 
@@ -574,13 +712,24 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const next = stateRef.current.authNext;
     setState((s) => ({
       ...s,
-      user: { id: null, name: 'Guest', email: '', role: 'guest', phone: '', address: '', city: '', status: 'active', notifReadAt: '', notifClearedAt: '' },
+      user: {
+        id: null,
+        name: "Guest",
+        email: "",
+        role: "guest",
+        phone: "",
+        address: "",
+        city: "",
+        status: "active",
+        notifReadAt: "",
+        notifClearedAt: "",
+      },
       authOpen: false,
-      authError: '',
-      authNotice: '',
+      authError: "",
+      authNotice: "",
       authNext: null,
     }));
-    if (next === 'checkout') go(routes.checkout);
+    if (next === "checkout") go(routes.checkout);
   }, [go]);
 
   const signOut = useCallback(async () => {
@@ -605,16 +754,27 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }));
     if (wasDb) await supabase.auth.signOut();
     const p = route.page;
-    if (p === 'admin' || p === 'account') go('/');
+    if (p === "admin" || p === "account") go("/");
   }, [go, route.page]);
 
-  const saveMyDetails = useCallback(async (patch: { name: string; phone: string; address: string; city: string }) => {
-    const u = stateRef.current.user;
-    if (!isDbUser(u)) return;
-    await api.updateMyProfile(u.id, patch);
-    setState((s) => ({ ...s, user: s.user ? { ...s.user, ...patch } : s.user }));
-    toast('Details saved');
-  }, [toast]);
+  const saveMyDetails = useCallback(
+    async (patch: {
+      name: string;
+      phone: string;
+      address: string;
+      city: string;
+    }) => {
+      const u = stateRef.current.user;
+      if (!isDbUser(u)) return;
+      await api.updateMyProfile(u.id, patch);
+      setState((s) => ({
+        ...s,
+        user: s.user ? { ...s.user, ...patch } : s.user,
+      }));
+      toast("Details saved");
+    },
+    [toast],
+  );
 
   const loadMyOrders = useCallback(async () => {
     const u = stateRef.current.user;
@@ -647,7 +807,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const placeOrder = useCallback(async () => {
     const s = stateRef.current;
-    setState((x) => ({ ...x, placing: true, checkoutError: '' }));
+    setState((x) => ({ ...x, placing: true, checkoutError: "" }));
     try {
       const placed = await api.placeOrder({ ...orderInput(), pay: s.pay });
       const lines = Object.entries(s.cart)
@@ -677,21 +837,36 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         date: placed.created_at,
       };
       persist(KEYS.cart, {});
-      setState((x) => ({ ...x, placing: false, order, step: 4, cart: {}, myOrdersLoaded: false }));
+      setState((x) => ({
+        ...x,
+        placing: false,
+        order,
+        step: 4,
+        cart: {},
+        myOrdersLoaded: false,
+      }));
       void reloadCatalog(); // stock changed
     } catch (e) {
-      setState((x) => ({ ...x, placing: false, checkoutError: errorMessage(e, 'Could not place the order') }));
+      setState((x) => ({
+        ...x,
+        placing: false,
+        checkoutError: errorMessage(e, "Could not place the order"),
+      }));
     }
   }, [orderInput, reloadCatalog]);
 
   const startCardPayment = useCallback(async () => {
-    setState((x) => ({ ...x, placing: true, checkoutError: '' }));
+    setState((x) => ({ ...x, placing: true, checkoutError: "" }));
     try {
       const url = await api.createCheckoutSession(orderInput());
       persist(KEYS.cart, {});
       window.location.assign(url);
     } catch (e) {
-      setState((x) => ({ ...x, placing: false, checkoutError: errorMessage(e, 'Could not start the card payment') }));
+      setState((x) => ({
+        ...x,
+        placing: false,
+        checkoutError: errorMessage(e, "Could not start the card payment"),
+      }));
     }
   }, [orderInput]);
 
@@ -701,17 +876,30 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const loadAdminData = useCallback(async () => {
     const u = stateRef.current.user;
     try {
-      const [orders, profiles, activity, messages, dismissedNotifs] = await Promise.all([
-        api.loadOrders(),
-        api.loadProfiles(),
-        api.loadActivity(),
-        api.loadMessages(),
-        isDbUser(u) ? api.loadDismissedNotifications(u.id).catch(() => stateRef.current.dismissedNotifs) : Promise.resolve([]),
-      ]);
-      setState((s) => ({ ...s, orders, profiles, activity, messages, dismissedNotifs, adminLoaded: true }));
+      const [orders, profiles, activity, messages, dismissedNotifs] =
+        await Promise.all([
+          api.loadOrders(),
+          api.loadProfiles(),
+          api.loadActivity(),
+          api.loadMessages(),
+          isDbUser(u)
+            ? api
+                .loadDismissedNotifications(u.id)
+                .catch(() => stateRef.current.dismissedNotifs)
+            : Promise.resolve([]),
+        ]);
+      setState((s) => ({
+        ...s,
+        orders,
+        profiles,
+        activity,
+        messages,
+        dismissedNotifs,
+        adminLoaded: true,
+      }));
     } catch (e) {
       setState((s) => ({ ...s, adminLoaded: true }));
-      toast(errorMessage(e, 'Could not load admin data'));
+      toast(errorMessage(e, "Could not load admin data"));
     }
   }, [toast]);
 
@@ -719,53 +907,75 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     async (s: Settings) => {
       await api.saveSettings(s);
       setState((x) => ({ ...x, settings: s }));
-      toast('Website details saved');
+      toast("Website details saved");
     },
     [toast],
   );
 
-  const logActivity = useCallback(async (type: ActivityType, title: string, ref: string) => {
-    try {
-      await api.logActivity(type, title, ref);
-      const activity = await api.loadActivity();
-      setState((s) => ({ ...s, activity }));
-    } catch {
-      /* the bell just misses one entry */
-    }
-  }, []);
+  const logActivity = useCallback(
+    async (type: ActivityType, title: string, ref: string) => {
+      try {
+        await api.logActivity(type, title, ref);
+        const activity = await api.loadActivity();
+        setState((s) => ({ ...s, activity }));
+      } catch {
+        /* the bell just misses one entry */
+      }
+    },
+    [],
+  );
 
   const markNotificationsRead = useCallback(async () => {
     const u = stateRef.current.user;
     if (!isDbUser(u)) return;
     const t = await api.markNotificationsRead(u.id);
-    setState((s) => ({ ...s, user: s.user ? { ...s.user, notifReadAt: t } : s.user }));
+    setState((s) => ({
+      ...s,
+      user: s.user ? { ...s.user, notifReadAt: t } : s.user,
+    }));
   }, []);
 
   const clearNotifications = useCallback(async () => {
     const u = stateRef.current.user;
     if (!isDbUser(u)) return;
     const t = await api.clearNotifications(u.id);
-    setState((s) => ({ ...s, user: s.user ? { ...s.user, notifReadAt: t, notifClearedAt: t } : s.user }));
+    setState((s) => ({
+      ...s,
+      user: s.user ? { ...s.user, notifReadAt: t, notifClearedAt: t } : s.user,
+    }));
   }, []);
 
-  const dismissNotification = useCallback(async (key: string) => {
-    const u = stateRef.current.user;
-    if (!isDbUser(u)) return;
-    // Hide it at once; the row is written behind it.
-    setState((s) => (s.dismissedNotifs.includes(key) ? s : { ...s, dismissedNotifs: [...s.dismissedNotifs, key] }));
-    try {
-      await api.dismissNotification(u.id, key);
-    } catch (e) {
-      setState((s) => ({ ...s, dismissedNotifs: s.dismissedNotifs.filter((k) => k !== key) }));
-      toast(errorMessage(e, 'Could not dismiss the notification'));
-    }
-  }, [toast]);
+  const dismissNotification = useCallback(
+    async (key: string) => {
+      const u = stateRef.current.user;
+      if (!isDbUser(u)) return;
+      // Hide it at once; the row is written behind it.
+      setState((s) =>
+        s.dismissedNotifs.includes(key)
+          ? s
+          : { ...s, dismissedNotifs: [...s.dismissedNotifs, key] },
+      );
+      try {
+        await api.dismissNotification(u.id, key);
+      } catch (e) {
+        setState((s) => ({
+          ...s,
+          dismissedNotifs: s.dismissedNotifs.filter((k) => k !== key),
+        }));
+        toast(errorMessage(e, "Could not dismiss the notification"));
+      }
+    },
+    [toast],
+  );
 
   const setProfileStatus = useCallback(
     async (id: string, status: ProfileStatus) => {
       await api.setProfileStatus(id, status);
-      setState((s) => ({ ...s, profiles: s.profiles.map((p) => (p.id === id ? { ...p, status } : p)) }));
-      toast(status === 'inactive' ? 'Account deactivated' : 'Account restored');
+      setState((s) => ({
+        ...s,
+        profiles: s.profiles.map((p) => (p.id === id ? { ...p, status } : p)),
+      }));
+      toast(status === "inactive" ? "Account deactivated" : "Account restored");
     },
     [toast],
   );
@@ -784,14 +994,23 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     let unsub = () => {};
     if (supabaseConfigured) {
       const { data } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'PASSWORD_RECOVERY') navigate(routes.reset);
-        if (event === 'SIGNED_OUT') {
+        if (event === "PASSWORD_RECOVERY") navigate(routes.reset);
+        if (event === "SIGNED_OUT") {
           void applySession(null);
           return;
         }
-        if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        if (
+          event === "INITIAL_SESSION" ||
+          event === "SIGNED_IN" ||
+          event === "TOKEN_REFRESHED" ||
+          event === "USER_UPDATED"
+        ) {
           // Only re-run the profile load when the user actually changed.
-          if (event === 'TOKEN_REFRESHED' && stateRef.current.user?.id === session?.user.id) return;
+          if (
+            event === "TOKEN_REFRESHED" &&
+            stateRef.current.user?.id === session?.user.id
+          )
+            return;
           void applySession(session);
         }
       });
@@ -800,18 +1019,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setState((s) => ({ ...s, authReady: true }));
     }
 
-    const onResize = () => setState((s) => (s.vw === window.innerWidth ? s : { ...s, vw: window.innerWidth }));
-    window.addEventListener('resize', onResize);
+    const onResize = () =>
+      setState((s) =>
+        s.vw === window.innerWidth ? s : { ...s, vw: window.innerWidth },
+      );
+    window.addEventListener("resize", onResize);
     onResize();
 
     let timer: number | undefined;
     if (!CONFIG.showSplash) setState((s) => ({ ...s, splash: false }));
-    else timer = window.setTimeout(() => setState((s) => ({ ...s, splash: false })), (CONFIG.splashSeconds + 1.2) * 1000);
+    else
+      timer = window.setTimeout(
+        () => setState((s) => ({ ...s, splash: false })),
+        (CONFIG.splashSeconds + 1.2) * 1000,
+      );
 
     const urls = objectUrls;
     return () => {
       unsub();
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener("resize", onResize);
       if (timer) clearTimeout(timer);
       urls.current.forEach((u) => URL.revokeObjectURL(u));
       urls.current = [];
@@ -819,7 +1045,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fullState = useMemo<FullState>(() => ({ ...state, ...route }), [state, route]);
+  const fullState = useMemo<FullState>(
+    () => ({ ...state, ...route }),
+    [state, route],
+  );
 
   const store = useMemo<Store>(
     () => ({
@@ -892,12 +1121,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     ],
   );
 
-  return <StoreContext.Provider value={store}>{children}</StoreContext.Provider>;
+  return (
+    <StoreContext.Provider value={store}>{children}</StoreContext.Provider>
+  );
 }
 
 export function useStore(): Store {
   const ctx = useContext(StoreContext);
-  if (!ctx) throw new Error('useStore must be used inside <StoreProvider>');
+  if (!ctx) throw new Error("useStore must be used inside <StoreProvider>");
   return ctx;
 }
 
@@ -918,23 +1149,23 @@ export function useLayout() {
     tablet,
     stacked,
     isDesktop: !stacked,
-    pageGap: mobile ? '14px' : tablet ? '16px' : '20px',
-    pagePad: tight ? '10px' : mobile ? '14px' : tablet ? '18px' : '20px',
+    pageGap: mobile ? "14px" : tablet ? "16px" : "20px",
+    pagePad: tight ? "10px" : mobile ? "14px" : tablet ? "18px" : "20px",
     // Stacked: the shell is a column, so the rail sizes to its content and the page fills the rest.
-    shellDir: (stacked ? 'column' : 'row') as 'column' | 'row',
-    asideFlex: stacked ? '0 0 auto' : '0 0 240px',
-    asideSelf: (stacked ? 'stretch' : 'flex-start') as 'stretch' | 'flex-start',
-    asidePad: stacked ? (tablet ? '14px 18px' : '12px 14px') : '28px 20px',
-    asideGap: stacked ? '12px' : '24px',
-    asidePos: (stacked ? 'relative' : 'sticky') as 'relative' | 'sticky',
-    asideTop: stacked ? 'auto' : '20px',
-    navDir: (stacked ? 'row' : 'column') as 'row' | 'column',
+    shellDir: (stacked ? "column" : "row") as "column" | "row",
+    asideFlex: stacked ? "0 0 auto" : "0 0 240px",
+    asideSelf: (stacked ? "stretch" : "flex-start") as "stretch" | "flex-start",
+    asidePad: stacked ? (tablet ? "14px 18px" : "12px 14px") : "28px 20px",
+    asideGap: stacked ? "12px" : "24px",
+    asidePos: (stacked ? "relative" : "sticky") as "relative" | "sticky",
+    asideTop: stacked ? "auto" : "20px",
+    navDir: (stacked ? "row" : "column") as "row" | "column",
     // Beside the sidebar the page simply takes what is left; never wrap under it.
-    mainBasis: stacked ? 'auto' : '0px',
-    radiusLg: tight ? '18px' : mobile ? '24px' : '28px',
-    panelPad: tight ? '18px' : mobile ? '22px' : tablet ? '26px' : '32px',
-    featuredH: tight ? '300px' : mobile ? '360px' : tablet ? '400px' : '420px',
-    summaryPos: (stacked ? 'relative' : 'sticky') as 'relative' | 'sticky',
-    drawerPad: mobile ? '0' : '16px',
+    mainBasis: stacked ? "auto" : "0px",
+    radiusLg: tight ? "18px" : mobile ? "24px" : "28px",
+    panelPad: tight ? "18px" : mobile ? "22px" : tablet ? "26px" : "32px",
+    featuredH: tight ? "300px" : mobile ? "360px" : tablet ? "400px" : "420px",
+    summaryPos: (stacked ? "relative" : "sticky") as "relative" | "sticky",
+    drawerPad: mobile ? "0" : "16px",
   };
 }
